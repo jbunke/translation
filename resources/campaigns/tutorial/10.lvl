@@ -1,0 +1,10 @@
+name:{11 - SAVE & LOAD}
+hint:{Loading position preserves velocity}
+stats:{}
+platforms:{
+    (0, 0, 200);
+    (0, -400, 200)
+}
+sentries:{
+    (PUSHER, 1, -6)
+}

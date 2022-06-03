@@ -1,0 +1,10 @@
+name:{2 - DROP}
+hint:{You can drop off of platforms}
+stats:{}
+platforms:{
+    (0, 0, 200);
+    (0, 200, 200)
+}
+sentries:{
+    (PUSHER, 1, -6)
+}

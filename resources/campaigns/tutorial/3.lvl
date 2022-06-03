@@ -1,0 +1,10 @@
+name:{4 - DANGER}
+hint:{Beware a sentry's line of sight}
+stats:{}
+platforms:{
+    (0, 0, 200);
+    (350, 0, 200)
+}
+sentries:{
+    (PUSHER, 1, 4)
+}

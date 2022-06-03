@@ -1,0 +1,10 @@
+name:{5 - SENTRIES}
+hint:{There are different types of sentries}
+stats:{}
+platforms:{
+    (0, 0, 200);
+    (350, 0, 200)
+}
+sentries:{
+    (PULLER, 1, -6)
+}
