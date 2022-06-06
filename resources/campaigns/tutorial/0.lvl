@@ -2,9 +2,9 @@ name:{1 - JUMP}
 hint:{Stomp all sentries to complete a level}
 stats:{}
 platforms:{
-    (0, 0, 200);
-    (0, -200, 200)
+	(0,0,200);
+	(0,-200,200)
 }
 sentries:{
-    (PUSHER, 1, -6)
+	(PUSHER,1,-6)
 }

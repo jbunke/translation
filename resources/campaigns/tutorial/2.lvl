@@ -2,9 +2,9 @@ name:{3 - MOVEMENT}
 hint:{You can move left and right}
 stats:{}
 platforms:{
-    (0, 0, 200);
-    (200, 200, 200)
+	(0,0,200);
+	(200,200,200)
 }
 sentries:{
-    (PUSHER, 1, 4)
+	(PUSHER,1,4)
 }

@@ -2,9 +2,9 @@ name:{8 - TELEPORTATION}
 hint:{Teleport to cover ground quickly}
 stats:{}
 platforms:{
-    (0, 0, 200);
-    (500, 0, 200)
+	(0,0,200);
+	(500,0,200)
 }
 sentries:{
-    (ANCHOR, 1, -6)
+	(ANCHOR,1,-6)
 }

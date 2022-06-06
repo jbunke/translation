@@ -45,7 +45,23 @@ public class SentrySpec {
         return Sentry.create(role, secondary, level, platforms.get(platformIndex), initialMovement);
     }
 
+    // TODO - validity of initial movement (w/ debugger message if initially invalid)
+
+    // GETTERS
+
     public Sentry.Role getRole() {
         return role;
+    }
+
+    public Sentry.Role getSecondary() {
+        return secondary;
+    }
+
+    public int getPlatformIndex() {
+        return platformIndex;
+    }
+
+    public int getInitialMovement() {
+        return initialMovement;
     }
 }

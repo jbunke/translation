@@ -7,6 +7,7 @@ import java.nio.file.Path;
 
 public class Campaign {
     private final Path campaignFolder;
+    private final String[] levelFiles;
 
     private final String name;
     private int levelIndex;
@@ -15,12 +16,15 @@ public class Campaign {
 
     // metadata
     private final boolean showHint;
+    private final boolean defaultNaming;
 
     private Campaign(
             final String name, final int levelsBeaten, final Level[] levels,
-            final boolean showHint, final Path campaignFolder
+            final boolean showHint, final boolean defaultNaming,
+            final Path campaignFolder, final String[] levelFiles
     ) {
         this.campaignFolder = campaignFolder;
+        this.levelFiles = levelFiles;
 
         this.name = name;
         levelIndex = 0;
@@ -28,13 +32,18 @@ public class Campaign {
         this.levels = levels;
 
         this.showHint = showHint;
+        this.defaultNaming = defaultNaming;
     }
 
     public static Campaign load(
             final String name, final int levelsBeaten, final Level[] levels,
-            final boolean showHint, final Path campaignFolder
+            final boolean showHint, final boolean defaultNaming,
+            final Path campaignFolder, final String[] levelFiles
     ) {
-        return new Campaign(name, levelsBeaten, levels, showHint, campaignFolder);
+        return new Campaign(
+                name, levelsBeaten, levels, showHint,
+                defaultNaming, campaignFolder, levelFiles
+        );
     }
 
     public void updateBeaten() {
@@ -78,12 +87,28 @@ public class Campaign {
 
     // TRUE GETTERS
 
+    public int getLevelsBeaten() {
+        return levelsBeaten;
+    }
+
+    public Path getFolder() {
+        return campaignFolder;
+    }
+
+    public String[] getLevelFiles() {
+        return levelFiles;
+    }
+
     public String getName() {
         return name;
     }
 
     public boolean isShowingHint() {
         return showHint;
+    }
+
+    public boolean isDefaultNaming() {
+        return defaultNaming;
     }
 
     // OVERRIDES

@@ -1814,13 +1814,13 @@ public class Menus {
                 .addText("PERSONAL BESTS").build();
         JBJGLText[] body = new JBJGLText[] {
                 generateInitialMenuTextBuilder(textSize)
-                        .addText(levelStats.getPersonalBest(LevelStats.TIME)).build(),
+                        .addText(levelStats.getPersonalBest(LevelStats.TIME, true)).build(),
                 generateInitialMenuTextBuilder(textSize)
-                        .addText(levelStats.getPersonalBest(LevelStats.FAILURES)).build(),
+                        .addText(levelStats.getPersonalBest(LevelStats.FAILURES, true)).build(),
                 generateInitialMenuTextBuilder(textSize)
-                        .addText(levelStats.getPersonalBest(LevelStats.SIGHTINGS)).build(),
+                        .addText(levelStats.getPersonalBest(LevelStats.SIGHTINGS, true)).build(),
                 generateInitialMenuTextBuilder(textSize)
-                        .addText(levelStats.getPersonalBest(LevelStats.MAX_COMBO)).build()
+                        .addText(levelStats.getPersonalBest(LevelStats.MAX_COMBO, true)).build()
         };
 
         JBJGLText[] lines = withHeading ? prependElementToArray(heading, body) : body;

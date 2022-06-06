@@ -25,9 +25,6 @@ public class LevelMenuGameState extends ProgramContext {
     private LevelMenuGameState(final Level level, final Type type) {
         this.type = type;
 
-        // initialize to prevent null pointer exception
-        // menuManager = JBJGLMenuManager.initialize(JBJGLMenu.of(), "");
-
         setLevel(level);
     }
 

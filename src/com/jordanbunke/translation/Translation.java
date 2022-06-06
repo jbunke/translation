@@ -8,18 +8,16 @@ import com.jordanbunke.jbjgl.game.JBJGLGameManager;
 import com.jordanbunke.jbjgl.window.JBJGLWindow;
 import com.jordanbunke.translation.fonts.Fonts;
 import com.jordanbunke.translation.game_states.LevelMenuGameState;
-import com.jordanbunke.translation.gameplay.Camera;
 import com.jordanbunke.translation.gameplay.campaign.Campaign;
 import com.jordanbunke.translation.gameplay.image.ImageAssets;
 import com.jordanbunke.translation.gameplay.level.Level;
 import com.jordanbunke.translation.io.LevelIO;
+import com.jordanbunke.translation.io.SettingsIO;
 import com.jordanbunke.translation.settings.GameplayConstants;
-import com.jordanbunke.translation.settings.GameplaySettings;
 import com.jordanbunke.translation.game_states.GameplayGameState;
 import com.jordanbunke.translation.menus.Menus;
 import com.jordanbunke.translation.settings.TechnicalSettings;
 import com.jordanbunke.translation.settings.debug.DebugRenderer;
-import com.jordanbunke.translation.settings.debug.DebugSettings;
 
 public class Translation {
     public static final String TITLE = "Translation";
@@ -43,15 +41,7 @@ public class Translation {
 
     public static void main(String[] args) {
         Fonts.setGameFontToClassic();
-
-        TechnicalSettings.setFullscreen(true);
-        TechnicalSettings.setPixelLocked(true);
-
-        GameplaySettings.setDefaultFollowMode(Camera.FollowMode.STEADY);
-        GameplaySettings.setShowingNecromancerTethers(true);
-
-        DebugSettings.setShowPixelGrid(false);
-        DebugSettings.setPrintDebug(false);
+        SettingsIO.read();
         launch();
     }
 
@@ -63,13 +53,11 @@ public class Translation {
     }
 
     private static void updateMenus() {
-        final String[] menuIDs = new String[] {
-                "",
-                pauseState.getMenuManager().getActiveMenuID(),
-                levelCompleteState.getMenuManager().getActiveMenuID(),
-                menuManager.getActiveMenuID(),
-                splashScreenManager.getActiveMenuID()
-        };
+        // TODO - expensive and poorly designed - consider full refactor
+
+        final String lastPauseStateID = pauseState.getMenuManager().getActiveMenuID();
+        final String lastLevelCompleteStateID = levelCompleteState.getMenuManager().getActiveMenuID();
+        final String lastMenuID = menuManager.getActiveMenuID();
 
         final Level level = campaign.getLevel();
 
@@ -78,15 +66,13 @@ public class Translation {
         menuManager = Menus.generateMenuManager();
         splashScreenManager = Menus.generateSplashScreenManager();
 
-        pauseState.getMenuManager().setActiveMenuID(menuIDs[PAUSE_INDEX]);
-        levelCompleteState.getMenuManager().setActiveMenuID(menuIDs[LEVEL_COMPLETE_INDEX]);
-        menuManager.setActiveMenuID(menuIDs[MENU_INDEX]);
-        splashScreenManager.setActiveMenuID(menuIDs[SPLASH_SCREEN_INDEX]);
+        pauseState.getMenuManager().setActiveMenuID(lastPauseStateID);
+        levelCompleteState.getMenuManager().setActiveMenuID(lastLevelCompleteStateID);
+        menuManager.setActiveMenuID(lastMenuID);
 
         manager.setGameStateAtIndex(MENU_INDEX, menuManager);
         manager.setGameStateAtIndex(PAUSE_INDEX, pauseState);
         manager.setGameStateAtIndex(LEVEL_COMPLETE_INDEX, levelCompleteState);
-        manager.setGameStateAtIndex(SPLASH_SCREEN_INDEX, splashScreenManager);
     }
 
     private static JBJGLWindow generateWindow() {
@@ -149,6 +135,7 @@ public class Translation {
     }
 
     public static void quitGame() {
+        SettingsIO.write();
         System.exit(0);
     }
 }

@@ -2,9 +2,9 @@ name:{name}
 hint:{hint}
 stats:{}
 platforms:{
-    (0, 0, 200);
-    (0, -200, 200)
+	(0,0,200);
+	(0,-200,200)
 }
 sentries:{
-    (PUSHER, 1, -10)
+	(PUSHER,1,-10)
 }

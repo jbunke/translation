@@ -2,9 +2,9 @@ name:{12 - CINEMATOGRAPHER}
 hint:{The camera can be moved manually}
 stats:{}
 platforms:{
-    (0, 0, 200);
-    (700, -100, 200)
+	(0,0,200);
+	(700,-100,200)
 }
 sentries:{
-    (BUILDER, 1, 8)
+	(BUILDER,1,8)
 }

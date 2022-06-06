@@ -10,11 +10,13 @@ import com.jordanbunke.translation.gameplay.entities.Platform;
 import com.jordanbunke.translation.gameplay.entities.Player;
 import com.jordanbunke.translation.gameplay.entities.Sentry;
 import com.jordanbunke.translation.gameplay.image.ImageAssets;
+import com.jordanbunke.translation.io.LevelIO;
 import com.jordanbunke.translation.menus.MenuIDs;
 import com.jordanbunke.translation.settings.GameplaySettings;
 import com.jordanbunke.translation.utility.Utility;
 
 import java.awt.*;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,6 +24,8 @@ public class Level {
     private static final int PLAYER_OUT_OF_BOUNDS_AT = 1000;
     private static final int SENTRY_TOO_FAR_FROM_PLAYER = 6000;
     private static final int TICKS_AFTER_COMPLETION = 50;
+
+    private final Path filepath;
 
     private final String name;
     private final String hint;
@@ -45,8 +49,11 @@ public class Level {
 
     private Level(
             final String name, final String hint, final LevelStats stats,
-            final PlatformSpec[] platformSpecs, final SentrySpec[] sentrySpecs
+            final PlatformSpec[] platformSpecs, final SentrySpec[] sentrySpecs,
+            final Path filepath
     ) {
+        this.filepath = filepath;
+
         this.name = name;
         this.hint = hint;
         this.stats = stats;
@@ -63,15 +70,21 @@ public class Level {
             final String name, final String hint,
             final PlatformSpec[] platformSpecs, final SentrySpec[] sentrySpecs
     ) {
-        return new Level(name, hint, LevelStats.createNew(),platformSpecs, sentrySpecs);
+        return new Level(name, hint, LevelStats.createNew(),platformSpecs, sentrySpecs, null);
     }
 
     public static Level load(
             final String name, final String hint,
             final LevelStats levelStats,
-            final PlatformSpec[] platformSpecs, final SentrySpec[] sentrySpecs
+            final PlatformSpec[] platformSpecs, final SentrySpec[] sentrySpecs,
+            final Path filepath
     ) {
-        return new Level(name, hint, levelStats,platformSpecs, sentrySpecs);
+        return new Level(name, hint, levelStats,platformSpecs, sentrySpecs, filepath);
+    }
+
+    public void saveLevel(final boolean reset) {
+        if (filepath != null)
+            LevelIO.writeLevel(this, reset);
     }
 
     public void launchLevel() {
@@ -189,8 +202,13 @@ public class Level {
     }
 
     private void levelEndScreen() {
-        Translation.campaign.updateBeaten();
         stats.finalizeStats();
+
+        // save level and campaign
+        Translation.campaign.updateBeaten();
+        LevelIO.writeCampaign(Translation.campaign, false);
+        saveLevel(false);
+
         Translation.levelCompleteState.setLevel(this);
         Translation.levelCompleteState.getMenuManager().setActiveMenuID(MenuIDs.LEVEL_COMPLETE);
         Translation.manager.setActiveStateIndex(Translation.LEVEL_COMPLETE_INDEX);
@@ -240,6 +258,18 @@ public class Level {
     }
 
     // GETTERS
+
+    public Path getFilepath() {
+        return filepath;
+    }
+
+    public PlatformSpec[] getPlatformSpecs() {
+        return platformSpecs;
+    }
+
+    public SentrySpec[] getSentrySpecs() {
+        return sentrySpecs;
+    }
 
     public boolean isDeterministic() {
         return deterministic;

@@ -39,6 +39,13 @@ public class LevelStats {
         );
     }
 
+    public boolean hasStats() {
+        return !(
+                statIsUndefined(TIME) || statIsUndefined(FAILURES) ||
+                        statIsUndefined(SIGHTINGS) || statIsUndefined(MAX_COMBO)
+        );
+    }
+
     private void initialize(final boolean initializePB) {
         for (int i = 0; i < LENGTH; i++) {
             stats[i] = 0;
@@ -111,11 +118,13 @@ public class LevelStats {
         return formatStat(finalStats[index], index);
     }
 
-    public String getPersonalBest(final int index) {
+    public String getPersonalBest(final int index, final boolean format) {
         if (indexOutOfBounds(index))
             return formatStat(UNDEFINED, index);
 
-        return formatStat(personalBests[index], index);
+        return format
+                ? formatStat(personalBests[index], index)
+                : String.valueOf(personalBests[index]);
     }
 
     private String formatStat(final int stat, final int index) {

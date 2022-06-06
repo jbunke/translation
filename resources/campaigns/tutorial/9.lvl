@@ -2,11 +2,11 @@ name:{10 - TRAMPOLINE}
 hint:{Sentries can be made useful}
 stats:{}
 platforms:{
-    (0, 0, 200);
-    (0, -400, 100);
-    (0, 200, 300)
+	(0,0,200);
+	(0,-400,100);
+	(0,200,300)
 }
 sentries:{
-    (PUSHER, 1, -6);
-    (BOUNCER, 2, 2)
+	(PUSHER,1,-6);
+	(BOUNCER,2,2)
 }

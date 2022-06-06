@@ -1,6 +1,5 @@
 name:{World 1: Awakening}
 level-count:{40}
-levels-beaten:{40}
-file-naming:{default}
+levels-beaten:{0}
 show-hint:{true}
-// files:{test.lvl}
+file-naming:{default}
