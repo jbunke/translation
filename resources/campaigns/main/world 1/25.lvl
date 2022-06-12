@@ -1,10 +1,11 @@
-name:{name}
-hint:{hint}
+name:{1-26}
+hint:{TAA & The Egyptian King}
 stats:{}
 platforms:{
 	(0,0,200);
-	(0,-200,200)
+	(0,250,200)
 }
 sentries:{
-	(PUSHER,1,-10)
+	(DROPPER,1,8);
+	(DROPPER,1,-6)
 }

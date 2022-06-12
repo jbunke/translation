@@ -1,10 +1,12 @@
-name:{name}
-hint:{hint}
+name:{1-38}
+hint:{Jetpack}
 stats:{}
 platforms:{
-	(0,0,200);
-	(0,-200,200)
+	(0,0,100);
+	(-1200,0,300);
+	(300,-100,300)
 }
 sentries:{
-	(PUSHER,1,-10)
+	(SHOVER,2,-8);
+	(CRUMBLER,1,-6)
 }

@@ -1,10 +1,16 @@
-name:{name}
-hint:{hint}
+name:{1-15}
+hint:{Don't weigh me down}
 stats:{}
 platforms:{
 	(0,0,200);
-	(0,-200,200)
+	(200,150,200);
+	(400,300,200);
+	(600,450,200);
+	(600,0,200)
 }
 sentries:{
-	(PUSHER,1,-10)
+	(ANCHOR,1,-2);
+	(ANCHOR,2,-4);
+	(ANCHOR,3,-6);
+	(MAGNET,4,-6)
 }

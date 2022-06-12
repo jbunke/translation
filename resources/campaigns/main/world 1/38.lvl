@@ -1,10 +1,14 @@
-name:{name}
-hint:{hint}
+name:{1-39}
+hint:{Fever Dream Gondolier}
 stats:{}
 platforms:{
-	(0,0,200);
-	(0,-200,200)
+	(0,0,100);
+	(-350,0,200);
+	(-2000,-200,200);
+	(0,180,200)
 }
 sentries:{
-	(PUSHER,1,-10)
+	(SLIDER,1,-6);
+	(FEATHER,3,-8);
+	(ANCHOR,2,8)
 }

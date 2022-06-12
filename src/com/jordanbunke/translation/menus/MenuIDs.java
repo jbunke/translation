@@ -26,6 +26,7 @@ public class MenuIDs {
                         TELEPORTATION_MOVEMENT_WIKI = "teleportation-mw",
                         SAVE_LOAD_MOVEMENT_WIKI = "save-load-mw",
                 ABOUT = "about",
+                    PATCH_NOTES = "patch-notes-a",
                     BACKGROUND_ABOUT = "background-a",
                     DEVELOPER_ABOUT = "developer-a",
                     FEEDBACK = "feedback-a",

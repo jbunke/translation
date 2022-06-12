@@ -1,5 +1,5 @@
-name:{World 1: Awakening}
-level-count:{40}
+name:{Season 1}
+level-count:{48}
 levels-beaten:{0}
 show-hint:{true}
 file-naming:{default}

@@ -1,10 +1,16 @@
-name:{name}
-hint:{hint}
+name:{1-25}
+hint:{voneinander weg}
 stats:{}
 platforms:{
-	(0,0,200);
-	(0,-200,200)
+	(0,0,100);
+	(400,0,200);
+	(400,100,200);
+	(400,-100,200);
+	(-600,0,200)
 }
 sentries:{
-	(PUSHER,1,-10)
+	(REPELLER,1,6);
+	(ANCHOR,2,8);
+	(SLIDER,3,8);
+	(PULLER,4,4)
 }

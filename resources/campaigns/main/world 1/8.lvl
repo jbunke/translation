@@ -1,10 +1,14 @@
-name:{name}
-hint:{hint}
+name:{1-9}
+hint:{It's time to go!}
 stats:{}
 platforms:{
 	(0,0,200);
+	(400,0,200);
+	(400,200,200);
 	(0,-200,200)
 }
 sentries:{
-	(PUSHER,1,-10)
+	(DROPPER,1,6);
+	(PUSHER,2,-6);
+	(PUSHER,3,4)
 }

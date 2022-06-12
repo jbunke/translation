@@ -134,7 +134,7 @@ public class LevelStats {
                 : String.valueOf(stat / GameplayConstants.UPDATE_HZ);
 
         return index == TIME
-                ? seconds + " seconds"
+                ? seconds + "s"
                 : base;
     }
 

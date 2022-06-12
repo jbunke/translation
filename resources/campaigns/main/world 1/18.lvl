@@ -1,10 +1,16 @@
-name:{name}
-hint:{hint}
+name:{1-19}
+hint:{What you see is what you get}
 stats:{}
 platforms:{
-	(0,0,200);
-	(0,-200,200)
+	(0,0,100);
+	(-350,180,200);
+	(350,180,200);
+	(-350,-180,200);
+	(350,-180,200)
 }
 sentries:{
-	(PUSHER,1,-10)
+	(RANDOM,1,8);
+	(RANDOM,2,-8);
+	(RANDOM,3,8);
+	(RANDOM,4,-8)
 }

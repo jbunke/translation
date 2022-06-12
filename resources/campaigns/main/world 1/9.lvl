@@ -1,10 +1,12 @@
-name:{name}
-hint:{hint}
+name:{1-10}
+hint:{The expanding chasm}
 stats:{}
 platforms:{
 	(0,0,200);
-	(0,-200,200)
+	(400,0,200);
+	(400,-200,200)
 }
 sentries:{
-	(PUSHER,1,-10)
+	(REPELLER,1,6);
+	(SHOVER,2,8)
 }

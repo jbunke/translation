@@ -1,10 +1,10 @@
-name:{name}
-hint:{hint}
+name:{1-5}
+hint:{A bridge over Styx}
 stats:{}
 platforms:{
 	(0,0,200);
-	(0,-200,200)
+	(1200,0,200)
 }
 sentries:{
-	(PUSHER,1,-10)
+	(BOUNCER,1,2)
 }

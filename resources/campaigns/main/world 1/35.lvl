@@ -1,10 +1,15 @@
-name:{name}
-hint:{hint}
+name:{1-36}
+hint:{Splitsville}
 stats:{}
 platforms:{
-	(0,0,200);
-	(0,-200,200)
+	(0,0,100);
+	(0,-200,100);
+	(0,200,50);
+	(-500,0,50);
+	(500,0,50)
 }
 sentries:{
-	(PUSHER,1,-10)
+	(INVERTER,1,6);
+	(SLIDER,3,-8);
+	(SLIDER,4,8)
 }

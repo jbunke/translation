@@ -1,12 +1,16 @@
 name:{1-20}
-hint:{A balancing act}
+hint:{A disappearing act}
 stats:{}
 platforms:{
 	(0,0,200);
-	(-400,0,100);
-	(-1400,0,200)
+	(300,0,200);
+	(600,0,200);
+	(-600,0,200);
+	(-300,0,200)
 }
 sentries:{
-	(SLIDER,1,-4);
-	(ANCHOR,2,6)
+	(COWARD,1,-8);
+	(COWARD,2,8);
+	(COWARD,3,-6);
+	(COWARD,4,6)
 }

@@ -1,10 +1,12 @@
-name:{name}
-hint:{hint}
+name:{1-18}
+hint:{Turn the tables}
 stats:{}
 platforms:{
 	(0,0,200);
-	(0,-200,200)
+	(0,200,100);
+	(0,-200,100)
 }
 sentries:{
-	(PUSHER,1,-10)
+	(ANCHOR,2,4);
+	(INVERTER,1,-4)
 }

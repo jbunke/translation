@@ -1,10 +1,14 @@
-name:{name}
-hint:{hint}
+name:{1-17}
+hint:{Come see about me}
 stats:{}
 platforms:{
 	(0,0,200);
-	(0,-200,200)
+	(-350,-150,160);
+	(350,-150,160);
+	(0,-500,200)
 }
 sentries:{
-	(PUSHER,1,-10)
+	(INVERTER,1,8);
+	(BOOSTER,2,8);
+	(RANDOM,3,4)
 }

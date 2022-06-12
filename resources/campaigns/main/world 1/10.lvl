@@ -1,10 +1,14 @@
-name:{name}
-hint:{hint}
+name:{1-11}
+hint:{Light stepper}
 stats:{}
 platforms:{
 	(0,0,200);
-	(0,-200,200)
+	(400,-200,200);
+	(800,-400,200);
+	(1200,-600,200);
+	(1600,-800,200);
+	(2000,0,200)
 }
 sentries:{
-	(PUSHER,1,-10)
+	(MAGNET,5,12)
 }

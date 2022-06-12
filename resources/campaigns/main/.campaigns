@@ -1,1 +1,3 @@
-campaigns:{world 1;world s}
+campaigns:{
+    world 1
+}

@@ -1,10 +1,14 @@
-name:{name}
-hint:{hint}
+name:{1-37}
+hint:{Pong 2022}
 stats:{}
 platforms:{
-	(0,0,200);
-	(0,-200,200)
+	(0,0,160);
+	(0,200,400);
+	(0,-200,400);
+	(1600,0,160)
 }
 sentries:{
-	(PUSHER,1,-10)
+	(BOUNCER,1,2);
+	(BOUNCER,2,2);
+	(SHOVER,3,6)
 }

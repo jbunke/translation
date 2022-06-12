@@ -1,10 +1,10 @@
-name:{name}
-hint:{hint}
+name:{1-2}
+hint:{That's how the cookie crumbles}
 stats:{}
 platforms:{
 	(0,0,200);
-	(0,-200,200)
+	(500,-200,200)
 }
 sentries:{
-	(PUSHER,1,-10)
+	(CRUMBLER,1,-8)
 }

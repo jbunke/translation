@@ -70,7 +70,7 @@ public class Level {
             final String name, final String hint,
             final PlatformSpec[] platformSpecs, final SentrySpec[] sentrySpecs
     ) {
-        return new Level(name, hint, LevelStats.createNew(),platformSpecs, sentrySpecs, null);
+        return new Level(name, hint, LevelStats.createNew(), platformSpecs, sentrySpecs, null);
     }
 
     public static Level load(
@@ -79,7 +79,7 @@ public class Level {
             final PlatformSpec[] platformSpecs, final SentrySpec[] sentrySpecs,
             final Path filepath
     ) {
-        return new Level(name, hint, levelStats,platformSpecs, sentrySpecs, filepath);
+        return new Level(name, hint, levelStats, platformSpecs, sentrySpecs, filepath);
     }
 
     public void saveLevel(final boolean reset) {

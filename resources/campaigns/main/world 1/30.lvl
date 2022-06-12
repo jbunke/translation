@@ -1,10 +1,22 @@
-name:{name}
-hint:{hint}
+name:{1-31}
+hint:{The Fork in the Road}
 stats:{}
 platforms:{
-	(0,0,200);
-	(0,-200,200)
+	(0,0,150);
+	(-300,-150,150);
+	(300,-150,150);
+	(0,-300,150);
+	(-600,-300,150);
+	(600,-300,150);
+	(-600,0,150);
+	(600,0,150);
+	(-900,-150,150);
+	(900,-150,150)
 }
 sentries:{
-	(PUSHER,1,-10)
+	(NECROMANCER,8,-6);
+	(NECROMANCER,9,6);
+	(SPAWNER,DROPPER,3,-8);
+	(PUSHER,1,-8);
+	(PUSHER,2,8)
 }
