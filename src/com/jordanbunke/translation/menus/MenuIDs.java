@@ -11,12 +11,12 @@ public class MenuIDs {
                     CAMPAIGN_FOLDER = "campaign-f",
                         CAMPAIGN_LEVELS = "campaign-l",
                             LEVEL_OVERVIEW = "level-overview",
-                SETTINGS_MAIN_MENU = "settings-mm",
+                SETTINGS = "settings",
                     GAMEPLAY_SETTINGS = "gameplay-s",
                     CONTROLS_SETTINGS = "controls-s",
                     VIDEO_SETTINGS = "video-s",
                     AUDIO_SETTINGS = "audio-s",
-                    FOR_NERDS_SETTINGS = "for-nerds-s",
+                    TECHNICAL_SETTINGS = "technical-s",
                 WIKI = "wiki",
                     SENTRIES_WIKI = "sentries-w",
                         SENTRY_ROLE_WIKI = "sentry-role-w",
@@ -33,7 +33,6 @@ public class MenuIDs {
                 ARE_YOU_SURE_QUIT_GAME = "ays-qg",
 
             PAUSE_MENU = "pause-menu",
-                SETTINGS_PAUSE = "settings-p",
                 ARE_YOU_SURE_PAUSE_QUIT_TO_MENU = "ays-p-qtm",
 
             LEVEL_COMPLETE = "level-complete",
