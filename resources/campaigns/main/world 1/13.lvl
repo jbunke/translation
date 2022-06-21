@@ -1,6 +1,6 @@
 name:{1-14}
 hint:{Slip and slide}
-stats:{}
+stats:{1053;1;26;1}
 platforms:{
 	(0,0,160);
 	(-400,-200,160);

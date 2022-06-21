@@ -1,6 +1,6 @@
 name:{1-26}
 hint:{TAA & The Egyptian King}
-stats:{}
+stats:{28;3;0;2}
 platforms:{
 	(0,0,200);
 	(0,250,200)

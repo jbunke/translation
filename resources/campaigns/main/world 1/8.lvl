@@ -1,6 +1,6 @@
 name:{1-9}
 hint:{It's time to go!}
-stats:{}
+stats:{267;3;7;2}
 platforms:{
 	(0,0,200);
 	(400,0,200);

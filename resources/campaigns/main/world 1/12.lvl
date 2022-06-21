@@ -1,6 +1,6 @@
 name:{1-13}
 hint:{Back to life}
-stats:{}
+stats:{1187;0;15;2}
 platforms:{
 	(0,0,200);
 	(0,-600,100);

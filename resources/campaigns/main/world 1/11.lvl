@@ -1,6 +1,6 @@
 name:{1-12}
 hint:{The great pink elevator}
-stats:{}
+stats:{390;0;1;2}
 platforms:{
 	(0,0,200);
 	(0,-200,200);

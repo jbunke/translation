@@ -98,7 +98,7 @@ public class Menus {
 
     private static JBJGLMenu generateCampaignsMenu() {
         return MenuHelper.generateBasicMenu(
-                "CAMPAIGNS", MenuHelper.DOES_NOT_EXIST,
+                "Campaigns", MenuHelper.DOES_NOT_EXIST,
                 MenuHelper.generateListMenuOptions(
                         new String[] { "THE CANON", "TUTORIAL",
                                 "MY CAMPAIGNS", "IMPORTED CAMPAIGNS" },
@@ -120,8 +120,7 @@ public class Menus {
                                 // TODO - implement & link my campaigns, imported campaigns
                                 null,
                                 null
-                        }, 2.0
-                ), MenuIDs.MAIN_MENU);
+                        }), MenuIDs.MAIN_MENU);
     }
 
     private static JBJGLMenu generateSettingsMenu(final boolean isMainMenu) {
@@ -140,7 +139,7 @@ public class Menus {
                 });
 
         return MenuHelper.generateBasicMenu(
-                "SETTINGS", MenuHelper.DOES_NOT_EXIST,
+                "Settings", MenuHelper.DOES_NOT_EXIST,
                 contents, backMenuID);
     }
 
@@ -190,7 +189,7 @@ public class Menus {
                 }, 1.0);
 
         return MenuHelper.generateBasicMenu(
-                "GAMEPLAY SETTINGS", MenuHelper.DOES_NOT_EXIST,
+                "Gameplay Settings", MenuHelper.DOES_NOT_EXIST,
                 contents, MenuIDs.SETTINGS);
     }
 
@@ -202,7 +201,7 @@ public class Menus {
                 MenuHelper.generateControlsButtons());
 
         return MenuHelper.generateBasicMenu(
-                "CONTROLS", MenuHelper.DOES_NOT_EXIST,
+                "Controls", MenuHelper.DOES_NOT_EXIST,
                 contents, MenuIDs.SETTINGS);
     }
 
@@ -229,7 +228,7 @@ public class Menus {
                 }, 1.0);
 
         return MenuHelper.generateBasicMenu(
-                "VIDEO SETTINGS", MenuHelper.DOES_NOT_EXIST,
+                "Video Settings", MenuHelper.DOES_NOT_EXIST,
                 contents, MenuIDs.SETTINGS);
     }
 
@@ -238,7 +237,7 @@ public class Menus {
         // TODO - audio settings toggle options and sliders
 
         return MenuHelper.generateBasicMenu(
-                "AUDIO SETTINGS", "Under construction...",
+                "Audio Settings", "Under construction...",
                 contents, MenuIDs.SETTINGS);
     }
 
@@ -265,7 +264,7 @@ public class Menus {
                 }, 1.0);
 
         return MenuHelper.generateBasicMenu(
-                "TECHNICAL SETTINGS", MenuHelper.DOES_NOT_EXIST,
+                "Technical Settings", MenuHelper.DOES_NOT_EXIST,
                 contents, MenuIDs.SETTINGS);
     }
 
@@ -279,10 +278,10 @@ public class Menus {
                                 generatePlatformWikiPage()),
                         () -> MenuHelper.linkMenu(MenuIDs.MOVEMENT_RULES_WIKI,
                                 generateMovementRulesWikiPage())
-                }, 1.5);
+                }, 1.0);
 
         return MenuHelper.generateBasicMenu(
-                "WIKI", "BRIEF DESCRIPTIONS OF THE GAME'S SYSTEMS",
+                "Wiki", "BRIEF DESCRIPTIONS OF THE GAME'S SYSTEMS",
                 contents, MenuIDs.MAIN_MENU);
     }
 
@@ -290,7 +289,7 @@ public class Menus {
         final JBJGLMenuElementGrouping contents = MenuHelper.generateSentryButtons();
 
         return MenuHelper.generateBasicMenu(
-                "SENTRIES", MenuHelper.DOES_NOT_EXIST,
+                "Sentries", MenuHelper.DOES_NOT_EXIST,
                 contents, MenuIDs.WIKI);
     }
 
@@ -303,10 +302,11 @@ public class Menus {
                                 where no sentry can begin the level. Each
                                 sentry has a platform that it patrols.""",
                         JBJGLText.Orientation.CENTER,
+                        JBJGLMenuElement.Anchor.CENTRAL,
                         MenuHelper.widthCoord(0.5),
-                        MenuHelper.heightCoord(0.5), 2));
+                        MenuHelper.heightCoord(0.6), 2));
 
-        return MenuHelper.generateBasicMenu("PLATFORMS", MenuHelper.DOES_NOT_EXIST,
+        return MenuHelper.generateBasicMenu("Platforms", MenuHelper.DOES_NOT_EXIST,
                 contents, MenuIDs.WIKI);
     }
 
@@ -320,10 +320,9 @@ public class Menus {
                                 generateTeleportationWikiPage()),
                         () -> MenuHelper.linkMenu(MenuIDs.SAVE_LOAD_MOVEMENT_WIKI,
                                 generateSaveLoadWikiPage())
-                }
-        );
+                });
 
-        return MenuHelper.generateBasicMenu("PLAYER MOVEMENT", MenuHelper.DOES_NOT_EXIST,
+        return MenuHelper.generateBasicMenu("Player Movement", MenuHelper.DOES_NOT_EXIST,
                 contents, MenuIDs.WIKI);
     }
 
@@ -339,7 +338,7 @@ public class Menus {
                                 increase downward velocity.""";
 
         return MenuHelper.generatePlayerMovementTypeMenu(
-                "JUMPING & DIVING", subtitle, text);
+                "Jumping & Diving", subtitle, text);
     }
 
     private static JBJGLMenu generateTeleportationWikiPage() {
@@ -352,7 +351,7 @@ public class Menus {
                                 variable length, depending on the charge time.""";
 
         return MenuHelper.generatePlayerMovementTypeMenu(
-                "TELEPORTATION", subtitle, text);
+                "Teleportation", subtitle, text);
     }
 
     private static JBJGLMenu generateSaveLoadWikiPage() {
@@ -368,7 +367,7 @@ public class Menus {
                                 positions expire once they are loaded.""";
 
         return MenuHelper.generatePlayerMovementTypeMenu(
-                "SAVE & LOAD POSITION", subtitle, text);
+                "Save & Load Position", subtitle, text);
     }
 
     private static JBJGLMenu generateAboutMenu() {
@@ -382,9 +381,9 @@ public class Menus {
                         () -> MenuHelper.linkMenu(MenuIDs.DEVELOPER_ABOUT,
                                 generateDeveloperAboutPage()),
                         null // TODO - feedback
-                }, 0.0);
+                });
 
-        return MenuHelper.generateBasicMenu("INFORMATION", MenuHelper.DOES_NOT_EXIST,
+        return MenuHelper.generateBasicMenu("Information", MenuHelper.DOES_NOT_EXIST,
                 contents, MenuIDs.MAIN_MENU);
     }
 
@@ -394,7 +393,7 @@ public class Menus {
         final JBJGLMenuElementGrouping contents = JBJGLMenuElementGrouping.generateOf();
 
         return MenuHelper.generateBasicMenu(
-                "PATCH NOTES", Translation.VERSION, contents, MenuIDs.ABOUT);
+                "Patch Notes", Translation.VERSION, contents, MenuIDs.ABOUT);
     }
 
     private static JBJGLMenu generateBackgroundAboutPage() {
@@ -407,10 +406,11 @@ public class Menus {
                 MenuHelper.generateMenuTextBlurb(
                         backgroundText,
                         JBJGLText.Orientation.CENTER,
-                        MenuHelper.widthCoord(0.5), MenuHelper.heightCoord(0.3),
+                        JBJGLMenuElement.Anchor.CENTRAL,
+                        MenuHelper.widthCoord(0.5), MenuHelper.heightCoord(0.6),
                         TechnicalSettings.getPixelSize() / 4));
 
-        return MenuHelper.generateBasicMenu("BACKGROUND", MenuHelper.DOES_NOT_EXIST,
+        return MenuHelper.generateBasicMenu("Background", MenuHelper.DOES_NOT_EXIST,
                 contents, MenuIDs.ABOUT);
     }
 
@@ -436,7 +436,7 @@ public class Menus {
                         MenuHelper.heightCoord(0.5),
                         TechnicalSettings.getPixelSize() / 4));
 
-        return MenuHelper.generateBasicMenu("THE DEVELOPER", MenuHelper.DOES_NOT_EXIST,
+        return MenuHelper.generateBasicMenu("The Developer", MenuHelper.DOES_NOT_EXIST,
                 contents, MenuIDs.ABOUT);
     }
 
@@ -445,14 +445,13 @@ public class Menus {
                 new String[] { "RESUME", "SETTINGS", "QUIT TO MENU" },
                 new Runnable[] {
                         () -> Translation.manager.setActiveStateIndex(Translation.GAMEPLAY_INDEX),
-                        // TODO - link both to correct manager (PAUSE, not MENU)
                         () -> MenuHelper.linkMenu(MenuIDs.SETTINGS,
                                 generateSettingsMenu(false)),
                         () -> MenuHelper.linkMenu(MenuIDs.ARE_YOU_SURE_PAUSE_QUIT_TO_MENU,
                                 generateAreYouSureQuitToMainMenu())
-                });
+                }, 1.0);
 
-        return MenuHelper.generateBasicMenu(level.getName().toUpperCase(),
+        return MenuHelper.generateBasicMenu(level.getName(),
                 level.getHint(), contents);
     }
 
@@ -492,10 +491,9 @@ public class Menus {
                         backToMenuBehaviour};
 
         final JBJGLMenuElementGrouping contents = MenuHelper.generateListMenuOptions(
-                buttonLabels, buttonBehaviours,
-                hasNextLevel ? 1.0 : 1.5);
+                buttonLabels, buttonBehaviours, 1.0);
 
-        return MenuHelper.generateBasicMenu("LEVEL COMPLETE!",
+        return MenuHelper.generateBasicMenu("Level Complete!",
                 level.getName().toUpperCase(), contents);
     }
 
@@ -504,7 +502,7 @@ public class Menus {
                 MenuHelper.generateLevelStatsText(level.getStats());
 
         return MenuHelper.generateBasicMenu(
-                "PERFORMANCE STATS", level.getName().toUpperCase(),
+                "Completion Statistics", level.getName().toUpperCase(),
                 contents, MenuIDs.LEVEL_COMPLETE);
     }
 

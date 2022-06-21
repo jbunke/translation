@@ -1,6 +1,6 @@
 name:{1-19}
 hint:{What you see is what you get}
-stats:{}
+stats:{915;3;13;2}
 platforms:{
 	(0,0,100);
 	(-350,180,200);

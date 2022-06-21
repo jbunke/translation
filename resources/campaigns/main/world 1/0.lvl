@@ -1,6 +1,6 @@
 name:{1-1}
 hint:{Sentries can cancel each other out}
-stats:{215;12;6;2}
+stats:{215;1;6;2}
 platforms:{
 	(0,0,200);
 	(-400,0,200);

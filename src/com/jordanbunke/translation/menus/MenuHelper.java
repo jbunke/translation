@@ -194,9 +194,7 @@ public class MenuHelper {
                 generateLevelKeyInfo(level),
                 generatePrevNextLevelButtons(index, campaign));
 
-        return generateBasicMenu(
-                level.getName().toUpperCase(),
-                level.getHint().toUpperCase(),
+        return generateBasicMenu(level.getName(), level.getHint(),
                 contents, MenuIDs.CAMPAIGN_LEVELS);
     }
 
@@ -206,7 +204,8 @@ public class MenuHelper {
         return generateBasicMenu(heading, subtitle.toUpperCase(),
                 JBJGLMenuElementGrouping.generateOf(
                         generateMenuTextBlurb(text, JBJGLText.Orientation.CENTER,
-                                widthCoord(0.5), widthCoord(0.5), 2)),
+                                JBJGLMenuElement.Anchor.CENTRAL,
+                                widthCoord(0.5), heightCoord(0.6), 2)),
                 MenuIDs.MOVEMENT_RULES_WIKI);
     }
 
@@ -252,9 +251,8 @@ public class MenuHelper {
                         widthCoord(0.5), heightCoord(0.57),
                         2));
 
-        return generateBasicMenu(
-                role.name().toUpperCase(), "SENTRY TYPE",
-                contents, MenuIDs.SENTRIES_WIKI);
+        return generateBasicMenu(role.name(),
+                "SENTRY TYPE", contents, MenuIDs.SENTRIES_WIKI);
     }
 
     public static JBJGLMenu generateCampaignFolderMenu(
@@ -264,7 +262,7 @@ public class MenuHelper {
         final JBJGLMenuElementGrouping contents =
                 MenuHelper.generateCampaignsOnPage(title, campaigns, backMenuID, page);
 
-        return MenuHelper.generateBasicMenu(title.toUpperCase(),
+        return MenuHelper.generateBasicMenu(title,
                 "PAGE " + (page + 1), contents, backMenuID);
     }
 
@@ -280,7 +278,7 @@ public class MenuHelper {
         final JBJGLMenuElementGrouping contents =
                 MenuHelper.generateLevelsOnPage(campaign, backMenuID, page);
 
-        return MenuHelper.generateBasicMenu(campaign.getName().toUpperCase(),
+        return MenuHelper.generateBasicMenu(campaign.getName(),
                 "PAGE " + (page + 1), contents, backMenuID);
     }
 
@@ -377,13 +375,14 @@ public class MenuHelper {
 
         return JBJGLTextMenuElement.generate(
                 new int[] { pixel, height }, JBJGLMenuElement.Anchor.LEFT_BOTTOM,
-                generateInitialMenuTextBuilder().setColor(TLColors.PLAYER())
+                generateInitialMenuTextBuilder()
                         .addText("version " + Translation.VERSION).addLineBreak()
                         .addText("Jordan Bunke, 2022").build());
     }
 
     public static JBJGLTextMenuElement generateMenuTextBlurb(
             final String[] lines, JBJGLText.Orientation orientation,
+            final JBJGLMenuElement.Anchor anchor,
             final int x, final int y, final int textSize
     ) {
         final JBJGLTextBuilder tb = generateInitialMenuTextBuilder(textSize, orientation);
@@ -395,9 +394,17 @@ public class MenuHelper {
                 tb.addLineBreak();
         }
 
-        return JBJGLTextMenuElement.generate(
-                new int[] { x, y }, JBJGLMenuElement.Anchor.CENTRAL_TOP,
-                tb.build());
+        return JBJGLTextMenuElement.generate(new int[] { x, y }, anchor, tb.build());
+    }
+
+    public static JBJGLTextMenuElement generateMenuTextBlurb(
+            final String text, JBJGLText.Orientation orientation,
+            final JBJGLMenuElement.Anchor anchor,
+            final int x, final int y, final int textSize
+    ) {
+        final String NEW_LINE = "\n";
+        return generateMenuTextBlurb(text.split(NEW_LINE),
+                orientation, anchor, x, y, textSize);
     }
 
     public static JBJGLTextMenuElement generateMenuTextBlurb(
@@ -405,7 +412,8 @@ public class MenuHelper {
             final int x, final int y, final int textSize
     ) {
         final String NEW_LINE = "\n";
-        return generateMenuTextBlurb(text.split(NEW_LINE), orientation, x, y, textSize);
+        return generateMenuTextBlurb(text.split(NEW_LINE), orientation,
+                JBJGLMenuElement.Anchor.CENTRAL_TOP, x, y, textSize);
     }
 
     public static JBJGLMenuElementGrouping generateListMenuToggleOptions(
@@ -512,7 +520,7 @@ public class MenuHelper {
     }
 
     public static JBJGLMenuElementGrouping generateControlsButtons() {
-        final int offsetY = LIST_MENU_INCREMENT_Y * 2;
+        final int offsetY = (int)(LIST_MENU_INCREMENT_Y * 1.5);
         final int COLUMNS = 4, CONTROL_AMOUNT = 14, textSize = TechnicalSettings.getPixelSize() / 4;
         final JBJGLMenuElement[] menuElements = new JBJGLMenuElement[CONTROL_AMOUNT * 2];
 
@@ -618,7 +626,7 @@ public class MenuHelper {
         final int fieldsX = widthCoord(0.1);
         final int thisRunX = widthCoord(0.5);
         final int pbX = widthCoord(0.8);
-        final int y = heightCoord(0.5);
+        final int y = heightCoord(0.38);
 
         return JBJGLMenuElementGrouping.generateOf(
                 generateLevelStatFields(fieldsX, y, true, 2),
@@ -811,19 +819,19 @@ public class MenuHelper {
     private static JBJGLClickableMenuElement generateSentryButton(
             final int x, final int y, final Sentry.Role role, final int buttonWidth
     ) {
-        final int pixel = TechnicalSettings.getPixelSize();
-
         final JBJGLImage nonHighlightedButton =
-                drawNonHighlightedTextButton(buttonWidth, role.name(), 1);
+                drawNonHighlightedTextButton(buttonWidth, " ", 1);
         final int width = nonHighlightedButton.getWidth(), height = nonHighlightedButton.getHeight();
         final JBJGLImage square = ImageAssets.drawSentry(role);
-        final int squareX = pixel * 3, squareY = (height - square.getHeight()) / 2;
+        final int squareX = (buttonWidth / 2) - (square.getWidth() / 2),
+                squareY = (height - square.getHeight()) / 2;
 
         final Graphics nhbg = nonHighlightedButton.getGraphics();
         nhbg.drawImage(square, squareX, squareY, null);
 
-        final JBJGLImage highlightedButton =
-                drawHighlightedTextButton(buttonWidth, role.name(), 1);
+        final JBJGLImage highlightedButton = drawHighlightedTextButton(
+                buttonWidth, role.name(),
+                1, role.getColor(TLColors.OPAQUE()));
 
         return JBJGLClickableMenuElement.generate(
                 new int[] { x, y }, new int[] { width, height },
@@ -984,17 +992,25 @@ public class MenuHelper {
     }
 
     private static JBJGLTextMenuElement generateTextMenuTitle(final String title) {
-        final int width = TechnicalSettings.getWidth();
-        final int pixel = TechnicalSettings.getPixelSize();
+        final int INCREMENT = 23;
+        final double THRESHOLD = 0.7;
+
+        int offsetY = -INCREMENT;
+        int textSize = TechnicalSettings.getPixelSize();
+        JBJGLText titleText;
+
+        do {
+            titleText = JBJGLTextBuilder.initialize(textSize,
+                    JBJGLText.Orientation.CENTER, TLColors.BLACK(),
+                    Fonts.GAME_ITALICS_SPACED()).addText(title).build();
+
+            textSize--;
+            offsetY += INCREMENT;
+        } while (titleText.draw().getWidth() > widthCoord(THRESHOLD));
 
         return JBJGLTextMenuElement.generate(
-                new int[] { width / 2, MENU_TITLE_Y },
-                JBJGLMenuElement.Anchor.CENTRAL_TOP,
-                JBJGLTextBuilder.initialize(
-                        pixel, JBJGLText.Orientation.CENTER,
-                        TLColors.BLACK(), Fonts.GAME_ITALICS_SPACED()
-                ).addText(title).build()
-        );
+                new int[] { widthCoord(0.5), MENU_TITLE_Y + offsetY },
+                JBJGLMenuElement.Anchor.CENTRAL_TOP, titleText);
     }
 
     private static JBJGLTextMenuElement generateTextMenuSubtitle(final String subtitle) {
@@ -1153,18 +1169,24 @@ public class MenuHelper {
     private static JBJGLImage drawHighlightedTextButton(
             final int width, final String label
     ) {
-        return drawHighlightedTextButton(width,
-                label, TechnicalSettings.getPixelSize() / 2);
+        return drawHighlightedTextButton(width, label,
+                TechnicalSettings.getPixelSize() / 2);
     }
 
     private static JBJGLImage drawHighlightedTextButton(
             final int width, final String label, final int textSize
     ) {
+        return drawHighlightedTextButton(width, label, textSize, TLColors.PLAYER());
+    }
+
+    private static JBJGLImage drawHighlightedTextButton(
+            final int width, final String label, final int textSize,
+            final Color backgroundColor
+    ) {
+        final Color overlayColor = TLColors.BLACK();
+
         final int pixel = TechnicalSettings.getPixelSize();
         final int MARGIN_X = pixel * 2, MARGIN_Y = pixel * 2;
-
-        final Color overlayColor = TLColors.BLACK();
-        final Color backgroundColor = TLColors.PLAYER();
 
         final JBJGLImage overlay = drawTextButton(
                 width, label, overlayColor, textSize);
