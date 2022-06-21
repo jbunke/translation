@@ -1,0 +1,3 @@
+ON SIGHT:
+The DROPPER drops the player directly below
+the height level of its patrolled platform.

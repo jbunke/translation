@@ -1,0 +1,2 @@
+ON SIGHT:
+The PUSHER pushes the player by telekinesis.

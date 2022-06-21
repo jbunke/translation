@@ -7,6 +7,7 @@ import com.jordanbunke.translation.Translation;
 import com.jordanbunke.translation.gameplay.image.ImageAssets;
 import com.jordanbunke.translation.io.ControlScheme;
 import com.jordanbunke.translation.gameplay.level.Level;
+import com.jordanbunke.translation.menus.MenuHelper;
 import com.jordanbunke.translation.menus.MenuIDs;
 import com.jordanbunke.translation.settings.debug.DebugRenderer;
 import com.jordanbunke.translation.settings.debug.DebugSettings;
@@ -57,8 +58,8 @@ public class GameplayGameState extends ProgramContext {
 
         listener.checkForMatchingKeyStroke(
                 ControlScheme.getKeyEvent(ControlScheme.Action.PAUSE), () -> {
-                    Translation.pauseState.getMenuManager().setActiveMenuID(MenuIDs.PAUSE_MENU);
                     Translation.manager.setActiveStateIndex(Translation.PAUSE_INDEX);
+                    MenuHelper.linkMenu(MenuIDs.PAUSE_MENU);
                 }
         );
     }

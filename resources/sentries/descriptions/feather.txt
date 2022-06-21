@@ -1,0 +1,2 @@
+The FEATHER decreases the acceleration
+of gravity by 3 pixels per square game tick.

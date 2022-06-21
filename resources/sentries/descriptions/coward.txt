@@ -1,0 +1,4 @@
+ON SIGHT:
+The COWARD flees from the player by
+teleporting to a randomly-selected
+platform.

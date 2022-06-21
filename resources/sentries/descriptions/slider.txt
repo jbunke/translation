@@ -1,0 +1,3 @@
+ON SIGHT:
+The SLIDER pulls the platform it is
+patrolling away from the player.

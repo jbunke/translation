@@ -11,7 +11,7 @@ import com.jordanbunke.translation.gameplay.level.LevelHUD;
 import com.jordanbunke.translation.gameplay.level.LevelStats;
 import com.jordanbunke.translation.settings.GameplayConstants;
 import com.jordanbunke.translation.settings.TechnicalSettings;
-import com.jordanbunke.translation.swatches.Swatches;
+import com.jordanbunke.translation.colors.TLColors;
 
 import java.awt.*;
 
@@ -77,7 +77,7 @@ public class Player extends SentientSquare {
     }
 
     public static Color getColor(final int opacity) {
-        return Swatches.PLAYER(opacity);
+        return TLColors.PLAYER(opacity);
     }
 
     public void process(final JBJGLListener listener) {
@@ -342,10 +342,10 @@ public class Player extends SentientSquare {
         JBJGLImage square = JBJGLImage.create(sideLength, sideLength);
         Graphics sg = square.getGraphics();
 
-        sg.setColor(isHighlighted() ? Swatches.WHITE() : Swatches.BLACK());
+        sg.setColor(isHighlighted() ? TLColors.WHITE() : TLColors.BLACK());
         sg.fillRect(0, 0, sideLength, sideLength);
 
-        Color centerColor = Player.getColor(Swatches.OPAQUE());
+        Color centerColor = Player.getColor(TLColors.OPAQUE());
 
         sg.setColor(centerColor);
         sg.fillRect(
@@ -358,7 +358,7 @@ public class Player extends SentientSquare {
         JBJGLImage shadow = JBJGLImage.create(sideLength, sideLength);
         Graphics shg = shadow.getGraphics();
 
-        shg.setColor(Player.getColor(Swatches.SHADOW()));
+        shg.setColor(Player.getColor(TLColors.SHADOW()));
         shg.fillRect(pixel, pixel, shadowLength, shadowLength);
 
         int[] shadowRenderPosition;

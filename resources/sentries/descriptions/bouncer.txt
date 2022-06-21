@@ -1,0 +1,2 @@
+ON SIGHT:
+The BOUNCER negates the player's vertical velocity.

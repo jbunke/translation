@@ -4,22 +4,22 @@ import com.jordanbunke.jbjgl.image.JBJGLImage;
 import com.jordanbunke.translation.gameplay.entities.Sentry;
 import com.jordanbunke.translation.settings.GameplayConstants;
 import com.jordanbunke.translation.settings.TechnicalSettings;
-import com.jordanbunke.translation.swatches.Swatches;
+import com.jordanbunke.translation.colors.TLColors;
 
 import java.awt.*;
 
 public class ImageAssets {
     // game
-    private static JBJGLImage BACKGROUND = drawBackground(Swatches.BACKGROUND());
-    private static JBJGLImage BLACK_BACKGROUND = drawBackground(Swatches.BLACK());
+    private static JBJGLImage BACKGROUND = drawBackground(TLColors.BACKGROUND());
+    private static JBJGLImage BLACK_BACKGROUND = drawBackground(TLColors.BLACK());
     public static final JBJGLImage ICON = drawIcon();
 
     // debug
     public static JBJGLImage PIXEL_GRID = drawPixelGrid();
 
     public static void updateAfterResize() {
-        BACKGROUND = drawBackground(Swatches.BACKGROUND());
-        BLACK_BACKGROUND = drawBackground(Swatches.BLACK());
+        BACKGROUND = drawBackground(TLColors.BACKGROUND());
+        BLACK_BACKGROUND = drawBackground(TLColors.BLACK());
 
         PIXEL_GRID = drawPixelGrid();
     }
@@ -37,11 +37,11 @@ public class ImageAssets {
     // GENERATORS
 
     public static JBJGLImage drawSentry(final Sentry.Role role) {
-        return drawSentientSquare(role.getColor(Swatches.OPAQUE()));
+        return drawSentientSquare(role.getColor(TLColors.OPAQUE()));
     }
 
     private static JBJGLImage drawIcon() {
-        return drawSentientSquare(Swatches.PLAYER(Swatches.OPAQUE()));
+        return drawSentientSquare(TLColors.PLAYER(TLColors.OPAQUE()));
     }
 
     private static JBJGLImage drawSentientSquare(final Color color) {
@@ -51,7 +51,7 @@ public class ImageAssets {
         JBJGLImage square = JBJGLImage.create(length, length);
         Graphics g = square.getGraphics();
 
-        g.setColor(Swatches.BLACK());
+        g.setColor(TLColors.BLACK());
         g.fillRect(0, 0, length, length);
 
         g.setColor(color);
@@ -80,7 +80,7 @@ public class ImageAssets {
 
         final int pixelSize = TechnicalSettings.getPixelSize();
 
-        g.setColor(Swatches.DEBUG(Swatches.FAINT()));
+        g.setColor(TLColors.DEBUG(TLColors.FAINT()));
         g.setStroke(new BasicStroke(1));
 
         for (int x = 0; x < pixelGrid.getWidth(); x += pixelSize) {

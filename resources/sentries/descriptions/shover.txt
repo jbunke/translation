@@ -1,0 +1,4 @@
+ON SIGHT:
+A super-powered version of the PUSHER.
+The SHOVER pushes the player four times
+as hard as the PUSHER does.

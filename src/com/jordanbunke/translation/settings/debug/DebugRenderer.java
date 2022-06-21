@@ -6,7 +6,7 @@ import com.jordanbunke.jbjgl.text.JBJGLTextBuilder;
 import com.jordanbunke.translation.Translation;
 import com.jordanbunke.translation.fonts.Fonts;
 import com.jordanbunke.translation.settings.TechnicalSettings;
-import com.jordanbunke.translation.swatches.Swatches;
+import com.jordanbunke.translation.colors.TLColors;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -61,7 +61,7 @@ public class DebugRenderer {
 
     private static JBJGLImage drawFps() {
         return JBJGLTextBuilder.initialize(TechnicalSettings.getPixelSize(),
-                JBJGLText.Orientation.RIGHT, Swatches.DEBUG(Swatches.OPAQUE()),
+                JBJGLText.Orientation.RIGHT, TLColors.DEBUG(TLColors.OPAQUE()),
                 Fonts.CLASSIC()).addText(String.valueOf(fpsOnFile)).build().draw();
     }
 }

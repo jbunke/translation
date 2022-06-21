@@ -6,7 +6,7 @@ import com.jordanbunke.jbjgl.utility.RenderConstants;
 import com.jordanbunke.translation.gameplay.Camera;
 import com.jordanbunke.translation.settings.GameplayConstants;
 import com.jordanbunke.translation.settings.TechnicalSettings;
-import com.jordanbunke.translation.swatches.Swatches;
+import com.jordanbunke.translation.colors.TLColors;
 
 import java.awt.*;
 
@@ -41,20 +41,20 @@ public class Animation extends Entity {
                             (int)Math.round(maxDepth * fraction)
                     );
 
-                    int opacity = Swatches.SHADOW() - (int)(Swatches.SHADOW() * fraction);
+                    int opacity = TLColors.SHADOW() - (int)(TLColors.SHADOW() * fraction);
 
                     frame = JBJGLImage.create(sideLength, animationDepth);
                     Graphics fg = frame.getGraphics();
 
-                    fg.setColor(Swatches.colorAtOpacity(animation.mainColor, opacity));
+                    fg.setColor(TLColors.colorAtOpacity(animation.mainColor, opacity));
                     fg.fillRect(0, drawAtY, sideLength, sideLength);
 
                     return frame;
                 }
                 case LOAD -> {
-                    final Color c = Swatches.colorAtOpacity(
+                    final Color c = TLColors.colorAtOpacity(
                             animation.mainColor,
-                            Swatches.SHADOW() - (int)(Swatches.SHADOW() * fraction)
+                            TLColors.SHADOW() - (int)(TLColors.SHADOW() * fraction)
                     );
                     final int maxWidth = 3 * sideLength;
                     final int width = TechnicalSettings.pixelLockNumber((int)(maxWidth * fraction));
@@ -97,11 +97,11 @@ public class Animation extends Entity {
                 }
             }
 
-            int opacity = Swatches.SHADOW() - (int)(Swatches.SHADOW() * fraction);
+            int opacity = TLColors.SHADOW() - (int)(TLColors.SHADOW() * fraction);
             frame = JBJGLImage.create(sideLength, sideLength);
             Graphics fg = frame.getGraphics();
 
-            fg.setColor(Swatches.colorAtOpacity(animation.mainColor, opacity));
+            fg.setColor(TLColors.colorAtOpacity(animation.mainColor, opacity));
             fg.fillRect(0, 0, sideLength, sideLength);
 
             return frame;
@@ -137,7 +137,7 @@ public class Animation extends Entity {
         final Type type = width > 0 ? Type.RIGHT_TELEPORTATION : Type.LEFT_TELEPORTATION;
 
         return new Animation(
-                Math.min(startingX, endingX), y, type, Math.abs(width), Player.getColor(Swatches.OPAQUE())
+                Math.min(startingX, endingX), y, type, Math.abs(width), Player.getColor(TLColors.OPAQUE())
         );
     }
 
@@ -146,7 +146,7 @@ public class Animation extends Entity {
     ) {
         return new Animation(
                 position[RenderConstants.X], position[RenderConstants.Y],
-                Type.JUMP, 0, Player.getColor(Swatches.OPAQUE())
+                Type.JUMP, 0, Player.getColor(TLColors.OPAQUE())
         );
     }
 
@@ -156,7 +156,7 @@ public class Animation extends Entity {
         return new Animation(
                 position[RenderConstants.X] - GameplayConstants.SQUARE_LENGTH(),
                 position[RenderConstants.Y],
-                Type.LOAD, 0, Player.getColor(Swatches.OPAQUE())
+                Type.LOAD, 0, Player.getColor(TLColors.OPAQUE())
         );
     }
 
@@ -165,7 +165,7 @@ public class Animation extends Entity {
     ) {
         return new Animation(
                 position[RenderConstants.X], position[RenderConstants.Y],
-                Type.DISAPPEARANCE, 0, role.getColor(Swatches.OPAQUE())
+                Type.DISAPPEARANCE, 0, role.getColor(TLColors.OPAQUE())
         );
     }
 
@@ -176,7 +176,7 @@ public class Animation extends Entity {
         return new Animation(
                 position[RenderConstants.X],
                 position[RenderConstants.Y] + GameplayConstants.PLATFORM_HEIGHT(),
-                Type.CRUSH, 0, role.getColor(Swatches.OPAQUE())
+                Type.CRUSH, 0, role.getColor(TLColors.OPAQUE())
         );
     }
 

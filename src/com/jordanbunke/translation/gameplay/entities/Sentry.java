@@ -9,7 +9,7 @@ import com.jordanbunke.translation.gameplay.level.LevelStats;
 import com.jordanbunke.translation.settings.GameplayConstants;
 import com.jordanbunke.translation.settings.GameplaySettings;
 import com.jordanbunke.translation.settings.TechnicalSettings;
-import com.jordanbunke.translation.swatches.Swatches;
+import com.jordanbunke.translation.colors.TLColors;
 import com.jordanbunke.translation.utility.Utility;
 
 import java.awt.*;
@@ -446,8 +446,8 @@ public class Sentry extends SentientSquare {
         // line of sight
         if (role.isSightDependent()) {
             g.setColor(seesPlayer
-                    ? role.getColor(Swatches.SHADOW())
-                    : Swatches.WHITE(Swatches.FAINT())
+                    ? role.getColor(TLColors.SHADOW())
+                    : TLColors.WHITE(TLColors.FAINT())
             );
 
             final int sightLineX = direction == LEFT ? 0 : renderPosition[RenderConstants.X] + sideLength;
@@ -465,7 +465,7 @@ public class Sentry extends SentientSquare {
                     JBJGLImage halo = JBJGLImage.create(haloLength, haloLength);
                     Graphics hg = halo.getGraphics();
 
-                    hg.setColor(secondary.getColor(Swatches.SHADOW()));
+                    hg.setColor(secondary.getColor(TLColors.SHADOW()));
 
                     final int counterMax = switch (role) {
                         case NOMAD -> NOMADIC_CYCLE;
@@ -524,8 +524,8 @@ public class Sentry extends SentientSquare {
                                     );
 
                                     g.setColor(Utility.colorAlongGradient(
-                                            role.getColor(Swatches.FAINT()),
-                                            revived.role.getColor(Swatches.OPAQUE()), f));
+                                            role.getColor(TLColors.FAINT()),
+                                            revived.role.getColor(TLColors.OPAQUE()), f));
                                     g.fillRect(
                                             pointRenderPosition[RenderConstants.X],
                                             pointRenderPosition[RenderConstants.Y],
@@ -547,7 +547,7 @@ public class Sentry extends SentientSquare {
 
                     JBJGLImage effect = JBJGLImage.create(maxSideLength, maxSideLength);
                     Graphics eg = effect.getGraphics();
-                    eg.setColor(role.getColor(Swatches.SHADOW()));
+                    eg.setColor(role.getColor(TLColors.SHADOW()));
 
                     eg.fillRect(drawAtXY, drawAtXY, frameSideLength, frameSideLength);
 
@@ -562,10 +562,10 @@ public class Sentry extends SentientSquare {
         JBJGLImage square = JBJGLImage.create(sideLength, sideLength);
         Graphics sg = square.getGraphics();
 
-        sg.setColor(isHighlighted() ? Swatches.WHITE() : Swatches.BLACK());
+        sg.setColor(isHighlighted() ? TLColors.WHITE() : TLColors.BLACK());
         sg.fillRect(0, 0, sideLength, sideLength);
 
-        Color centerColor = role.getColor(Swatches.OPAQUE());
+        Color centerColor = role.getColor(TLColors.OPAQUE());
 
         sg.setColor(centerColor);
         sg.fillRect(

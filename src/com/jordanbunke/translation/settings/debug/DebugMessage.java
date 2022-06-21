@@ -4,7 +4,7 @@ import com.jordanbunke.jbjgl.image.JBJGLImage;
 import com.jordanbunke.jbjgl.text.JBJGLText;
 import com.jordanbunke.jbjgl.text.JBJGLTextBuilder;
 import com.jordanbunke.translation.fonts.Fonts;
-import com.jordanbunke.translation.swatches.Swatches;
+import com.jordanbunke.translation.colors.TLColors;
 
 public class DebugMessage {
     private final JBJGLImage image;
@@ -12,7 +12,7 @@ public class DebugMessage {
 
     private DebugMessage(final String message) {
         image = JBJGLTextBuilder.initialize(1,
-                JBJGLText.Orientation.LEFT, Swatches.DEBUG(Swatches.OPAQUE()),
+                JBJGLText.Orientation.LEFT, TLColors.DEBUG(TLColors.OPAQUE()),
                 Fonts.CLASSIC()).addText(message).build().draw();
         age = 0;
     }

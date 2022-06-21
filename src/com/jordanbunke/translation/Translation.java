@@ -21,7 +21,7 @@ import com.jordanbunke.translation.settings.debug.DebugRenderer;
 
 public class Translation {
     public static final String TITLE = "Translation";
-    public static final String VERSION = "0.1.0";
+    public static final String VERSION = "0.1.1";
 
     public static final int GAMEPLAY_INDEX = 0, PAUSE_INDEX = 1,
             LEVEL_COMPLETE_INDEX = 2, MENU_INDEX = 3, SPLASH_SCREEN_INDEX = 4;
@@ -53,26 +53,12 @@ public class Translation {
     }
 
     private static void updateMenus() {
-        // TODO - expensive and poorly designed - consider full refactor
-
-        final String lastPauseStateID = pauseState.getMenuManager().getActiveMenuID();
-        final String lastLevelCompleteStateID = levelCompleteState.getMenuManager().getActiveMenuID();
-        final String lastMenuID = menuManager.getActiveMenuID();
-
         final Level level = campaign.getLevel();
 
-        pauseState = LevelMenuGameState.create(level, LevelMenuGameState.Type.PAUSE);
-        levelCompleteState = LevelMenuGameState.create(level, LevelMenuGameState.Type.LEVEL_COMPLETE);
-        menuManager = Menus.generateMenuManager();
-        splashScreenManager = Menus.generateSplashScreenManager();
-
-        pauseState.getMenuManager().setActiveMenuID(lastPauseStateID);
-        levelCompleteState.getMenuManager().setActiveMenuID(lastLevelCompleteStateID);
-        menuManager.setActiveMenuID(lastMenuID);
-
-        manager.setGameStateAtIndex(MENU_INDEX, menuManager);
-        manager.setGameStateAtIndex(PAUSE_INDEX, pauseState);
-        manager.setGameStateAtIndex(LEVEL_COMPLETE_INDEX, levelCompleteState);
+        if (manager.getActiveStateIndex() == PAUSE_INDEX)
+            Menus.generateAfterResize(pauseState.getMenuManager(), false, level);
+        else
+            Menus.generateAfterResize(menuManager, true, level);
     }
 
     private static JBJGLWindow generateWindow() {
