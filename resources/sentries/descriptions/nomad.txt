@@ -1,0 +1,2 @@
+Every 4 seconds, the NOMAD teleports to
+a different, randomly selected platform.

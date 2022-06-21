@@ -6,7 +6,7 @@ import com.jordanbunke.jbjgl.utility.RenderConstants;
 import com.jordanbunke.translation.gameplay.Camera;
 import com.jordanbunke.translation.settings.GameplayConstants;
 import com.jordanbunke.translation.settings.TechnicalSettings;
-import com.jordanbunke.translation.swatches.Swatches;
+import com.jordanbunke.translation.colors.TLColors;
 
 import java.awt.*;
 
@@ -85,7 +85,7 @@ public class Platform extends Entity {
         JBJGLImage platform = JBJGLImage.create(width, height);
         Graphics pg = platform.getGraphics();
 
-        pg.setColor(Swatches.BLACK());
+        pg.setColor(TLColors.BLACK());
         pg.fillRect(0, 0, width, height);
 
         Color platformColor = new Color(100, 100, 100, 255);

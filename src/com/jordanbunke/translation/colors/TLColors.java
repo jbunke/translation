@@ -1,8 +1,8 @@
-package com.jordanbunke.translation.swatches;
+package com.jordanbunke.translation.colors;
 
 import java.awt.*;
 
-public class Swatches {
+public class TLColors {
     private static final int OPAQUE = 255;
     private static final int SHADOW = 150;
     private static final int FAINT = 50;
@@ -24,11 +24,11 @@ public class Swatches {
     }
 
     public static Color BLACK() {
-        return BLACK(OPAQUE());
+        return BLACK(OPAQUE);
     }
 
     public static Color WHITE() {
-        return WHITE(OPAQUE());
+        return WHITE(OPAQUE);
     }
 
     public static Color BLACK(final int opacity) {
@@ -45,6 +45,10 @@ public class Swatches {
 
     public static Color PLAYER(final int opacity) {
         return new Color(255, 0, 0, opacity);
+    }
+
+    public static Color PLAYER() {
+        return PLAYER(OPAQUE);
     }
 
     public static Color DEBUG(final int opacity) {

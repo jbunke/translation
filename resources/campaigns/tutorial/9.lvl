@@ -1,6 +1,6 @@
 name:{10 - TRAMPOLINE}
 hint:{Sentries can be made useful}
-stats:{}
+stats:{275;0;2;1}
 platforms:{
 	(0,0,200);
 	(0,-400,100);

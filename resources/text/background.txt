@@ -1,0 +1,13 @@
+Translation started as a clunky, glitchy proof of concept for my high
+school physics class all the way back in 2016. We were given an open-
+ended assignment to demonstrate our understanding of the principles of
+kinematic and dynamic motion, and naturally, my first instinct was to
+make a game.
+I've revisited the core gameplay concept twice since, usually as
+a warm-up program when I start working in a new programming language or
+environment. I've decided to come back to the game once more, to finally
+release it in a state that I'm happy with and put it behind me once and
+for all. I can only hope you have a fraction of the fun with it that I
+have over the years!
+
+Sincerely, Jordan

@@ -1,6 +1,6 @@
 name:{3 - MOVEMENT}
 hint:{You can move left and right}
-stats:{}
+stats:{84;1;1;1}
 platforms:{
 	(0,0,200);
 	(200,200,200)

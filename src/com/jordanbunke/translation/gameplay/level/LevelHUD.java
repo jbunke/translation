@@ -9,7 +9,7 @@ import com.jordanbunke.translation.gameplay.Camera;
 import com.jordanbunke.translation.gameplay.entities.Player;
 import com.jordanbunke.translation.settings.GameplaySettings;
 import com.jordanbunke.translation.settings.TechnicalSettings;
-import com.jordanbunke.translation.swatches.Swatches;
+import com.jordanbunke.translation.colors.TLColors;
 
 import java.awt.*;
 
@@ -54,23 +54,23 @@ public class LevelHUD {
                 final int comboRenderY = TechnicalSettings.pixelLockNumber((int)(height * 0.45));
 
                 JBJGLImage comboCounterBackground = JBJGLTextBuilder.initialize(
-                        4, JBJGLText.Orientation.LEFT, Swatches.BLACK(), Fonts.GAME_ITALICS()
+                        4, JBJGLText.Orientation.LEFT, TLColors.BLACK(), Fonts.GAME_ITALICS()
                 ).addText("x" + combo).build().draw();
                 JBJGLImage comboCounter = JBJGLTextBuilder.initialize(
-                        4, JBJGLText.Orientation.LEFT, Swatches.PLAYER(Swatches.OPAQUE()), Fonts.GAME_ITALICS()
+                        4, JBJGLText.Orientation.LEFT, TLColors.PLAYER(TLColors.OPAQUE()), Fonts.GAME_ITALICS()
                 ).addText("x" + combo).build().draw();
 
                 JBJGLImage comboTimeoutBar =
                         JBJGLImage.create(maxComboRenderWidth + (2 * pixel), pixel * 4);
                 Graphics ctbg = comboTimeoutBar.getGraphics();
 
-                ctbg.setColor(Swatches.BLACK());
+                ctbg.setColor(TLColors.BLACK());
                 ctbg.fillRect(0, 0, maxComboRenderWidth + (2 * pixel), pixel * 4);
 
-                ctbg.setColor(Swatches.WHITE(Swatches.FAINT()));
+                ctbg.setColor(TLColors.WHITE(TLColors.FAINT()));
                 ctbg.fillRect(pixel, pixel, maxComboRenderWidth, pixel * 2);
 
-                ctbg.setColor(Swatches.PLAYER(Swatches.OPAQUE()));
+                ctbg.setColor(TLColors.PLAYER(TLColors.OPAQUE()));
                 ctbg.fillRect(pixel, pixel, comboRenderWidth, pixel * 2);
 
                 g.drawImage(comboCounterBackground, comboRenderX + pixel, comboRenderY, null);
@@ -105,7 +105,7 @@ public class LevelHUD {
 
     private static JBJGLImage generateHintHUD(final Level level) {
         return JBJGLTextBuilder.initialize(
-                2, JBJGLText.Orientation.CENTER, Swatches.PLAYER(Swatches.OPAQUE()),
+                2, JBJGLText.Orientation.CENTER, TLColors.PLAYER(TLColors.OPAQUE()),
                 Fonts.GAME_STANDARD()).addText(level.getHint()).build().draw();
     }
 
@@ -135,8 +135,8 @@ public class LevelHUD {
             final int followModeRenderX = followModeRenderWidth * i;
             final int followModeRenderHeight = isActive ? pixel * 12 : pixel * 10;
 
-            final Color background = isActive ? Swatches.PLAYER(Swatches.OPAQUE()) : Swatches.BLACK();
-            final Color textColor = isActive ? Swatches.BLACK() : Swatches.PLAYER(Swatches.OPAQUE());
+            final Color background = isActive ? TLColors.PLAYER(TLColors.OPAQUE()) : TLColors.BLACK();
+            final Color textColor = isActive ? TLColors.BLACK() : TLColors.PLAYER(TLColors.OPAQUE());
 
             final JBJGLImage text = JBJGLTextBuilder.initialize(
                     1, JBJGLText.Orientation.CENTER, textColor, Fonts.GAME_STANDARD()

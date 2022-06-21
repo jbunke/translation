@@ -1,0 +1,3 @@
+ON SIGHT:
+The BUILDER extends its patrolled
+platform from the end facing the player.

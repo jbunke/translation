@@ -1,0 +1,3 @@
+On the first game tick, a RANDOM
+sentry chooses a non-RANDOM sentry
+type to assign itself to.

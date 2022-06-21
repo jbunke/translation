@@ -1,6 +1,6 @@
 name:{4 - DANGER}
 hint:{Beware a sentry's line of sight}
-stats:{}
+stats:{98;0;1;1}
 platforms:{
 	(0,0,200);
 	(350,0,200)

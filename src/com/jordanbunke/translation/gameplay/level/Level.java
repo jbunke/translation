@@ -11,6 +11,7 @@ import com.jordanbunke.translation.gameplay.entities.Player;
 import com.jordanbunke.translation.gameplay.entities.Sentry;
 import com.jordanbunke.translation.gameplay.image.ImageAssets;
 import com.jordanbunke.translation.io.LevelIO;
+import com.jordanbunke.translation.menus.MenuHelper;
 import com.jordanbunke.translation.menus.MenuIDs;
 import com.jordanbunke.translation.settings.GameplaySettings;
 import com.jordanbunke.translation.utility.Utility;
@@ -209,9 +210,8 @@ public class Level {
         LevelIO.writeCampaign(Translation.campaign, false);
         saveLevel(false);
 
-        Translation.levelCompleteState.setLevel(this);
-        Translation.levelCompleteState.getMenuManager().setActiveMenuID(MenuIDs.LEVEL_COMPLETE);
         Translation.manager.setActiveStateIndex(Translation.LEVEL_COMPLETE_INDEX);
+        MenuHelper.linkMenu(MenuIDs.LEVEL_COMPLETE);
     }
 
     private boolean outOfBounds() {

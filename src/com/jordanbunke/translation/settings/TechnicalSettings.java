@@ -34,19 +34,19 @@ public class TechnicalSettings {
         return PIXEL_SIZE;
     }
 
-    public static int getScreenWidth() {
+    private static int getScreenWidth() {
         return SCREEN_SIZE[RenderConstants.WIDTH];
     }
 
-    public static int getScreenHeight() {
+    private static int getScreenHeight() {
         return SCREEN_SIZE[RenderConstants.HEIGHT];
     }
 
-    public static int getWindowedWidth() {
+    private static int getWindowedWidth() {
         return WINDOWED_SIZE[RenderConstants.WIDTH];
     }
 
-    public static int getWindowedHeight() {
+    private static int getWindowedHeight() {
         return WINDOWED_SIZE[RenderConstants.HEIGHT];
     }
 

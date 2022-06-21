@@ -1,0 +1,3 @@
+The player is drawn towards the MAGNET
+along the x-axis at a velocity equal
+in magnitude to the MAGNET's movement.

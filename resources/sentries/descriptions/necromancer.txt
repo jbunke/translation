@@ -1,0 +1,4 @@
+Every 8 seconds, the NECROMANCER attempts to
+reanimate a crushed sentry. Sentries that are
+revived are "tethered" to the necromancer that
+reanimated them, and their fates are linked.

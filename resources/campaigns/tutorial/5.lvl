@@ -1,6 +1,6 @@
 name:{6 - ENVIRONMENT}
 hint:{Sentries can affect the environment as well}
-stats:{}
+stats:{183;0;6;1}
 platforms:{
 	(0,0,200);
 	(350,0,200)

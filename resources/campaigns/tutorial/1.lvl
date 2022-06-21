@@ -1,6 +1,6 @@
 name:{2 - DROP}
 hint:{You can drop off of platforms}
-stats:{}
+stats:{72;0;0;1}
 platforms:{
 	(0,0,200);
 	(0,200,200)

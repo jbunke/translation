@@ -1,0 +1,4 @@
+Every 4 seconds, the SPAWNER spawns a
+new child sentry (of a type specified by
+its "secondary type" attribute), up to a
+maximum of five children.

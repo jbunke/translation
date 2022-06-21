@@ -1,0 +1,2 @@
+ON SIGHT:
+The BOOSTER doubles the player's vertical velocity.

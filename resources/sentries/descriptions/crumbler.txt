@@ -1,0 +1,3 @@
+ON SIGHT:
+The CRUMBLER shortens its patrolled
+platform from the end facing the player.
