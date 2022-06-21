@@ -1,6 +1,6 @@
 name:{1-16}
 hint:{Catch me if you can}
-stats:{185;0;0;1}
+stats:{}
 platforms:{
 	(0,0,200);
 	(-400,-200,200);

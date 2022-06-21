@@ -1,6 +1,6 @@
 name:{1-30}
 hint:{abgehoben}
-stats:{260;2;2;1}
+stats:{}
 platforms:{
 	(0,0,100);
 	(0,-1000,100);

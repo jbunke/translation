@@ -1,6 +1,6 @@
 name:{1-7}
 hint:{Stairway to Heaven}
-stats:{534;2;18;2}
+stats:{}
 platforms:{
 	(0,0,200);
 	(400,-100,200);

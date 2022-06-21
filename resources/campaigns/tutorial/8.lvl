@@ -1,6 +1,6 @@
 name:{9 - CAMERA}
 hint:{The camera's zoom can be toggled}
-stats:{90;0;0;1}
+stats:{}
 platforms:{
 	(0,0,200);
 	(0,400,200)

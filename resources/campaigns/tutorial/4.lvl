@@ -1,6 +1,6 @@
 name:{5 - SENTRIES}
 hint:{There are different types of sentries}
-stats:{92;0;2;1}
+stats:{}
 platforms:{
 	(0,0,200);
 	(350,0,200)

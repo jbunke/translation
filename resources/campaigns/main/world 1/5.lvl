@@ -1,6 +1,6 @@
 name:{1-6}
 hint:{Come fly with me!}
-stats:{46;0;0;1}
+stats:{}
 platforms:{
 	(0,0,200);
 	(0,-700,200)

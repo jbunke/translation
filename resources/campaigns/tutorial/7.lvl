@@ -1,6 +1,6 @@
 name:{8 - TELEPORTATION}
 hint:{Teleport to cover ground quickly}
-stats:{146;1;0;1}
+stats:{}
 platforms:{
 	(0,0,200);
 	(500,0,200)

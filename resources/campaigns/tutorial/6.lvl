@@ -1,6 +1,6 @@
 name:{7 - BLINDNESS}
 hint:{Some sentries do not rely on sight}
-stats:{78;1;0;1}
+stats:{}
 platforms:{
 	(0,0,200);
 	(350,0,200)

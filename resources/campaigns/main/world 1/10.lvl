@@ -1,6 +1,6 @@
 name:{1-11}
 hint:{Light stepper}
-stats:{160;1;0;1}
+stats:{}
 platforms:{
 	(0,0,200);
 	(400,-200,200);

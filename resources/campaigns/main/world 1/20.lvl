@@ -1,6 +1,6 @@
 name:{1-21}
 hint:{Walking on eggshells}
-stats:{652;2;6;1}
+stats:{}
 platforms:{
 	(0,0,200);
 	(0,-200,200);

@@ -1,6 +1,6 @@
 name:{1-23}
 hint:{A fish rots from the head}
-stats:{950;10;23;1}
+stats:{}
 platforms:{
 	(0,0,100);
 	(-50,100,100);

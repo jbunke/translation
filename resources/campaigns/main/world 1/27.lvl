@@ -1,6 +1,6 @@
 name:{1-28}
 hint:{Make it a double}
-stats:{660;10;26;1}
+stats:{}
 platforms:{
 	(0,0,150);
 	(-600,0,150);

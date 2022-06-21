@@ -1,6 +1,6 @@
 name:{12 - CINEMATOGRAPHER}
 hint:{The camera can be moved manually}
-stats:{313;1;1;1}
+stats:{}
 platforms:{
 	(0,0,200);
 	(700,-100,200)

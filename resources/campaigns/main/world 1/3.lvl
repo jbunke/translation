@@ -1,6 +1,6 @@
 name:{1-4}
 hint:{Just passing through}
-stats:{159;0;0;1}
+stats:{}
 platforms:{
 	(0,0,100);
 	(-400,0,100);

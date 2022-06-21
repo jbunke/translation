@@ -1,6 +1,6 @@
 name:{1-25}
 hint:{voneinander weg}
-stats:{1032;3;22;1}
+stats:{}
 platforms:{
 	(0,0,100);
 	(400,0,200);

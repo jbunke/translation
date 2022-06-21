@@ -1,6 +1,6 @@
 name:{1-15}
 hint:{Don't weigh me down}
-stats:{270;0;0;3}
+stats:{}
 platforms:{
 	(0,0,200);
 	(200,150,200);

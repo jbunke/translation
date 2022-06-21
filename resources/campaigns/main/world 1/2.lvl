@@ -1,6 +1,6 @@
 name:{1-3}
 hint:{Stuck Like Glue}
-stats:{181;1;2;1}
+stats:{}
 platforms:{
 	(0,0,100);
 	(-400,0,300);
