@@ -1,14 +1,16 @@
 fullscreen:{true}
-pixel-locking:{true}
+pixel-locking:{false}
 
 default-follow-mode:{STEADY}
 show-tethers:{true}
 show-combo:{true}
 show-follow-mode-updates:{true}
 
-show-debug:{true}
-show-pixel-grid:{true}
+show-debug:{false}
+show-pixel-grid:{false}
 
+pause-c:{ESCAPE}
+cam-up-c:{UP_ARROW}
 move-right-c:{D}
 cam-down-c:{DOWN_ARROW}
 cam-right-c:{RIGHT_ARROW}
@@ -19,7 +21,5 @@ move-left-c:{A}
 jump-c:{W}
 load-pos-c:{E}
 cam-left-c:{LEFT_ARROW}
-cam-up-c:{UP_ARROW}
 drop-c:{S}
 zoom-c:{Z}
-pause-c:{ESCAPE}

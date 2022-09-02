@@ -28,8 +28,10 @@ import java.util.concurrent.Callable;
 public class Menus {
 
     // Timings
+    private static final int WB_SPLASH_SCREEN_FRAME_COUNT = 12;
     private static final int SPLASH_SCREEN_1_FRAME_COUNT = 45;
     private static final int SPLASH_SCREEN_2_FRAME_COUNT = 146;
+    private static final int WB_SPLASH_SCREEN_TICKS_PER_FRAME = 5;
     private static final int SPLASH_SCREEN_1_TICKS_PER_FRAME = 10;
     private static final int SPLASH_SCREEN_2_TICKS_PER_FRAME = 5;
     private static final int TITLE_CARD_TICKS = 200;
@@ -63,9 +65,11 @@ public class Menus {
 
     public static JBJGLMenuManager generateSplashScreenManager() {
         return JBJGLMenuManager.initialize(
-                Utility.coinToss(0.8,
-                        generateSplashScreen1(),
-                        generateSplashScreen2()),
+                Utility.coinToss(0.98,
+                        generateWeltbuergerSplashScreen(),
+                        Utility.coinToss(
+                                generateSplashScreen1(),
+                                generateSplashScreen2())),
                 MenuIDs.SPLASH_SCREEN);
     }
 
@@ -529,12 +533,22 @@ public class Menus {
         return MenuHelper.generatePlainMenu(contents);
     }
 
+    private static JBJGLMenu generateWeltbuergerSplashScreen() {
+        return MenuHelper.generateSplashScreen(
+                i -> i + 1,
+                WB_SPLASH_SCREEN_FRAME_COUNT,
+                WB_SPLASH_SCREEN_TICKS_PER_FRAME, 0, 5,
+                Paths.get("resources", "images",
+                        "splash_screen", "splash_screen_0"),
+                "ss0-frame- (");
+    }
+
     private static JBJGLMenu generateSplashScreen1() {
         return MenuHelper.generateSplashScreen(
                 i -> 1 + ((i + 7) % 45),
                 SPLASH_SCREEN_1_FRAME_COUNT,
                 SPLASH_SCREEN_1_TICKS_PER_FRAME,
-                5,
+                5, 1,
                 Paths.get("resources", "images",
                         "splash_screen", "splash_screen_1"),
                 "ss1-frame- (");
@@ -545,7 +559,7 @@ public class Menus {
                 i -> i + 1,
                 SPLASH_SCREEN_2_FRAME_COUNT,
                 SPLASH_SCREEN_2_TICKS_PER_FRAME,
-                15,
+                15, 1,
                 Paths.get("resources", "images",
                         "splash_screen", "splash_screen_2"),
                 "ss2-frame- (");

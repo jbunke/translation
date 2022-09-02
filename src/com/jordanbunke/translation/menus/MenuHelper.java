@@ -285,7 +285,7 @@ public class MenuHelper {
     public static JBJGLMenu generateSplashScreen(
             final Function<Integer, Integer> indexMapping,
             final int frameCount, final int ticksPerFrame,
-            final int paddingFrameCount,
+            final int paddingFrameCount, final int reps,
             final Path folder, final String baseFileName
     ) {
         final int width = TechnicalSettings.getWidth();
@@ -312,7 +312,8 @@ public class MenuHelper {
         return JBJGLMenu.of(
                 // behaviour
                 JBJGLTimedMenuElement.generate(
-                        (frameCount + paddingFrameCount) * ticksPerFrame,
+                        (paddingFrameCount * ticksPerFrame) +
+                                (frameCount * reps * ticksPerFrame),
                         () -> Translation.manager.setActiveStateIndex(Translation.MENU_INDEX)
                 ),
 
@@ -323,9 +324,7 @@ public class MenuHelper {
                         new int[] { frameWidth, frameHeight },
                         JBJGLMenuElement.Anchor.LEFT_TOP,
                         ticksPerFrame,
-                        frames
-                )
-        );
+                        frames));
     }
 
     // element generators
