@@ -88,7 +88,7 @@ public class Platform extends Entity {
         pg.setColor(TLColors.BLACK());
         pg.fillRect(0, 0, width, height);
 
-        Color platformColor = new Color(100, 100, 100, 255);
+        Color platformColor = TLColors.PLATFORM();
         pg.setColor(platformColor);
         pg.fillRect(
                 pixel, pixel,
