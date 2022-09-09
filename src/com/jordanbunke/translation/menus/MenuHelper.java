@@ -118,7 +118,7 @@ public class MenuHelper {
                         JBJGLMenuElement.Anchor.CENTRAL_TOP,
                         JBJGLTextBuilder.initialize(
                                         2, JBJGLText.Orientation.CENTER,
-                                        TLColors.BLACK(), Fonts.GAME_ITALICS_SPACED()
+                                        TLColors.MENU_TEXT(), Fonts.GAME_ITALICS_SPACED()
                                 ).addText("UH-OH!").addLineBreak()
                                 .addText("THIS PAGE DOES NOT EXIST YET.").build()),
                 determineTextButton(
@@ -149,7 +149,7 @@ public class MenuHelper {
                         JBJGLMenuElement.Anchor.CENTRAL_TOP,
                         JBJGLTextBuilder.initialize(
                                         2, JBJGLText.Orientation.CENTER,
-                                        TLColors.BLACK(), Fonts.GAME_ITALICS_SPACED()
+                                        TLColors.MENU_TEXT(), Fonts.GAME_ITALICS_SPACED()
                                 ).addText("ARE YOU SURE").addLineBreak()
                                 .addText(decisionDescription.toUpperCase()).build()),
                 determineTextButton(
@@ -895,13 +895,13 @@ public class MenuHelper {
                         new int[] { x, numberY }, JBJGLMenuElement.Anchor.CENTRAL_TOP,
                         JBJGLTextBuilder.initialize(
                                 4, JBJGLText.Orientation.CENTER,
-                                TLColors.BLACK(), Fonts.GAME_ITALICS_SPACED()
+                                TLColors.MENU_TEXT(), Fonts.GAME_ITALICS_SPACED()
                         ).addText(number).build()),
                 JBJGLTextMenuElement.generate(
                         new int[] { x, captionY }, JBJGLMenuElement.Anchor.CENTRAL_TOP,
                         JBJGLTextBuilder.initialize(
                                 2, JBJGLText.Orientation.CENTER,
-                                TLColors.BLACK(), Fonts.GAME_STANDARD()
+                                TLColors.MENU_TEXT(), Fonts.GAME_STANDARD()
                         ).addText(caption).build())
         );
     }
@@ -1000,7 +1000,7 @@ public class MenuHelper {
 
         do {
             titleText = JBJGLTextBuilder.initialize(textSize,
-                    JBJGLText.Orientation.CENTER, TLColors.BLACK(),
+                    JBJGLText.Orientation.CENTER, TLColors.MENU_TEXT(),
                     Fonts.GAME_ITALICS_SPACED()).addText(title).build();
 
             textSize--;
@@ -1021,7 +1021,7 @@ public class MenuHelper {
                 JBJGLMenuElement.Anchor.CENTRAL_TOP,
                 JBJGLTextBuilder.initialize(
                         pixel / 2, JBJGLText.Orientation.CENTER,
-                        TLColors.BLACK(), Fonts.GAME_ITALICS_SPACED()
+                        TLColors.MENU_TEXT(), Fonts.GAME_ITALICS_SPACED()
                 ).addText(subtitle).build()
         );
     }
@@ -1111,7 +1111,7 @@ public class MenuHelper {
     ) {
         return JBJGLTextBuilder.initialize(
                 textSize, orientation,
-                TLColors.BLACK(), Fonts.GAME_STANDARD());
+                TLColors.MENU_TEXT(), Fonts.GAME_STANDARD());
     }
 
     private static JBJGLTextBuilder generateInitialMenuTextBuilder(final int textSize) {

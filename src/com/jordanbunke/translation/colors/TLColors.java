@@ -31,12 +31,24 @@ public class TLColors {
         return WHITE(OPAQUE);
     }
 
+    public static Color PLATFORM() {
+        return PLATFORM(OPAQUE);
+    }
+
     public static Color BLACK(final int opacity) {
         return new Color(0, 0, 0, opacity);
     }
 
     public static Color WHITE(final int opacity) {
         return new Color(255, 255, 255, opacity);
+    }
+
+    public static Color PLATFORM(final int opacity) {
+        return new Color(100, 100, 100, opacity);
+    }
+
+    public static Color MENU_TEXT() {
+        return PLATFORM(OPAQUE);
     }
 
     public static Color BACKGROUND() {
