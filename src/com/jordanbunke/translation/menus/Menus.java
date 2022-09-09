@@ -28,10 +28,10 @@ import java.util.concurrent.Callable;
 public class Menus {
 
     // Timings
-    private static final int WB_SPLASH_SCREEN_FRAME_COUNT = 12;
+    private static final int FF_SPLASH_SCREEN_FRAME_COUNT = 6;
     private static final int SPLASH_SCREEN_1_FRAME_COUNT = 45;
     private static final int SPLASH_SCREEN_2_FRAME_COUNT = 146;
-    private static final int WB_SPLASH_SCREEN_TICKS_PER_FRAME = 5;
+    private static final int FF_SPLASH_SCREEN_TICKS_PER_FRAME = 5;
     private static final int SPLASH_SCREEN_1_TICKS_PER_FRAME = 10;
     private static final int SPLASH_SCREEN_2_TICKS_PER_FRAME = 5;
     private static final int TITLE_CARD_TICKS = 200;
@@ -66,7 +66,7 @@ public class Menus {
     public static JBJGLMenuManager generateSplashScreenManager() {
         return JBJGLMenuManager.initialize(
                 Utility.coinToss(0.98,
-                        generateWeltbuergerSplashScreen(),
+                        generateFlinkerFlitzerSplashScreen(),
                         Utility.coinToss(
                                 generateSplashScreen1(),
                                 generateSplashScreen2())),
@@ -104,12 +104,12 @@ public class Menus {
         return MenuHelper.generateBasicMenu(
                 "Campaigns", MenuHelper.DOES_NOT_EXIST,
                 MenuHelper.generateListMenuOptions(
-                        new String[] { "THE CANON", "TUTORIAL",
+                        new String[] { "MAIN CAMPAIGNS", "TUTORIAL",
                                 "MY CAMPAIGNS", "IMPORTED CAMPAIGNS" },
                         new Runnable[] {
                                 () -> MenuHelper.linkMenu(MenuIDs.CAMPAIGN_FOLDER,
                                         MenuHelper.generateCampaignFolderMenu(
-                                                "THE CANON",
+                                                "MAIN CAMPAIGNS",
                                                 LevelIO.readCampaignsInFolder(LevelIO.MAIN_CAMPAIGNS_FOLDER),
                                                 MenuIDs.CAMPAIGNS_MENU, 0)),
                                 () -> {
@@ -533,14 +533,14 @@ public class Menus {
         return MenuHelper.generatePlainMenu(contents);
     }
 
-    private static JBJGLMenu generateWeltbuergerSplashScreen() {
+    private static JBJGLMenu generateFlinkerFlitzerSplashScreen() {
         return MenuHelper.generateSplashScreen(
                 i -> i + 1,
-                WB_SPLASH_SCREEN_FRAME_COUNT,
-                WB_SPLASH_SCREEN_TICKS_PER_FRAME, 0, 5,
+                FF_SPLASH_SCREEN_FRAME_COUNT,
+                FF_SPLASH_SCREEN_TICKS_PER_FRAME, 0, 15,
                 Paths.get("resources", "images",
-                        "splash_screen", "splash_screen_0"),
-                "ss0-frame- (");
+                        "splash_screen", "splash_screen_3"),
+                "ss3-frame (");
     }
 
     private static JBJGLMenu generateSplashScreen1() {
