@@ -5,10 +5,7 @@ import com.jordanbunke.jbjgl.image.JBJGLImage;
 import com.jordanbunke.jbjgl.io.JBJGLFileIO;
 import com.jordanbunke.jbjgl.io.JBJGLImageIO;
 import com.jordanbunke.jbjgl.menus.JBJGLMenu;
-import com.jordanbunke.jbjgl.menus.menu_elements.JBJGLMenuElement;
-import com.jordanbunke.jbjgl.menus.menu_elements.JBJGLMenuElementGrouping;
-import com.jordanbunke.jbjgl.menus.menu_elements.JBJGLStaticMenuElement;
-import com.jordanbunke.jbjgl.menus.menu_elements.JBJGLTimedMenuElement;
+import com.jordanbunke.jbjgl.menus.menu_elements.*;
 import com.jordanbunke.jbjgl.text.JBJGLText;
 import com.jordanbunke.translation.Translation;
 import com.jordanbunke.translation.gameplay.Camera;
@@ -418,21 +415,33 @@ public class Menus {
     }
 
     private static JBJGLMenu generateDeveloperAboutPage() {
-        final Path devImageFilepath = ParserWriter.RESOURCE_ROOT.resolve(
-                Paths.get("images", "developer.png"));
+        final int DIM_X = 160, DIM_Y = 160;
+        final int NUM_IMAGES = 6, FILENAME_INDEX_OFFSET = 1;
+        final String baseFilename = "ff-large-running-cycle-";
+
+        final Path devImageFolder = ParserWriter.RESOURCE_ROOT.resolve(
+                Paths.get("images", "developer-running-cycle"));
         final Path devTextFilepath = TextIO.TEXT_FOLDER.resolve(
                 Paths.get("developer.txt"));
-
-        final JBJGLImage devImage = JBJGLImageIO.readImage(devImageFilepath);
         final String devText = JBJGLFileIO.readFile(devTextFilepath);
 
+        final JBJGLImage[] devImages = new JBJGLImage[NUM_IMAGES];
+
+        for (int i = 0; i < NUM_IMAGES; i++) {
+            final String filename = baseFilename + (i + FILENAME_INDEX_OFFSET) + ".png";
+            devImages[i] =
+                    JBJGLImageIO.readImage(devImageFolder.resolve(filename));
+
+        }
+
         final JBJGLMenuElementGrouping contents = JBJGLMenuElementGrouping.generateOf(
-                JBJGLStaticMenuElement.generate(
+                JBJGLAnimationMenuElement.generate(
                         new int[] {
                                 MenuHelper.widthCoord(0.5),
                                 MenuHelper.heightCoord(0.30)
-                        },
-                        JBJGLMenuElement.Anchor.CENTRAL, devImage),
+                        }, new int[] { DIM_X, DIM_Y }, JBJGLMenuElement.Anchor.CENTRAL,
+                        5, devImages
+                ),
                 MenuHelper.generateMenuTextBlurb(devText,
                         JBJGLText.Orientation.CENTER,
                         MenuHelper.widthCoord(0.5),
@@ -524,7 +533,7 @@ public class Menus {
                 MenuHelper.generateMenuTextBlurb(
                         """
                                 A PURE PLATFORMING PLAYGROUND
-                                BY JORDAN BUNKE""",
+                                BY FLINKER FLITZER""",
                         JBJGLText.Orientation.CENTER,
                         MenuHelper.widthCoord(0.5),
                         MenuHelper.heightCoord(0.625), 1));
