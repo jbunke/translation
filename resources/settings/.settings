@@ -6,20 +6,20 @@ show-tethers:{true}
 show-combo:{true}
 show-follow-mode-updates:{true}
 
-show-debug:{true}
+show-debug:{false}
 show-pixel-grid:{false}
 
-pause-c:{ESCAPE}
-tp-c:{SPACE}
-cam-down-c:{DOWN_ARROW}
 move-left-c:{A}
-move-right-c:{D}
 follow-c:{X}
 load-pos-c:{E}
 cam-left-c:{LEFT_ARROW}
 save-pos-c:{Q}
 cam-up-c:{UP_ARROW}
+cam-down-c:{DOWN_ARROW}
 cam-right-c:{RIGHT_ARROW}
+move-right-c:{D}
 drop-c:{S}
 jump-c:{W}
+tp-c:{SPACE}
 zoom-c:{Z}
+pause-c:{ESCAPE}

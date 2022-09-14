@@ -1,0 +1,8 @@
+version:{0.2.0}
+date:{15/09/2022}
+contents:{
++ Added patch notes and developer info
+
+> Improved menu visibility
+> Refactored menu system to reduce loading times
+}

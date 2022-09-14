@@ -16,6 +16,7 @@ import com.jordanbunke.translation.gameplay.level.Level;
 import com.jordanbunke.translation.io.ControlScheme;
 import com.jordanbunke.translation.io.LevelIO;
 import com.jordanbunke.translation.io.ParserWriter;
+import com.jordanbunke.translation.io.TextIO;
 import com.jordanbunke.translation.settings.GameplaySettings;
 import com.jordanbunke.translation.settings.TechnicalSettings;
 import com.jordanbunke.translation.settings.debug.DebugSettings;
@@ -379,7 +380,7 @@ public class Menus {
                 new String[] { "PATCH NOTES", "BACKGROUND", "THE DEVELOPER", "FEEDBACK" },
                 new Runnable[] {
                         () -> MenuHelper.linkMenu(MenuIDs.PATCH_NOTES,
-                                generatePatchNotesPage()),
+                                generatePatchNotesMenu()),
                         () -> MenuHelper.linkMenu(MenuIDs.BACKGROUND_ABOUT,
                                 generateBackgroundAboutPage()),
                         () -> MenuHelper.linkMenu(MenuIDs.DEVELOPER_ABOUT,
@@ -391,13 +392,11 @@ public class Menus {
                 contents, MenuIDs.MAIN_MENU);
     }
 
-    private static JBJGLMenu generatePatchNotesPage() {
-        // TODO - major refactor, get patch notes per update from resource files
-
-        final JBJGLMenuElementGrouping contents = JBJGLMenuElementGrouping.generateOf();
-
-        return MenuHelper.generateBasicMenu(
-                "Patch Notes", Translation.VERSION, contents, MenuIDs.ABOUT);
+    private static JBJGLMenu generatePatchNotesMenu() {
+        return MenuHelper.generatePatchNotesPage(
+                TextIO.readUpdates(),
+                MenuIDs.ABOUT,
+                TextIO.DEFAULT_PATCH_NOTES_PAGE_INDEX);
     }
 
     private static JBJGLMenu generateBackgroundAboutPage() {
@@ -421,8 +420,8 @@ public class Menus {
     private static JBJGLMenu generateDeveloperAboutPage() {
         final Path devImageFilepath = ParserWriter.RESOURCE_ROOT.resolve(
                 Paths.get("images", "developer.png"));
-        final Path devTextFilepath = ParserWriter.RESOURCE_ROOT.resolve(
-                Paths.get("text", "developer.txt"));
+        final Path devTextFilepath = TextIO.TEXT_FOLDER.resolve(
+                Paths.get("developer.txt"));
 
         final JBJGLImage devImage = JBJGLImageIO.readImage(devImageFilepath);
         final String devText = JBJGLFileIO.readFile(devTextFilepath);

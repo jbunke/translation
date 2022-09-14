@@ -21,7 +21,7 @@ import com.jordanbunke.translation.settings.debug.DebugRenderer;
 
 public class Translation {
     public static final String TITLE = "Translation";
-    public static final String VERSION = "0.1.1";
+    public static final String VERSION = "0.2.0";
 
     public static final int GAMEPLAY_INDEX = 0, PAUSE_INDEX = 1,
             LEVEL_COMPLETE_INDEX = 2, MENU_INDEX = 3, SPLASH_SCREEN_INDEX = 4;

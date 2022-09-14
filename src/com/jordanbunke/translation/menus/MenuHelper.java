@@ -19,6 +19,7 @@ import com.jordanbunke.translation.gameplay.level.Level;
 import com.jordanbunke.translation.gameplay.level.LevelStats;
 import com.jordanbunke.translation.io.ControlScheme;
 import com.jordanbunke.translation.io.ParserWriter;
+import com.jordanbunke.translation.io.PatchNotes;
 import com.jordanbunke.translation.menus.custom_elements.SetInputMenuElement;
 import com.jordanbunke.translation.settings.TechnicalSettings;
 import com.jordanbunke.translation.colors.TLColors;
@@ -255,14 +256,24 @@ public class MenuHelper {
                 "SENTRY TYPE", contents, MenuIDs.SENTRIES_WIKI);
     }
 
+    public static JBJGLMenu generatePatchNotesPage(
+            final PatchNotes[] patchNotes, final String backMenuID, final int page
+    ) {
+        final JBJGLMenuElementGrouping contents =
+                generatePatchNotesContent(patchNotes, backMenuID, page);
+
+        return generateBasicMenu("Patch Notes",
+                patchNotes[page].getVersion(), contents, backMenuID);
+    }
+
     public static JBJGLMenu generateCampaignFolderMenu(
             final String title, final Campaign[] campaigns,
             final String backMenuID, final int page
     ) {
         final JBJGLMenuElementGrouping contents =
-                MenuHelper.generateCampaignsOnPage(title, campaigns, backMenuID, page);
+                generateCampaignsOnPage(title, campaigns, backMenuID, page);
 
-        return MenuHelper.generateBasicMenu(title,
+        return generateBasicMenu(title,
                 "PAGE " + (page + 1), contents, backMenuID);
     }
 
@@ -633,7 +644,46 @@ public class MenuHelper {
                 generatePBs(pbX, y, true, 2, levelStats));
     }
 
-    public static JBJGLMenuElementGrouping generateCampaignsOnPage(
+    private static JBJGLMenuElementGrouping generatePatchNotesContent(
+            final PatchNotes[] patchNotes, final String backMenuID, final int page
+    ) {
+        final int BUTTON_WIDTH = widthCoord(1/5.3);
+        final int DATE_INDEX = 0, CONTENT_INDEX = 1, CONTENTS_BESIDES_PREV_NEXT = 2;
+
+        final boolean hasPreviousPage = page > 0;
+        final boolean hasNextPage = page + 1 < patchNotes.length;
+
+        final int menuElementsCount = CONTENTS_BESIDES_PREV_NEXT +
+                calculatePreviousNextTotal(hasPreviousPage, hasNextPage);
+
+        final JBJGLMenuElement[] content = new JBJGLMenuElement[menuElementsCount];
+
+        content[DATE_INDEX] =
+                generateMenuTextBlurb(
+                        patchNotes[page].getDate(),
+                        JBJGLText.Orientation.CENTER,
+                        JBJGLMenuElement.Anchor.CENTRAL,
+                        widthCoord(0.5), heightCoord(0.3), 2);
+        content[CONTENT_INDEX] =
+                generateMenuTextBlurb(
+                        patchNotes[page].getContents(),
+                        JBJGLText.Orientation.LEFT,
+                        JBJGLMenuElement.Anchor.CENTRAL_TOP,
+                        widthCoord(0.5), heightCoord(0.4), 2);
+
+        // generate previous and next buttons, if they exist
+        populatePreviousAndNext("NEXT", "PREVIOUS", content,
+                hasPreviousPage, hasNextPage, BUTTON_WIDTH,
+                () -> MenuHelper.linkMenu(MenuIDs.PATCH_NOTES,
+                        generatePatchNotesPage(patchNotes, backMenuID, page - 1)),
+                () -> MenuHelper.linkMenu(
+                        MenuIDs.PATCH_NOTES,
+                        generatePatchNotesPage(patchNotes, backMenuID, page + 1)));
+
+        return JBJGLMenuElementGrouping.generate(content);
+    }
+
+    private static JBJGLMenuElementGrouping generateCampaignsOnPage(
             final String title, final Campaign[] campaigns,
             final String backMenuID, final int page
     ) {
@@ -644,6 +694,7 @@ public class MenuHelper {
                 CAMPAIGNS_ON_PAGE, campaignCount - (CAMPAIGNS_ON_PAGE * page));
         final int startingIndex = page * CAMPAIGNS_ON_PAGE;
 
+        // calculate the menu element count and create content array
         final boolean hasPreviousPage = page > 0;
         final boolean hasNextPage = campaignCount > ((page + 1) * CAMPAIGNS_ON_PAGE);
 
@@ -652,6 +703,7 @@ public class MenuHelper {
 
         final JBJGLMenuElement[] campaignButtons = new JBJGLMenuElement[menuElementsCount];
 
+        // generate buttons
         for (int i = 0; i < campaignsOnThisPage; i++) {
             final int x = widthCoord(0.5),
                     y = INITIAL_Y + (i * LIST_MENU_INCREMENT_Y);
@@ -660,6 +712,7 @@ public class MenuHelper {
                     x, y, widthCoord(0.8), campaign);
         }
 
+        // generate previous and next buttons, if they exist
         populatePreviousAndNext(campaignButtons,
                 hasPreviousPage, hasNextPage, BUTTON_WIDTH,
                 () -> MenuHelper.linkMenu(MenuIDs.CAMPAIGN_FOLDER,
@@ -795,15 +848,26 @@ public class MenuHelper {
             final int BUTTON_WIDTH,
             final Runnable previous, final Runnable next
     ) {
+        populatePreviousAndNext("PREVIOUS", "NEXT", elements,
+                hasPreviousPage, hasNextPage, BUTTON_WIDTH, previous, next);
+    }
+
+    private static void populatePreviousAndNext(
+            final String previousHeading, final String nextHeading,
+            final JBJGLMenuElement[] elements,
+            final boolean hasPreviousPage, final boolean hasNextPage,
+            final int BUTTON_WIDTH,
+            final Runnable previous, final Runnable next
+    ) {
         final int PREVIOUS_X = widthCoord(0.2);
         final int NEXT_X = widthCoord(0.8);
         final int NAVIGATION_Y = LIST_MENU_INITIAL_Y + LIST_MENU_INCREMENT_Y;
 
         final JBJGLMenuElement previousPageButton = determineTextButton(
-                "< PREVIOUS", new int[] { PREVIOUS_X, NAVIGATION_Y },
+                "< " + previousHeading, new int[] { PREVIOUS_X, NAVIGATION_Y },
                 JBJGLMenuElement.Anchor.CENTRAL_TOP, BUTTON_WIDTH, previous);
         final JBJGLMenuElement nextPageButton = determineTextButton(
-                "NEXT >", new int[] { NEXT_X, NAVIGATION_Y },
+                nextHeading + " >", new int[] { NEXT_X, NAVIGATION_Y },
                 JBJGLMenuElement.Anchor.CENTRAL_TOP, BUTTON_WIDTH, next);
 
         if (hasPreviousPage && hasNextPage) {
