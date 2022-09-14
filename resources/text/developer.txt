@@ -1,1 +1,5 @@
-Nothing to see here, folks.
+I, Jordan Bunke (developing games as Flinker Flitzer), am a writer,
+programmer, and game developer based in London.
+
+You can check out my released games at flinkerflitzer.itch.io,
+and a broader overview of my work at jordanbunke.com (soon :P).
