@@ -9,17 +9,17 @@ show-follow-mode-updates:{true}
 show-debug:{false}
 show-pixel-grid:{false}
 
-cam-right-c:{RIGHT_ARROW}
-cam-down-c:{DOWN_ARROW}
-cam-up-c:{UP_ARROW}
-save-pos-c:{Q}
 cam-left-c:{LEFT_ARROW}
-load-pos-c:{E}
+tp-c:{SPACE}
+cam-right-c:{RIGHT_ARROW}
+pause-c:{ESCAPE}
+drop-c:{S}
+cam-down-c:{DOWN_ARROW}
 follow-c:{X}
 move-left-c:{A}
-move-right-c:{D}
-tp-c:{SPACE}
-pause-c:{ESCAPE}
+cam-up-c:{UP_ARROW}
 zoom-c:{Z}
+move-right-c:{D}
+load-pos-c:{E}
 jump-c:{W}
-drop-c:{S}
+save-pos-c:{Q}
