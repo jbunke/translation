@@ -36,6 +36,9 @@ public class MenuIDs {
                 ARE_YOU_SURE_PAUSE_QUIT_TO_MENU = "ays-p-qtm",
 
             LEVEL_COMPLETE = "level-complete",
-                STATS_LEVEL_COMPLETE = "stats-lc"
+                STATS_LEVEL_COMPLETE = "stats-lc",
+
+            // NON-GAME MENUS
+            CUSTOM_TEXT = "custom-text"
     ;
 }
