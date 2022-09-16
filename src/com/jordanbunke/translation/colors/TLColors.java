@@ -14,6 +14,8 @@ public class TLColors {
     private static final Color BACKGROUND = new Color(
             BACKGROUND_RGB, BACKGROUND_RGB, BACKGROUND_RGB, OPAQUE);
 
+    private static Color background = BACKGROUND;
+
     // COLORS
     public static Color TITLE_RED() {
         return TITLE_RED;
@@ -48,11 +50,11 @@ public class TLColors {
     }
 
     public static Color MENU_TEXT() {
-        return PLATFORM(OPAQUE);
+        return PLATFORM();
     }
 
     public static Color BACKGROUND() {
-        return BACKGROUND;
+        return background;
     }
 
     public static Color PLAYER(final int opacity) {
@@ -73,6 +75,15 @@ public class TLColors {
 
     public static Color WORSE_THAN_PB(final int opacity) {
         return new Color(150, 0, 0, opacity);
+    }
+
+    // SETTERS
+    public static void resetBackground() {
+        background = BACKGROUND;
+    }
+
+    public static void setBackgroundToBlack() {
+        background = BLACK();
     }
 
     // HELPERS
