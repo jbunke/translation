@@ -531,14 +531,14 @@ public class MenuHelper {
 
     public static JBJGLMenuElementGrouping generateControlsButtons() {
         final int offsetY = (int)(LIST_MENU_INCREMENT_Y * 1.5);
-        final int COLUMNS = 4, CONTROL_AMOUNT = 14, textSize = TechnicalSettings.getPixelSize() / 4;
+        final int COLUMNS = 4, CONTROL_AMOUNT = 15, textSize = TechnicalSettings.getPixelSize() / 4;
         final JBJGLMenuElement[] menuElements = new JBJGLMenuElement[CONTROL_AMOUNT * 2];
 
         final String[] associatedTexts = new String[] {
                 "MOVE LEFT", "MOVE RIGHT", "JUMP", "DROP",
-                "TELEPORT", "SAVE", "LOAD",
+                "TELEPORT", "SAVE / * CREATE PLATFORM", "LOAD / * DELETE PLATFORM",
                 "CAMERA LEFT", "CAMERA RIGHT", "CAMERA UP", "CAMERA DOWN",
-                "TOGGLE ZOOM", "TOGGLE FOLLOW MODE", "PAUSE"
+                "TOGGLE ZOOM", "TOGGLE FOLLOW MODE / * EDIT MODE", "PAUSE", "* SNAP TO GRID"
         };
         final java.util.List<Consumer<JBJGLKey>> setFunctions = List.of(
                 key -> {
@@ -575,7 +575,8 @@ public class MenuHelper {
                 },
                 key -> ControlScheme.update(ControlScheme.Action.TOGGLE_ZOOM, key),
                 key -> ControlScheme.update(ControlScheme.Action.TOGGLE_FOLLOW_MODE, key),
-                key -> ControlScheme.update(ControlScheme.Action.PAUSE, key)
+                key -> ControlScheme.update(ControlScheme.Action.PAUSE, key),
+                key -> ControlScheme.update(ControlScheme.Action.SNAP_TO_GRID, key)
         );
         final ControlScheme.Action[] actions = new ControlScheme.Action[] {
                 ControlScheme.Action.MOVE_LEFT, ControlScheme.Action.MOVE_RIGHT,
@@ -588,7 +589,8 @@ public class MenuHelper {
                 ControlScheme.Action.MOVE_CAM_DOWN,
                 ControlScheme.Action.TOGGLE_ZOOM,
                 ControlScheme.Action.TOGGLE_FOLLOW_MODE,
-                ControlScheme.Action.PAUSE
+                ControlScheme.Action.PAUSE,
+                ControlScheme.Action.SNAP_TO_GRID
         };
 
         final int buttonWidth = widthCoord(2 / (double)(3 * (COLUMNS + 1)));

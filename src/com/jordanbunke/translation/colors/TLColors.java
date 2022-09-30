@@ -69,6 +69,10 @@ public class TLColors {
         return new Color(0, 255, 0, opacity);
     }
 
+    public static Color DEBUG() {
+        return DEBUG(OPAQUE);
+    }
+
     public static Color NEW_PB(final int opacity) {
         return new Color(0, 150, 0, opacity);
     }

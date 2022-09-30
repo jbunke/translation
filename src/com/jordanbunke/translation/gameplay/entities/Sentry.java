@@ -354,6 +354,15 @@ public class Sentry extends SentientSquare {
         return alive;
     }
 
+    public boolean isHighlighted(final int[] cp) {
+        final int diffX = Math.abs(cp[RenderConstants.X] - getPosition()[RenderConstants.X]);
+        final int diffY = Math.abs(cp[RenderConstants.Y] - getPosition()[RenderConstants.Y]);
+
+        final int allowance = GameplayConstants.SQUARE_LENGTH() / 2;
+
+        return diffX <= allowance && diffY <= allowance;
+    }
+
     public void update() {
         if (alive) {
             patrol();
@@ -558,6 +567,21 @@ public class Sentry extends SentientSquare {
                 }
             }
         }
+
+        renderSquare(camera, g);
+    }
+
+    public void renderSquare(Camera camera, Graphics g) {
+        final int zoomFactor = camera.isZoomedIn() ? 1 : 2;
+        final int rawHalfLength = GameplayConstants.SQUARE_LENGTH() / 2;
+
+        final int sideLength = GameplayConstants.SQUARE_LENGTH() / zoomFactor;
+        final int pixel = TechnicalSettings.getPixelSize();
+
+        final int[] renderPosition = camera.getRenderPosition(
+                getPosition()[RenderConstants.X] - rawHalfLength,
+                getPosition()[RenderConstants.Y] - rawHalfLength
+        );
 
         JBJGLImage square = JBJGLImage.create(sideLength, sideLength);
         Graphics sg = square.getGraphics();

@@ -105,7 +105,7 @@ public class LevelHUD {
 
     private static JBJGLImage generateHintHUD(final Level level) {
         return JBJGLTextBuilder.initialize(
-                2, JBJGLText.Orientation.CENTER, TLColors.PLAYER(TLColors.OPAQUE()),
+                2, JBJGLText.Orientation.CENTER, TLColors.PLAYER(),
                 Fonts.GAME_STANDARD()).addText(level.getHint()).build().draw();
     }
 

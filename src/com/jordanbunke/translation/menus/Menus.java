@@ -84,7 +84,7 @@ public class Menus {
                         new Runnable[] {
                                 () -> MenuHelper.linkMenu(MenuIDs.CAMPAIGNS_MENU,
                                         generateCampaignsMenu()),
-                                null, // TODO - editor
+                                () -> Translation.manager.setActiveStateIndex(Translation.EDITOR_INDEX), // TODO - editor
                                 () -> MenuHelper.linkMenu(MenuIDs.SETTINGS,
                                         generateSettingsMenu(true)),
                                 () -> MenuHelper.linkMenu(MenuIDs.WIKI, generateWikiMenu()),
@@ -200,7 +200,13 @@ public class Menus {
                 MenuHelper.generateListMenuOptions(
                         new String[] { "RESET" },
                         new Runnable[] { ControlScheme::reset }),
-                MenuHelper.generateControlsButtons());
+                MenuHelper.generateControlsButtons(),
+                MenuHelper.generateMenuTextBlurb(
+                        "* - level editor",
+                        JBJGLText.Orientation.CENTER,
+                        JBJGLMenuElement.Anchor.CENTRAL,
+                        MenuHelper.widthCoord(0.5),
+                        MenuHelper.heightCoord(0.9), 1));
 
         return MenuHelper.generateBasicMenu(
                 "Controls", MenuHelper.DOES_NOT_EXIST,
@@ -545,7 +551,7 @@ public class Menus {
         return MenuHelper.generateSplashScreen(
                 i -> i + 1,
                 FF_SPLASH_SCREEN_FRAME_COUNT,
-                FF_SPLASH_SCREEN_TICKS_PER_FRAME, 0, 15,
+                FF_SPLASH_SCREEN_TICKS_PER_FRAME, 0, 10,
                 Paths.get("resources", "images",
                         "splash_screen", "splash_screen_3"),
                 "ss3-frame (");
