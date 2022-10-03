@@ -12,6 +12,7 @@ import com.jordanbunke.translation.gameplay.entities.Platform;
 import com.jordanbunke.translation.gameplay.entities.Sentry;
 import com.jordanbunke.translation.gameplay.image.ImageAssets;
 import com.jordanbunke.translation.io.ControlScheme;
+import com.jordanbunke.translation.settings.GameplayConstants;
 import com.jordanbunke.translation.settings.TechnicalSettings;
 
 import java.awt.*;
@@ -25,6 +26,9 @@ public class Editor {
         ;
 
         Mode next() {
+            resetPlatformMovementVariables();
+            resetPlatformSizingVariables();
+
             return switch (this) {
                 case MOVE_PLATFORM -> EXPAND_CONTRACT_PLATFORM;
                 case EXPAND_CONTRACT_PLATFORM -> MOVE_PLATFORM;
@@ -39,10 +43,12 @@ public class Editor {
 
     private static Mode mode = Mode.MOVE_PLATFORM;
 
-    private static boolean movingPlatformLeft = false,
-            movingPlatformRight = false,
-            movingPlatformUp = false,
-            movingPlatformDown = false;
+    private static boolean platformIsMovingLeft = false,
+            platformIsMovingRight = false,
+            platformIsMovingUp = false,
+            platformIsMovingDown = false,
+            platformIsExpanding = false,
+            platformIsContracting = false;
 
     private static Platform startingPlatform = generateStartingPlatform();
     private static List<Platform> additionalPlatforms = defaultAdditionalPlatforms();
@@ -68,19 +74,24 @@ public class Editor {
     }
 
     private static void updatePlatformMovement() {
-        final int MOVE_BY = 2;
+        final int DELTA = 1;
 
         if (platformIsSelected()) {
             Platform p = (Platform) selectedEntity;
 
-            if (movingPlatformLeft)
-                p.incrementX(-MOVE_BY);
-            if (movingPlatformRight)
-                p.incrementX(MOVE_BY);
-            if (movingPlatformUp)
-                p.incrementY(-MOVE_BY);
-            if (movingPlatformDown)
-                p.incrementY(MOVE_BY);
+            if (platformIsMovingLeft)
+                p.incrementX(-DELTA);
+            if (platformIsMovingRight)
+                p.incrementX(DELTA);
+            if (platformIsMovingUp)
+                p.incrementY(-DELTA);
+            if (platformIsMovingDown)
+                p.incrementY(DELTA);
+
+            if (platformIsExpanding && p.getWidth() < Sentry.MAX_PLATFORM_WIDTH)
+                p.changeWidth(DELTA);
+            if (platformIsContracting && p.getWidth() > GameplayConstants.SQUARE_LENGTH())
+                p.changeWidth(-DELTA);
         }
     }
 
@@ -296,6 +307,37 @@ public class Editor {
             );
         }
 
+        if (canExpandContractPlatform()) {
+            // expand platform
+            if (canExpandPlatform()) {
+                listener.checkForMatchingKeyStroke(
+                        ControlScheme.getCorrespondingKey(ControlScheme.Action.MOVE_RIGHT),
+                        JBJGLKeyEvent.Action.PRESS,
+                        () -> Editor.expandContractPlatform(true, true)
+                );
+            }
+
+            // contract platform
+            if (canContractPlatform()) {
+                listener.checkForMatchingKeyStroke(
+                        ControlScheme.getCorrespondingKey(ControlScheme.Action.MOVE_LEFT),
+                        JBJGLKeyEvent.Action.PRESS,
+                        () -> Editor.expandContractPlatform(false, true)
+                );
+            }
+
+            listener.checkForMatchingKeyStroke(
+                    ControlScheme.getCorrespondingKey(ControlScheme.Action.MOVE_RIGHT),
+                    JBJGLKeyEvent.Action.RELEASE,
+                    () -> Editor.expandContractPlatform(true, false)
+            );
+            listener.checkForMatchingKeyStroke(
+                    ControlScheme.getCorrespondingKey(ControlScheme.Action.MOVE_LEFT),
+                    JBJGLKeyEvent.Action.RELEASE,
+                    () -> Editor.expandContractPlatform(false, false)
+            );
+        }
+
         // toggle mode
         if (canToggleMode()) {
             listener.checkForMatchingKeyStroke(
@@ -303,10 +345,9 @@ public class Editor {
                     () -> mode = mode.next()
             );
         }
-
-        // TODO - expand, contract
     }
 
+    // DEFAULTS AND RESETS
     private static Platform generateStartingPlatform() {
         return Platform.create(0, 0, DEFAULT_PLATFORM_WIDTH);
     }
@@ -325,10 +366,8 @@ public class Editor {
     public static void reset() {
         mode = Mode.MOVE_PLATFORM;
 
-        movingPlatformLeft = false;
-        movingPlatformRight = false;
-        movingPlatformUp = false;
-        movingPlatformDown = false;
+        resetPlatformMovementVariables();
+        resetPlatformSizingVariables();
 
         startingPlatform = generateStartingPlatform();
         additionalPlatforms = defaultAdditionalPlatforms();
@@ -337,6 +376,18 @@ public class Editor {
         selectedEntity = null;
         highlightedEntity = null;
         selectionText = determineSelectionText();
+    }
+
+    private static void resetPlatformMovementVariables() {
+        platformIsMovingLeft = false;
+        platformIsMovingRight = false;
+        platformIsMovingUp = false;
+        platformIsMovingDown = false;
+    }
+
+    private static void resetPlatformSizingVariables() {
+        platformIsExpanding = false;
+        platformIsContracting = false;
     }
 
     // BEHAVIOURS
@@ -362,6 +413,9 @@ public class Editor {
     }
 
     private static void select() {
+        resetPlatformMovementVariables();
+        resetPlatformSizingVariables();
+
         selectedEntity = highlightedEntity;
     }
 
@@ -380,17 +434,26 @@ public class Editor {
 
     private static void movePlatform(
             final boolean vertical, final int direction,
-            final boolean isMoving
+            final boolean isPressed
     ) {
         if (vertical) {
             if (direction < 0)
-                movingPlatformUp = isMoving;
-            else movingPlatformDown = isMoving;
+                platformIsMovingUp = isPressed;
+            else platformIsMovingDown = isPressed;
         } else {
             if (direction < 0)
-                movingPlatformLeft = isMoving;
-            else movingPlatformRight = isMoving;
+                platformIsMovingLeft = isPressed;
+            else platformIsMovingRight = isPressed;
         }
+    }
+
+    private static void expandContractPlatform(
+            final boolean expand, final boolean isPressed
+    ) {
+        if (expand)
+            platformIsExpanding = isPressed;
+        else
+            platformIsContracting = isPressed;
     }
 
     private static void snapToGrid() {
@@ -497,9 +560,31 @@ public class Editor {
     }
 
     public static boolean canMovePlatform() {
-        final boolean modeIsMovePlatform = mode  == Mode.MOVE_PLATFORM;
+        final boolean modeIsMovePlatform = mode == Mode.MOVE_PLATFORM;
 
         return platformIsSelected() && modeIsMovePlatform;
+    }
+
+    public static boolean canExpandPlatform() {
+        final boolean modeIsExpandContractPlatform = mode == Mode.EXPAND_CONTRACT_PLATFORM;
+
+        if (selectedEntity instanceof Platform selectedPlatform)
+            return selectedPlatform.getWidth() < Sentry.MAX_PLATFORM_WIDTH && modeIsExpandContractPlatform;
+
+        return false;
+    }
+
+    public static boolean canContractPlatform() {
+        final boolean modeIsExpandContractPlatform = mode == Mode.EXPAND_CONTRACT_PLATFORM;
+
+        if (selectedEntity instanceof Platform selectedPlatform)
+            return selectedPlatform.getWidth() > GameplayConstants.SQUARE_LENGTH() && modeIsExpandContractPlatform;
+
+        return false;
+    }
+
+    private static boolean canExpandContractPlatform() {
+        return canContractPlatform() || canExpandPlatform();
     }
 
     public static boolean canToggleMode() {

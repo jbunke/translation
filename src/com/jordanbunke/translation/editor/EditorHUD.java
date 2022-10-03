@@ -64,28 +64,40 @@ public class EditorHUD {
 
     public enum ControlPrompt {
         CAN_GO_TO_MENU(
-                () -> true, "OPEN MENU",
+                () -> true, " OPEN MENU",
                 Anchor.TOP_LEFT, ControlScheme.Action.PAUSE
         ),
         CAN_SNAP_TO_GRID(
-                () -> true, "SNAP TO GRID",
+                () -> true, " SNAP TO GRID",
                 Anchor.BOTTOM_LEFT, ControlScheme.Action.SNAP_TO_GRID
         ),
         CAN_ZOOM(
-                () -> true, "TOGGLE ZOOM",
+                () -> true, " TOGGLE ZOOM",
                 Anchor.BOTTOM_LEFT, ControlScheme.Action.TOGGLE_ZOOM
         ),
         CAN_CREATE_PLATFORM(
-                Editor::canCreatePlatform, "CREATE PLATFORM",
+                Editor::canCreatePlatform, " CREATE PLATFORM",
                 Anchor.MIDDLE_LEFT, ControlScheme.Action.SAVE_POS
         ),
         CAN_DELETE_PLATFORM(
-                Editor::canDeletePlatform, "DELETE PLATFORM",
+                Editor::canDeletePlatform, " DELETE PLATFORM",
                 Anchor.MIDDLE_LEFT, ControlScheme.Action.LOAD_POS
         ),
         CAN_TOGGLE_MODE(
-                Editor::canToggleMode, "TOGGLE MODE",
+                Editor::canToggleMode, " TOGGLE MODE",
                 Anchor.MIDDLE_LEFT, ControlScheme.Action.TOGGLE_FOLLOW_MODE
+        ),
+        CAN_EXPAND_PLATFORM(
+                Editor::canExpandPlatform, " EXPAND PLATFORM",
+                Anchor.MIDDLE_LEFT, ControlScheme.Action.MOVE_RIGHT
+        ),
+        CAN_CONTRACT_PLATFORM(
+                Editor::canContractPlatform, " CONTRACT PLATFORM",
+                Anchor.MIDDLE_LEFT, ControlScheme.Action.MOVE_LEFT
+        ),
+        CAN_MOVE_PLATFORM(
+                Editor::canMovePlatform, "... MOVE PLATFORM",
+                Anchor.MIDDLE_LEFT, ControlScheme.Action.JUMP
         )
         ;
 
@@ -110,7 +122,7 @@ public class EditorHUD {
         }
 
         private String getPromptText() {
-            return ControlScheme.getCorrespondingKey(associatedAction).print() + " " + caption;
+            return ControlScheme.getCorrespondingKey(associatedAction).print() + caption;
         }
 
         public void update() {
