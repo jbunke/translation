@@ -71,6 +71,10 @@ public class EditorHUD {
                 () -> true, "SNAP TO GRID",
                 Anchor.BOTTOM_LEFT, ControlScheme.Action.SNAP_TO_GRID
         ),
+        CAN_ZOOM(
+                () -> true, "TOGGLE ZOOM",
+                Anchor.BOTTOM_LEFT, ControlScheme.Action.TOGGLE_ZOOM
+        ),
         CAN_CREATE_PLATFORM(
                 Editor::canCreatePlatform, "CREATE PLATFORM",
                 Anchor.MIDDLE_LEFT, ControlScheme.Action.SAVE_POS
@@ -78,6 +82,10 @@ public class EditorHUD {
         CAN_DELETE_PLATFORM(
                 Editor::canDeletePlatform, "DELETE PLATFORM",
                 Anchor.MIDDLE_LEFT, ControlScheme.Action.LOAD_POS
+        ),
+        CAN_TOGGLE_MODE(
+                Editor::canToggleMode, "TOGGLE MODE",
+                Anchor.MIDDLE_LEFT, ControlScheme.Action.TOGGLE_FOLLOW_MODE
         )
         ;
 

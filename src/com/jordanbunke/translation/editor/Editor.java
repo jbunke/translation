@@ -1,6 +1,7 @@
 package com.jordanbunke.translation.editor;
 
 import com.jordanbunke.jbjgl.debug.JBJGLGameDebugger;
+import com.jordanbunke.jbjgl.events.JBJGLKeyEvent;
 import com.jordanbunke.jbjgl.io.JBJGLListener;
 import com.jordanbunke.jbjgl.utility.RenderConstants;
 import com.jordanbunke.translation.Translation;
@@ -18,10 +19,30 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Editor {
+
+    public enum Mode {
+        MOVE_PLATFORM, EXPAND_CONTRACT_PLATFORM
+        ;
+
+        Mode next() {
+            return switch (this) {
+                case MOVE_PLATFORM -> EXPAND_CONTRACT_PLATFORM;
+                case EXPAND_CONTRACT_PLATFORM -> MOVE_PLATFORM;
+            };
+        }
+    }
+
     private static final int DEFAULT_PLATFORM_WIDTH = 200;
     private static final int[] DEFAULT_SECOND_PLATFORM_POSITION = new int[] { 0, -200 };
 
     private static final int MESH_SIZE = 40;
+
+    private static Mode mode = Mode.MOVE_PLATFORM;
+
+    private static boolean movingPlatformLeft = false,
+            movingPlatformRight = false,
+            movingPlatformUp = false,
+            movingPlatformDown = false;
 
     private static Platform startingPlatform = generateStartingPlatform();
     private static List<Platform> additionalPlatforms = defaultAdditionalPlatforms();
@@ -38,11 +59,29 @@ public class Editor {
 
     public static void update() {
         camera.update();
+        updatePlatformMovement();
 
         highlightedEntity = determineHighlightedEntity();
         selectionText = determineSelectionText();
         // TODO
 
+    }
+
+    private static void updatePlatformMovement() {
+        final int MOVE_BY = 2;
+
+        if (platformIsSelected()) {
+            Platform p = (Platform) selectedEntity;
+
+            if (movingPlatformLeft)
+                p.incrementX(-MOVE_BY);
+            if (movingPlatformRight)
+                p.incrementX(MOVE_BY);
+            if (movingPlatformUp)
+                p.incrementY(-MOVE_BY);
+            if (movingPlatformDown)
+                p.incrementY(MOVE_BY);
+        }
     }
 
     public static void render(
@@ -125,8 +164,15 @@ public class Editor {
         processSelection(listener);
         processPlatform(listener);
 
-        // TODO - process platform manipulation/addition/deletion controls & sentry addition/deletion/customization
-
+        /* TODO
+         * platform movement
+         * platform expansion/contraction
+         *
+         * sentry addition
+         * sentry deletion
+         * sentry type
+         * sentry speed
+         * sentry secondary type (where applicable) */
     }
 
     private static void processCamera(
@@ -206,7 +252,59 @@ public class Editor {
                     Editor::deletePlatform
             );
 
-        // TODO - mode, move, expand, contract
+        // move platform
+        if (canMovePlatform()) {
+            listener.checkForMatchingKeyStroke(
+                    ControlScheme.getCorrespondingKey(ControlScheme.Action.JUMP),
+                    JBJGLKeyEvent.Action.PRESS,
+                    () -> Editor.movePlatform(true, -1, true)
+            );
+            listener.checkForMatchingKeyStroke(
+                    ControlScheme.getCorrespondingKey(ControlScheme.Action.JUMP),
+                    JBJGLKeyEvent.Action.RELEASE,
+                    () -> Editor.movePlatform(true, -1, false)
+            );
+            listener.checkForMatchingKeyStroke(
+                    ControlScheme.getCorrespondingKey(ControlScheme.Action.DROP),
+                    JBJGLKeyEvent.Action.PRESS,
+                    () -> Editor.movePlatform(true, 1, true)
+            );
+            listener.checkForMatchingKeyStroke(
+                    ControlScheme.getCorrespondingKey(ControlScheme.Action.DROP),
+                    JBJGLKeyEvent.Action.RELEASE,
+                    () -> Editor.movePlatform(true, 1, false)
+            );
+            listener.checkForMatchingKeyStroke(
+                    ControlScheme.getCorrespondingKey(ControlScheme.Action.MOVE_LEFT),
+                    JBJGLKeyEvent.Action.PRESS,
+                    () -> Editor.movePlatform(false, -1, true)
+            );
+            listener.checkForMatchingKeyStroke(
+                    ControlScheme.getCorrespondingKey(ControlScheme.Action.MOVE_LEFT),
+                    JBJGLKeyEvent.Action.RELEASE,
+                    () -> Editor.movePlatform(false, -1, false)
+            );
+            listener.checkForMatchingKeyStroke(
+                    ControlScheme.getCorrespondingKey(ControlScheme.Action.MOVE_RIGHT),
+                    JBJGLKeyEvent.Action.PRESS,
+                    () -> Editor.movePlatform(false, 1, true)
+            );
+            listener.checkForMatchingKeyStroke(
+                    ControlScheme.getCorrespondingKey(ControlScheme.Action.MOVE_RIGHT),
+                    JBJGLKeyEvent.Action.RELEASE,
+                    () -> Editor.movePlatform(false, 1, false)
+            );
+        }
+
+        // toggle mode
+        if (canToggleMode()) {
+            listener.checkForMatchingKeyStroke(
+                    ControlScheme.getKeyEvent(ControlScheme.Action.TOGGLE_FOLLOW_MODE),
+                    () -> mode = mode.next()
+            );
+        }
+
+        // TODO - expand, contract
     }
 
     private static Platform generateStartingPlatform() {
@@ -225,6 +323,13 @@ public class Editor {
     }
 
     public static void reset() {
+        mode = Mode.MOVE_PLATFORM;
+
+        movingPlatformLeft = false;
+        movingPlatformRight = false;
+        movingPlatformUp = false;
+        movingPlatformDown = false;
+
         startingPlatform = generateStartingPlatform();
         additionalPlatforms = defaultAdditionalPlatforms();
         sentries = new ArrayList<>();
@@ -271,6 +376,21 @@ public class Editor {
     private static void deletePlatform() {
         additionalPlatforms.remove((Platform) selectedEntity);
         selectedEntity = null;
+    }
+
+    private static void movePlatform(
+            final boolean vertical, final int direction,
+            final boolean isMoving
+    ) {
+        if (vertical) {
+            if (direction < 0)
+                movingPlatformUp = isMoving;
+            else movingPlatformDown = isMoving;
+        } else {
+            if (direction < 0)
+                movingPlatformLeft = isMoving;
+            else movingPlatformRight = isMoving;
+        }
     }
 
     private static void snapToGrid() {
@@ -374,5 +494,19 @@ public class Editor {
         }
 
         return false;
+    }
+
+    public static boolean canMovePlatform() {
+        final boolean modeIsMovePlatform = mode  == Mode.MOVE_PLATFORM;
+
+        return platformIsSelected() && modeIsMovePlatform;
+    }
+
+    public static boolean canToggleMode() {
+        return platformIsSelected();
+    }
+
+    private static boolean platformIsSelected() {
+        return selectedEntity instanceof Platform;
     }
 }
