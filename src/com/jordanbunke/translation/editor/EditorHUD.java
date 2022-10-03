@@ -63,6 +63,14 @@ public class EditorHUD {
     }
 
     public enum ControlPrompt {
+        CAN_GO_TO_MENU(
+                () -> true, "OPEN MENU",
+                Anchor.TOP_LEFT, ControlScheme.Action.PAUSE
+        ),
+        CAN_SNAP_TO_GRID(
+                () -> true, "SNAP TO GRID",
+                Anchor.BOTTOM_LEFT, ControlScheme.Action.SNAP_TO_GRID
+        ),
         CAN_CREATE_PLATFORM(
                 Editor::canCreatePlatform, "CREATE PLATFORM",
                 Anchor.MIDDLE_LEFT, ControlScheme.Action.SAVE_POS
