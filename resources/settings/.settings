@@ -9,9 +9,6 @@ show-follow-mode-updates:{true}
 show-debug:{false}
 show-pixel-grid:{false}
 
-drop-c:{S}
-cam-right-c:{RIGHT_ARROW}
-jump-c:{W}
 tp-c:{SPACE}
 zoom-c:{Z}
 cam-left-c:{LEFT_ARROW}
@@ -23,3 +20,6 @@ follow-c:{X}
 load-pos-c:{E}
 save-pos-c:{Q}
 cam-up-c:{UP_ARROW}
+cam-right-c:{RIGHT_ARROW}
+drop-c:{S}
+jump-c:{W}

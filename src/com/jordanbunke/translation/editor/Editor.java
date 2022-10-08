@@ -22,7 +22,7 @@ import java.util.List;
 public class Editor {
 
     public enum Mode {
-        MOVE_PLATFORM, EXPAND_CONTRACT_PLATFORM
+        MOVE_PLATFORM, RESIZE_PLATFORM, SENTRY
         ;
 
         Mode next() {
@@ -30,8 +30,17 @@ public class Editor {
             resetPlatformSizingVariables();
 
             return switch (this) {
-                case MOVE_PLATFORM -> EXPAND_CONTRACT_PLATFORM;
-                case EXPAND_CONTRACT_PLATFORM -> MOVE_PLATFORM;
+                case MOVE_PLATFORM -> RESIZE_PLATFORM;
+                case RESIZE_PLATFORM -> SENTRY;
+                case SENTRY -> MOVE_PLATFORM;
+            };
+        }
+
+        String print() {
+            return switch (this) {
+                case MOVE_PLATFORM -> "MOVE PLATFORM";
+                case RESIZE_PLATFORM -> "RESIZE PLATFORM";
+                case SENTRY -> "EDIT SENTRIES";
             };
         }
     }
@@ -69,8 +78,11 @@ public class Editor {
 
         highlightedEntity = determineHighlightedEntity();
         selectionText = determineSelectionText();
+
         // TODO
 
+        // HUD updates
+        EditorHUD.update();
     }
 
     private static void updatePlatformMovement() {
@@ -342,7 +354,7 @@ public class Editor {
         if (canToggleMode()) {
             listener.checkForMatchingKeyStroke(
                     ControlScheme.getKeyEvent(ControlScheme.Action.TOGGLE_FOLLOW_MODE),
-                    () -> mode = mode.next()
+                    Editor::toggleMode
             );
         }
     }
@@ -391,6 +403,11 @@ public class Editor {
     }
 
     // BEHAVIOURS
+    private static void toggleMode() {
+        mode = mode.next();
+        EditorHUD.initializeModeHUD();
+    }
+
     private static Entity determineHighlightedEntity() {
         /* 1 - populate ALL platforms and sentries into an entity collection
          * 2 - check whether cursor position overlaps with the bounds of any entities
@@ -570,7 +587,7 @@ public class Editor {
     }
 
     public static boolean canExpandPlatform() {
-        final boolean modeIsExpandContractPlatform = mode == Mode.EXPAND_CONTRACT_PLATFORM;
+        final boolean modeIsExpandContractPlatform = mode == Mode.RESIZE_PLATFORM;
 
         if (selectedEntity instanceof Platform selectedPlatform)
             return selectedPlatform.getWidth() < Sentry.MAX_PLATFORM_WIDTH && modeIsExpandContractPlatform;
@@ -579,7 +596,7 @@ public class Editor {
     }
 
     public static boolean canContractPlatform() {
-        final boolean modeIsExpandContractPlatform = mode == Mode.EXPAND_CONTRACT_PLATFORM;
+        final boolean modeIsExpandContractPlatform = mode == Mode.RESIZE_PLATFORM;
 
         if (selectedEntity instanceof Platform selectedPlatform)
             return selectedPlatform.getWidth() > GameplayConstants.SQUARE_LENGTH() && modeIsExpandContractPlatform;

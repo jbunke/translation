@@ -22,8 +22,8 @@ public class Sentry extends SentientSquare {
     public static final int MAX_PLATFORM_WIDTH = 480;
     public static final int GRAVITY_FACTOR = 3;
 
-    private static final int MAX_SENTRY_SPEED = 14;
-    private static final int LEFT = -1, RIGHT = 1;
+    public static final int MAX_SENTRY_SPEED = 14;
+    public static final int LEFT = -1, RIGHT = 1;
 
     private static final int STANDARD_TICK_CYCLE = 200;
     private static final int ANIMATION_CYCLE = STANDARD_TICK_CYCLE / 4;

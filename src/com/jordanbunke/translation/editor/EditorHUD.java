@@ -17,6 +17,9 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 
 public class EditorHUD {
+    private static final int INIT_MODE_UPDATE_COUNTER = 50;
+    private static int modeUpdateCounter = 0;
+    private static JBJGLImage modeHUD = JBJGLImage.create(1, 1);
     private static String savedSelectionText = "";
     private static JBJGLImage stImage = JBJGLImage.create(1, 1);
 
@@ -153,6 +156,56 @@ public class EditorHUD {
             cp.update();
     }
 
+    public static void initializeModeHUD() {
+        modeUpdateCounter = INIT_MODE_UPDATE_COUNTER;
+        modeHUD = generateModeHUD();
+    }
+
+    private static JBJGLImage generateModeHUD() {
+        final Editor.Mode mode = Editor.getMode();
+
+        final JBJGLImage[] modeTexts = new JBJGLImage[Editor.Mode.values().length];
+        int widest = 0;
+
+        for (Editor.Mode m : Editor.Mode.values()) {
+            final int index = m.ordinal();
+            final boolean isMode = m.equals(mode);
+
+            final JBJGLImage modeText = generateText(m.print(), 1,
+                            isMode ? TLColors.BLACK() : TLColors.PLAYER());
+
+            widest = Math.max(widest, modeText.getWidth());
+            modeTexts[index] = modeText;
+        }
+
+        final int BUFFER = 16, SECTION_WIDTH = widest + (2 * BUFFER), HEIGHT = 48;
+
+        final JBJGLImage modeHUD = JBJGLImage.create(
+                SECTION_WIDTH * Editor.Mode.values().length, HEIGHT
+        );
+        final Graphics g = modeHUD.getGraphics();
+
+        g.setColor(TLColors.BLACK());
+        g.fillRect(0, BUFFER, modeHUD.getWidth(), HEIGHT - BUFFER);
+        g.setColor(TLColors.PLAYER());
+        g.fillRect(SECTION_WIDTH * mode.ordinal(), 0, SECTION_WIDTH, HEIGHT);
+
+        for (int i = 0; i < modeTexts.length; i++) {
+            final int offsetX = (SECTION_WIDTH - modeTexts[i].getWidth()) / 2;
+
+            g.drawImage(
+                    modeTexts[i], (SECTION_WIDTH * i) + offsetX,
+                    mode.ordinal() == i ? 0 : BUFFER, null);
+        }
+
+        return modeHUD;
+    }
+
+    public static void update() {
+        if (modeUpdateCounter > 0)
+            modeUpdateCounter--;
+    }
+
     public static void render(
             final Graphics g
     ) {
@@ -171,8 +224,9 @@ public class EditorHUD {
         // selected entity information
         renderSelectedInformationForMode(g);
 
-        // TODO
         // mode
+        if (modeUpdateCounter > 0)
+            renderModeHUD(g);
     }
 
     private static void renderCursor(
@@ -242,8 +296,8 @@ public class EditorHUD {
                 case MOVE_PLATFORM ->
                         "POSITION: " + pos[RenderConstants.X] +
                                 ", " + pos[RenderConstants.Y];
-                case EXPAND_CONTRACT_PLATFORM ->
-                        "WIDTH: " + p.getWidth();
+                case RESIZE_PLATFORM -> "WIDTH: " + p.getWidth();
+                case SENTRY -> " ";
             };
         }
 
@@ -252,6 +306,15 @@ public class EditorHUD {
         Anchor.MIDDLE_RIGHT.render(
                 generateText(textToRender, 1), g, 0
         );
+    }
+
+    private static void renderModeHUD(
+            final Graphics g
+    ) {
+        final int x = (TechnicalSettings.getWidth() / 2) - (modeHUD.getWidth() / 2),
+                y = TechnicalSettings.getHeight() - modeHUD.getHeight();
+
+        g.drawImage(modeHUD, x, y, null);
     }
 
     private static void renderSelectionText(
@@ -299,8 +362,14 @@ public class EditorHUD {
     private static JBJGLImage generateText(
             final String text, final int textSize
     ) {
+        return generateText(text, textSize, TLColors.PLAYER());
+    }
+
+    private static JBJGLImage generateText(
+            final String text, final int textSize, final Color color
+    ) {
         return JBJGLTextBuilder.initialize(
-                textSize, JBJGLText.Orientation.CENTER, TLColors.PLAYER(TLColors.OPAQUE()),
+                textSize, JBJGLText.Orientation.CENTER, color,
                 Fonts.GAME_STANDARD()).addText(text).build().draw();
     }
 }
