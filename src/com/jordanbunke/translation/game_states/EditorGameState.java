@@ -8,6 +8,9 @@ import com.jordanbunke.translation.editor.Editor;
 import com.jordanbunke.translation.editor.EditorHUD;
 import com.jordanbunke.translation.gameplay.image.ImageAssets;
 import com.jordanbunke.translation.io.ControlScheme;
+import com.jordanbunke.translation.menus.MenuHelper;
+import com.jordanbunke.translation.menus.MenuIDs;
+import com.jordanbunke.translation.menus.Menus;
 import com.jordanbunke.translation.settings.debug.DebugRenderer;
 import com.jordanbunke.translation.settings.debug.DebugSettings;
 
@@ -51,9 +54,6 @@ public class EditorGameState extends ProgramContext {
 
         listener.checkForMatchingKeyStroke(
                 ControlScheme.getKeyEvent(ControlScheme.Action.PAUSE), () -> {
-                    // temp; TODO - remove
-                    Translation.manager.setActiveStateIndex(Translation.MENU_INDEX);
-
                     /* TODO - write menu generator for editor pause with following buttons:
                      * BACK TO EDITOR
                      * TEST LEVEL
@@ -61,8 +61,8 @@ public class EditorGameState extends ProgramContext {
                      * LOAD FROM PRESET ?
                      * QUIT TO MENU
                      */
-                    // Translation.manager.setActiveStateIndex(Translation.PAUSE_INDEX);
-                    // MenuHelper.linkMenu(MenuIDs.EDITOR_PAUSE_MENU);
+                    Translation.manager.setActiveStateIndex(Translation.PAUSE_INDEX);
+                    MenuHelper.linkMenu(MenuIDs.EDITOR_MENU, Menus.generateEditorMenu());
                 }
         );
     }

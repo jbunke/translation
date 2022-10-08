@@ -529,6 +529,10 @@ public class Editor {
         return startingPlatform;
     }
 
+    public static Mode getMode() {
+        return mode;
+    }
+
     public static Entity getSelectedEntity() {
         return selectedEntity;
     }

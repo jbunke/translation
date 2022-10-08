@@ -38,6 +38,10 @@ public class MenuIDs {
             LEVEL_COMPLETE = "level-complete",
                 STATS_LEVEL_COMPLETE = "stats-lc",
 
+            EDITOR_MENU = "editor-menu",
+                ARE_YOU_SURE_EDITOR_RESET = "ays-e-r",
+                ARE_YOU_SURE_EDITOR_QUIT_TO_MENU = "ays-e-qtm",
+
             // NON-GAME MENUS
             CUSTOM_TEXT = "custom-text"
     ;

@@ -6,6 +6,8 @@ import com.jordanbunke.jbjgl.text.JBJGLTextBuilder;
 import com.jordanbunke.jbjgl.utility.RenderConstants;
 import com.jordanbunke.translation.colors.TLColors;
 import com.jordanbunke.translation.fonts.Fonts;
+import com.jordanbunke.translation.gameplay.entities.Entity;
+import com.jordanbunke.translation.gameplay.entities.Platform;
 import com.jordanbunke.translation.io.ControlScheme;
 import com.jordanbunke.translation.settings.TechnicalSettings;
 
@@ -165,6 +167,12 @@ public class EditorHUD {
 
         // control prompts
         renderControlPrompts(g);
+
+        // selected entity information
+        renderSelectedInformationForMode(g);
+
+        // TODO
+        // mode
     }
 
     private static void renderCursor(
@@ -215,6 +223,35 @@ public class EditorHUD {
         ), y = TechnicalSettings.pixelLockNumber(buffer);
 
         g.drawImage(cpImage, x, y, null);
+    }
+
+    private static void renderSelectedInformationForMode(
+            final Graphics g
+    ) {
+        final Entity se = Editor.getSelectedEntity();
+        final Editor.Mode mode = Editor.getMode();
+        String textToRender = "";
+
+        if (se == null)
+            return;
+
+        if (se instanceof Platform p) {
+            int[] pos = p.getPosition();
+
+            textToRender = switch (mode) {
+                case MOVE_PLATFORM ->
+                        "POSITION: " + pos[RenderConstants.X] +
+                                ", " + pos[RenderConstants.Y];
+                case EXPAND_CONTRACT_PLATFORM ->
+                        "WIDTH: " + p.getWidth();
+            };
+        }
+
+        // TODO: sentry case
+
+        Anchor.MIDDLE_RIGHT.render(
+                generateText(textToRender, 1), g, 0
+        );
     }
 
     private static void renderSelectionText(

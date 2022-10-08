@@ -8,6 +8,7 @@ import com.jordanbunke.jbjgl.menus.JBJGLMenu;
 import com.jordanbunke.jbjgl.menus.menu_elements.*;
 import com.jordanbunke.jbjgl.text.JBJGLText;
 import com.jordanbunke.translation.Translation;
+import com.jordanbunke.translation.editor.Editor;
 import com.jordanbunke.translation.gameplay.Camera;
 import com.jordanbunke.translation.gameplay.level.Level;
 import com.jordanbunke.translation.io.ControlScheme;
@@ -458,6 +459,24 @@ public class Menus {
                 contents, MenuIDs.ABOUT);
     }
 
+    // EDITOR SECTION
+    public static JBJGLMenu generateEditorMenu() {
+        final JBJGLMenuElementGrouping contents = MenuHelper.generateListMenuOptions(
+                new String[] { "BACK TO EDITOR", "TEST LEVEL", "RESET", "QUIT TO MENU" },
+                new Runnable[] {
+                        () -> Translation.manager.setActiveStateIndex(Translation.EDITOR_INDEX),
+                        null, // TODO
+                        () -> MenuHelper.linkMenu(MenuIDs.ARE_YOU_SURE_EDITOR_RESET,
+                                generateAreYouSureResetEditor()),
+                        () -> MenuHelper.linkMenu(MenuIDs.ARE_YOU_SURE_EDITOR_QUIT_TO_MENU,
+                                generateAreYouSureQuitToMainMenu(MenuIDs.EDITOR_MENU))
+                }, 1.0);
+
+        return MenuHelper.generateBasicMenu("Level Editor",
+                MenuHelper.DOES_NOT_EXIST, contents);
+    }
+
+    // GAMEPLAY SECTION
     private static JBJGLMenu generatePauseMenu(final Level level) {
         final JBJGLMenuElementGrouping contents = MenuHelper.generateListMenuOptions(
                 new String[] { "RESUME", "SETTINGS", "QUIT TO MENU" },
@@ -466,7 +485,7 @@ public class Menus {
                         () -> MenuHelper.linkMenu(MenuIDs.SETTINGS,
                                 generateSettingsMenu(false)),
                         () -> MenuHelper.linkMenu(MenuIDs.ARE_YOU_SURE_PAUSE_QUIT_TO_MENU,
-                                generateAreYouSureQuitToMainMenu())
+                                generateAreYouSureQuitToMainMenu(MenuIDs.PAUSE_MENU))
                 }, 1.0);
 
         return MenuHelper.generateBasicMenu(level.getName(),
@@ -586,13 +605,24 @@ public class Menus {
                 Translation::quitGame);
     }
 
-    private static JBJGLMenu generateAreYouSureQuitToMainMenu() {
+    private static JBJGLMenu generateAreYouSureQuitToMainMenu(final String noMenuID) {
         return MenuHelper.generateAreYouSureMenu(
                 "you want to quit to the main menu?",
-                () -> MenuHelper.linkMenu(MenuIDs.PAUSE_MENU),
+                () -> MenuHelper.linkMenu(noMenuID),
                 () -> {
                     Translation.manager.setActiveStateIndex(Translation.MENU_INDEX);
                     MenuHelper.linkMenu(MenuIDs.MAIN_MENU, generateMainMenu());
                 });
+    }
+
+    private static JBJGLMenu generateAreYouSureResetEditor() {
+        return MenuHelper.generateAreYouSureMenu(
+                "you want to reset the level editor?",
+                () -> MenuHelper.linkMenu(MenuIDs.EDITOR_MENU),
+                () -> {
+                    Editor.reset();
+                    Translation.manager.setActiveStateIndex(Translation.EDITOR_INDEX);
+                }
+        );
     }
 }
