@@ -55,6 +55,18 @@ public class EditorPlatformSentries {
             else
                 role = setTo;
         }
+
+        public int getSpeed() {
+            return speed;
+        }
+
+        public int getDirection() {
+            return direction;
+        }
+
+        public Sentry.Role getRole() {
+            return role;
+        }
     }
 
     private static final int NO_SENTRIES_INDEX = -1;
@@ -108,5 +120,17 @@ public class EditorPlatformSentries {
     public void deselect() {
         selected = false;
         renderSentryIndex = 0;
+    }
+
+    public boolean isNotEmpty() {
+        return !sentrySpecs.isEmpty();
+    }
+
+    public boolean hasMultiple() {
+        return sentrySpecs.size() > 1;
+    }
+
+    public EditorSentrySpec getCurrentSentry() {
+        return sentrySpecs.get(sentryIndex);
     }
 }

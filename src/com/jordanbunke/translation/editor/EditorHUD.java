@@ -6,7 +6,6 @@ import com.jordanbunke.jbjgl.text.JBJGLTextBuilder;
 import com.jordanbunke.jbjgl.utility.RenderConstants;
 import com.jordanbunke.translation.colors.TLColors;
 import com.jordanbunke.translation.fonts.Fonts;
-import com.jordanbunke.translation.gameplay.entities.Entity;
 import com.jordanbunke.translation.gameplay.entities.Platform;
 import com.jordanbunke.translation.io.ControlScheme;
 import com.jordanbunke.translation.settings.TechnicalSettings;
@@ -68,18 +67,21 @@ public class EditorHUD {
     }
 
     public enum ControlPrompt {
+        // GENERAL
         CAN_GO_TO_MENU(
                 () -> true, " OPEN MENU",
                 Anchor.TOP_LEFT, ControlScheme.Action.PAUSE
         ),
-        CAN_SNAP_TO_GRID(
-                () -> true, " SNAP TO GRID",
-                Anchor.BOTTOM_LEFT, ControlScheme.Action.SNAP_TO_GRID
-        ),
         CAN_ZOOM(
                 () -> true, " TOGGLE ZOOM",
-                Anchor.BOTTOM_LEFT, ControlScheme.Action.TOGGLE_ZOOM
+                Anchor.TOP_LEFT, ControlScheme.Action.TOGGLE_ZOOM
         ),
+        CAN_SNAP_TO_GRID(
+                () -> true, " SNAP TO GRID",
+                Anchor.TOP_LEFT, ControlScheme.Action.SNAP_TO_GRID
+        ),
+
+        // PLATFORM
         CAN_CREATE_PLATFORM(
                 Editor::canCreatePlatform, " CREATE PLATFORM",
                 Anchor.MIDDLE_LEFT, ControlScheme.Action.SAVE_POS
@@ -103,7 +105,34 @@ public class EditorHUD {
         CAN_MOVE_PLATFORM(
                 Editor::canMovePlatform, "... MOVE PLATFORM",
                 Anchor.MIDDLE_LEFT, ControlScheme.Action.JUMP
-        )
+        ),
+
+        // SENTRIES
+        CAN_CREATE_SENTRY(
+                Editor::canCreateSentry, " CREATE SENTRY",
+                Anchor.MIDDLE_LEFT, ControlScheme.Action.SAVE_POS
+        ),
+        CAN_DELETE_SENTRY(
+                Editor::canDeleteSentry, " DELETE SENTRY",
+                Anchor.MIDDLE_LEFT, ControlScheme.Action.LOAD_POS
+        ),
+        CAN_TOGGLE_SENTRIES(
+                Editor::canToggleSentries, " GO TO NEXT SENTRY",
+                Anchor.MIDDLE_LEFT, ControlScheme.Action.JUMP
+        ),
+        CAN_INCREASE_SENTRY_SPEED(
+                Editor::canIncreaseSentrySpeed, " INCREASE SENTRY SPEED",
+                Anchor.MIDDLE_LEFT, ControlScheme.Action.MOVE_RIGHT
+        ),
+        CAN_DECREASE_SENTRY_SPEED(
+                Editor::canDecreaseSentrySpeed, " DECREASE SENTRY SPEED",
+                Anchor.MIDDLE_LEFT, ControlScheme.Action.MOVE_LEFT
+        ),
+        CAN_TOGGLE_SENTRY_ROLE(
+                Editor::canToggleSentryRole, " CHANGE ROLE",
+                Anchor.MIDDLE_LEFT, ControlScheme.Action.DROP
+        ),
+        // TODO - toggle sentry (spawner) secondary type
         ;
 
         final Callable<Boolean> checkerFunction;
@@ -282,26 +311,24 @@ public class EditorHUD {
     private static void renderSelectedInformationForMode(
             final Graphics g
     ) {
-        final Entity se = Editor.getSelectedPlatform();
+        final Platform p = Editor.getSelectedPlatform();
         final Editor.Mode mode = Editor.getMode();
         String textToRender = "";
 
-        if (se == null)
+        if (p == null)
             return;
 
-        if (se instanceof Platform p) {
-            int[] pos = p.getPosition();
+        int[] pos = p.getPosition();
 
-            textToRender = switch (mode) {
-                case MOVE_PLATFORM ->
-                        "POSITION: " + pos[RenderConstants.X] +
-                                ", " + pos[RenderConstants.Y];
-                case RESIZE_PLATFORM -> "WIDTH: " + p.getWidth();
-                case SENTRY -> " ";
-            };
-        }
+        textToRender = switch (mode) {
+            case MOVE_PLATFORM ->
+                    "POSITION: " + pos[RenderConstants.X] +
+                            ", " + pos[RenderConstants.Y];
+            case RESIZE_PLATFORM -> "WIDTH: " + p.getWidth();
+            case SENTRY -> "TEST";
+        };
 
-        // TODO: sentry case
+        // TODO: sentry case & refactor function
 
         Anchor.MIDDLE_RIGHT.render(
                 generateText(textToRender, 1), g, 0
