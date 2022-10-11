@@ -116,7 +116,7 @@ public class Platform extends Entity {
             final Camera camera, final Graphics g,
             final JBJGLGameDebugger debugger
     ) {
-        Entity selected = Editor.getSelectedEntity();
+        Entity selected = Editor.getSelectedPlatform();
 
         if (selected instanceof Platform selectedPlatform && selectedPlatform.equals(this)) {
             final int zoomFactor = camera.isZoomedIn() ? 1 : 2;

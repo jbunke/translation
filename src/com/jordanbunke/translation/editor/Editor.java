@@ -17,7 +17,9 @@ import com.jordanbunke.translation.settings.TechnicalSettings;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Editor {
 
@@ -61,10 +63,11 @@ public class Editor {
 
     private static Platform startingPlatform = generateStartingPlatform();
     private static List<Platform> additionalPlatforms = defaultAdditionalPlatforms();
-    private static List<Sentry> sentries = new ArrayList<>();
+    // private static List<Sentry> sentries = new ArrayList<>();
+    private static Map<Platform, EditorPlatformSentries> sentriesMap = generateSentriesMap();
     private static Camera camera = Camera.createForEditor();
-    private static Entity selectedEntity = null;
-    private static Entity highlightedEntity = null;
+    private static Platform selectedPlatform = null;
+    private static Platform highlightedPlatform = null;
 
     private static String selectionText = determineSelectionText();
 
@@ -76,7 +79,7 @@ public class Editor {
         camera.update();
         updatePlatformMovement();
 
-        highlightedEntity = determineHighlightedEntity();
+        highlightedPlatform = determineHighlightedPlatform();
         selectionText = determineSelectionText();
 
         // TODO
@@ -89,7 +92,7 @@ public class Editor {
         final int DELTA = 1;
 
         if (platformIsSelected()) {
-            Platform p = (Platform) selectedEntity;
+            Platform p = selectedPlatform;
 
             if (platformIsMovingLeft)
                 p.incrementX(-DELTA);
@@ -122,9 +125,9 @@ public class Editor {
         for (Platform p : additionalPlatforms)
             p.renderForEditor(camera, g, debugger);
 
-        // sentries
-        for (Sentry s : sentries)
-            s.renderSquare(camera, g);
+        // TODO - sentries
+        // for (Sentry s : sentries)
+        //     s.renderSquare(camera, g);
 
         // HUD
         EditorHUD.render(g);
@@ -375,6 +378,17 @@ public class Editor {
         );
     }
 
+    private static Map<Platform, EditorPlatformSentries> generateSentriesMap() {
+        final Map<Platform, EditorPlatformSentries> map = new HashMap<>();
+
+        map.put(startingPlatform, EditorPlatformSentries.create());
+
+        for (Platform p : additionalPlatforms)
+            map.put(p, EditorPlatformSentries.create());
+
+        return map;
+    }
+
     public static void reset() {
         mode = Mode.MOVE_PLATFORM;
 
@@ -383,10 +397,12 @@ public class Editor {
 
         startingPlatform = generateStartingPlatform();
         additionalPlatforms = defaultAdditionalPlatforms();
-        sentries = new ArrayList<>();
+        sentriesMap = generateSentriesMap();
+
         camera = Camera.createForEditor();
-        selectedEntity = null;
-        highlightedEntity = null;
+
+        selectedPlatform = null;
+        highlightedPlatform = null;
         selectionText = determineSelectionText();
     }
 
@@ -408,23 +424,20 @@ public class Editor {
         EditorHUD.initializeModeHUD();
     }
 
-    private static Entity determineHighlightedEntity() {
+    private static Platform determineHighlightedPlatform() {
         /* 1 - populate ALL platforms and sentries into an entity collection
          * 2 - check whether cursor position overlaps with the bounds of any entities
          * 3 - set selectedEntity to best match, or null if none found */
 
-        List<Entity> allEntities = new ArrayList<>();
-        allEntities.add(startingPlatform);
-        allEntities.addAll(additionalPlatforms);
-        allEntities.addAll(sentries);
+        List<Platform> allPlatforms = new ArrayList<>();
+        allPlatforms.add(startingPlatform);
+        allPlatforms.addAll(additionalPlatforms);
 
         int[] cp = getCursorPosition();
 
-        for (Entity e : allEntities)
-            if (e instanceof Platform p && p.isHighlighted(cp))
-                return e;
-            else if (e instanceof Sentry s && s.isHighlighted(cp))
-                return e;
+        for (Platform p : allPlatforms)
+            if (p.isHighlighted(cp))
+                return p;
 
         return null;
     }
@@ -433,7 +446,7 @@ public class Editor {
         resetPlatformMovementVariables();
         resetPlatformSizingVariables();
 
-        selectedEntity = highlightedEntity;
+        selectedPlatform = highlightedPlatform;
     }
 
     private static void addPlatform() {
@@ -445,8 +458,8 @@ public class Editor {
     }
 
     private static void deletePlatform() {
-        additionalPlatforms.remove((Platform) selectedEntity);
-        selectedEntity = null;
+        additionalPlatforms.remove((Platform) selectedPlatform);
+        selectedPlatform = null;
     }
 
     private static void movePlatform(
@@ -507,13 +520,13 @@ public class Editor {
     private static String determineSelectionText() {
         String name = "";
 
-        if (selectedEntity != null)
-            name = determineNameOfEntity(selectedEntity).toUpperCase();
-        else if (highlightedEntity != null)
+        if (selectedPlatform != null)
+            name = determineNameOfEntity(selectedPlatform).toUpperCase();
+        else if (highlightedPlatform != null)
             name = ControlScheme.getCorrespondingKey(
                     ControlScheme.Action.INIT_TELEPORT
             ).print() + " to select - " +
-                    determineNameOfEntity(highlightedEntity).toUpperCase();
+                    determineNameOfEntity(highlightedPlatform).toUpperCase();
 
         return name;
     }
@@ -550,12 +563,12 @@ public class Editor {
         return mode;
     }
 
-    public static Entity getSelectedEntity() {
-        return selectedEntity;
+    public static Entity getSelectedPlatform() {
+        return selectedPlatform;
     }
 
-    public static Entity getHighlightedEntity() {
-        return highlightedEntity;
+    public static Entity getHighlightedPlatform() {
+        return highlightedPlatform;
     }
 
     public static String getSelectionText() {
@@ -564,13 +577,11 @@ public class Editor {
 
     // CONTROL PROMPT CHECKERS
     public static boolean canCreatePlatform() {
-        // TODO - more conditions
-        final boolean noHighlightedEntity = highlightedEntity == null;
-        return noHighlightedEntity;
+        return highlightedPlatform == null;
     }
 
     public static boolean canDeletePlatform() {
-        if (selectedEntity instanceof Platform selectedPlatform) {
+        if (platformIsSelected()) {
             final boolean isNotStartingPlatform = !selectedPlatform.equals(startingPlatform),
                     hasMultipleAdditionalPlatforms = additionalPlatforms.size() > 1;
 
@@ -589,19 +600,17 @@ public class Editor {
     public static boolean canExpandPlatform() {
         final boolean modeIsExpandContractPlatform = mode == Mode.RESIZE_PLATFORM;
 
-        if (selectedEntity instanceof Platform selectedPlatform)
-            return selectedPlatform.getWidth() < Sentry.MAX_PLATFORM_WIDTH && modeIsExpandContractPlatform;
-
-        return false;
+        return platformIsSelected() &&
+                selectedPlatform.getWidth() < Sentry.MAX_PLATFORM_WIDTH &&
+                modeIsExpandContractPlatform;
     }
 
     public static boolean canContractPlatform() {
         final boolean modeIsExpandContractPlatform = mode == Mode.RESIZE_PLATFORM;
 
-        if (selectedEntity instanceof Platform selectedPlatform)
-            return selectedPlatform.getWidth() > GameplayConstants.SQUARE_LENGTH() && modeIsExpandContractPlatform;
-
-        return false;
+        return platformIsSelected() &&
+                selectedPlatform.getWidth() > GameplayConstants.SQUARE_LENGTH() &&
+                modeIsExpandContractPlatform;
     }
 
     private static boolean canExpandContractPlatform() {
@@ -613,6 +622,6 @@ public class Editor {
     }
 
     private static boolean platformIsSelected() {
-        return selectedEntity instanceof Platform;
+        return selectedPlatform != null;
     }
 }

@@ -54,13 +54,6 @@ public class EditorGameState extends ProgramContext {
 
         listener.checkForMatchingKeyStroke(
                 ControlScheme.getKeyEvent(ControlScheme.Action.PAUSE), () -> {
-                    /* TODO - write menu generator for editor pause with following buttons:
-                     * BACK TO EDITOR
-                     * TEST LEVEL
-                     * RESET
-                     * LOAD FROM PRESET ?
-                     * QUIT TO MENU
-                     */
                     Translation.manager.setActiveStateIndex(Translation.PAUSE_INDEX);
                     MenuHelper.linkMenu(MenuIDs.EDITOR_MENU, Menus.generateEditorMenu());
                 }

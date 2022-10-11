@@ -241,7 +241,7 @@ public class EditorHUD {
         final int topDownX = (width / 2) - (pixel / 2),
                 leftRightY = (height / 2) - (pixel / 2);
 
-        g.setColor(Editor.getHighlightedEntity() == null
+        g.setColor(Editor.getHighlightedPlatform() == null
                 ? TLColors.PLATFORM() : TLColors.DEBUG());
 
         g.fillRect(topDownX, 0, pixel, height);
@@ -282,7 +282,7 @@ public class EditorHUD {
     private static void renderSelectedInformationForMode(
             final Graphics g
     ) {
-        final Entity se = Editor.getSelectedEntity();
+        final Entity se = Editor.getSelectedPlatform();
         final Editor.Mode mode = Editor.getMode();
         String textToRender = "";
 
