@@ -160,7 +160,7 @@ public class EditorHUD {
         }
 
         public void update() {
-            controlPrompt = generateText(getPromptText(), 1);
+            controlPrompt = generateText(getPromptText(), 1.);
         }
 
         public JBJGLImage getControlPrompt() {
@@ -200,7 +200,7 @@ public class EditorHUD {
             final int index = m.ordinal();
             final boolean isMode = m.equals(mode);
 
-            final JBJGLImage modeText = generateText(m.print(), 1,
+            final JBJGLImage modeText = generateText(m.print(), 1.,
                             isMode ? TLColors.BLACK() : TLColors.PLAYER());
 
             widest = Math.max(widest, modeText.getWidth());
@@ -297,7 +297,7 @@ public class EditorHUD {
         final int[] cp = Editor.getCursorPosition();
         final JBJGLImage cpImage = generateText(
                 "(" + cp[RenderConstants.X] + ", " +
-                        cp[RenderConstants.Y] + ")", 1);
+                        cp[RenderConstants.Y] + ")", 1.);
 
         final int buffer = TechnicalSettings.getPixelSize() * 8;
 
@@ -331,7 +331,7 @@ public class EditorHUD {
         // TODO: sentry case & refactor function
 
         Anchor.MIDDLE_RIGHT.render(
-                generateText(textToRender, 1), g, 0
+                generateText(textToRender, 1.), g, 0
         );
     }
 
@@ -353,7 +353,7 @@ public class EditorHUD {
 
         if (!selectionText.equals(savedSelectionText)) {
             savedSelectionText = selectionText;
-            stImage = generateText(selectionText, 1);
+            stImage = generateText(selectionText, 1.);
         }
 
         final int buffer = TechnicalSettings.getPixelSize() * 8;
@@ -387,13 +387,13 @@ public class EditorHUD {
 
     // HELPERS
     private static JBJGLImage generateText(
-            final String text, final int textSize
+            final String text, final double textSize
     ) {
         return generateText(text, textSize, TLColors.PLAYER());
     }
 
     private static JBJGLImage generateText(
-            final String text, final int textSize, final Color color
+            final String text, final double textSize, final Color color
     ) {
         return JBJGLTextBuilder.initialize(
                 textSize, JBJGLText.Orientation.CENTER, color,

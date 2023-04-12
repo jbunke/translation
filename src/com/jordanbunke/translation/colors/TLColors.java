@@ -73,12 +73,16 @@ public class TLColors {
         return DEBUG(OPAQUE);
     }
 
-    public static Color NEW_PB(final int opacity) {
-        return new Color(0, 150, 0, opacity);
+    public static Color NEW_PB() {
+        return new Color(0, 150, 0, OPAQUE);
     }
 
-    public static Color WORSE_THAN_PB(final int opacity) {
-        return new Color(150, 0, 0, opacity);
+    public static Color SAME_AS_PB() {
+        return new Color(150, 120, 0, OPAQUE);
+    }
+
+    public static Color WORSE_THAN_PB() {
+        return new Color(150, 0, 0, OPAQUE);
     }
 
     // SETTERS

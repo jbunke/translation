@@ -11,7 +11,7 @@ public class DebugMessage {
     private int age;
 
     private DebugMessage(final String message) {
-        image = JBJGLTextBuilder.initialize(1,
+        image = JBJGLTextBuilder.initialize(1.,
                 JBJGLText.Orientation.LEFT, TLColors.DEBUG(TLColors.OPAQUE()),
                 Fonts.CLASSIC()).addText(message).build().draw();
         age = 0;

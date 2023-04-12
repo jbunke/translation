@@ -54,10 +54,10 @@ public class LevelHUD {
                 final int comboRenderY = TechnicalSettings.pixelLockNumber((int)(height * 0.45));
 
                 JBJGLImage comboCounterBackground = JBJGLTextBuilder.initialize(
-                        4, JBJGLText.Orientation.LEFT, TLColors.BLACK(), Fonts.GAME_ITALICS()
+                        4., JBJGLText.Orientation.LEFT, TLColors.BLACK(), Fonts.GAME_ITALICS()
                 ).addText("x" + combo).build().draw();
                 JBJGLImage comboCounter = JBJGLTextBuilder.initialize(
-                        4, JBJGLText.Orientation.LEFT, TLColors.PLAYER(TLColors.OPAQUE()), Fonts.GAME_ITALICS()
+                        4., JBJGLText.Orientation.LEFT, TLColors.PLAYER(TLColors.OPAQUE()), Fonts.GAME_ITALICS()
                 ).addText("x" + combo).build().draw();
 
                 JBJGLImage comboTimeoutBar =
@@ -105,7 +105,7 @@ public class LevelHUD {
 
     private static JBJGLImage generateHintHUD(final Level level) {
         return JBJGLTextBuilder.initialize(
-                2, JBJGLText.Orientation.CENTER, TLColors.PLAYER(),
+                2., JBJGLText.Orientation.CENTER, TLColors.PLAYER(),
                 Fonts.GAME_STANDARD()).addText(level.getHint()).build().draw();
     }
 
@@ -139,7 +139,7 @@ public class LevelHUD {
             final Color textColor = isActive ? TLColors.BLACK() : TLColors.PLAYER(TLColors.OPAQUE());
 
             final JBJGLImage text = JBJGLTextBuilder.initialize(
-                    1, JBJGLText.Orientation.CENTER, textColor, Fonts.GAME_STANDARD()
+                    1., JBJGLText.Orientation.CENTER, textColor, Fonts.GAME_STANDARD()
             ).addText(followModes[i].toString()).build().draw();
 
             final JBJGLImage followMode = JBJGLImage.create(followModeRenderWidth, followModeRenderHeight);

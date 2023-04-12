@@ -45,4 +45,12 @@ public class MenuIDs {
             // NON-GAME MENUS
             CUSTOM_TEXT = "custom-text"
     ;
+
+    public static boolean isAnEditorMenu(final String menuID) {
+            return switch (menuID) {
+                    case EDITOR_MENU, ARE_YOU_SURE_EDITOR_QUIT_TO_MENU,
+                            ARE_YOU_SURE_EDITOR_RESET -> true;
+                    default -> false;
+            };
+    }
 }

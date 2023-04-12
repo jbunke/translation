@@ -60,7 +60,7 @@ public class DebugRenderer {
     }
 
     private static JBJGLImage drawFps() {
-        return JBJGLTextBuilder.initialize(TechnicalSettings.getPixelSize(),
+        return JBJGLTextBuilder.initialize((double)TechnicalSettings.getPixelSize(),
                 JBJGLText.Orientation.RIGHT, TLColors.DEBUG(TLColors.OPAQUE()),
                 Fonts.CLASSIC()).addText(String.valueOf(fpsOnFile)).build().draw();
     }

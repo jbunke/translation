@@ -64,7 +64,7 @@ public class TextScreen {
 
     private static JBJGLTextMenuElement textFormatter(final String text) {
         JBJGLTextBuilder tb = JBJGLTextBuilder.initialize(
-                3, JBJGLText.Orientation.CENTER, TLColors.PLAYER(), Fonts.GAME_ITALICS()
+                5., JBJGLText.Orientation.CENTER, TLColors.PLAYER(), Fonts.GAME_ITALICS()
         );
         for (String line : text.split(NEW_LINE)) {
             tb.addText(line.equals("") ? " " : line);
