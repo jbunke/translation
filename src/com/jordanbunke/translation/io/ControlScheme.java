@@ -29,7 +29,8 @@ public class ControlScheme {
                     Action.TELEPORT.defaultPairing(),
                     Action.TOGGLE_FOLLOW_MODE.defaultPairing(),
                     Action.TOGGLE_ZOOM.defaultPairing(),
-                    Action.PAUSE.defaultPairing())
+                    Action.PAUSE.defaultPairing(),
+                    Action.SNAP_TO_GRID.defaultPairing())
     );
 
     private final static ControlScheme controlScheme = initialize();
@@ -45,7 +46,10 @@ public class ControlScheme {
         TOGGLE_ZOOM, TOGGLE_FOLLOW_MODE,
         MOVE_CAM_LEFT, MOVE_CAM_RIGHT, MOVE_CAM_UP, MOVE_CAM_DOWN,
         STOP_MOVING_CAM_LEFT, STOP_MOVING_CAM_RIGHT, STOP_MOVING_CAM_UP, STOP_MOVING_CAM_DOWN,
-        PAUSE;
+        PAUSE,
+        // EDITOR-SPECIFIC
+        SNAP_TO_GRID
+        ;
 
         private JBJGLKeyEvent.Action keyEventType() {
             return switch (this) {
@@ -80,6 +84,7 @@ public class ControlScheme {
                 case MOVE_CAM_UP, STOP_MOVING_CAM_UP -> JBJGLKey.UP_ARROW;
                 case TOGGLE_ZOOM -> JBJGLKey.Z;
                 case TOGGLE_FOLLOW_MODE -> JBJGLKey.X;
+                case SNAP_TO_GRID -> JBJGLKey.C;
             };
         }
 

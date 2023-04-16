@@ -1,4 +1,4 @@
-package com.jordanbunke.translation;
+package com.jordanbunke.translation.services;
 
 import com.jordanbunke.translation.gameplay.campaign.Campaign;
 import com.jordanbunke.translation.gameplay.level.Level;

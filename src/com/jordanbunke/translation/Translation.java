@@ -7,6 +7,7 @@ import com.jordanbunke.jbjgl.game.JBJGLGameEngine;
 import com.jordanbunke.jbjgl.game.JBJGLGameManager;
 import com.jordanbunke.jbjgl.window.JBJGLWindow;
 import com.jordanbunke.translation.fonts.Fonts;
+import com.jordanbunke.translation.game_states.EditorGameState;
 import com.jordanbunke.translation.game_states.LevelMenuGameState;
 import com.jordanbunke.translation.gameplay.campaign.Campaign;
 import com.jordanbunke.translation.gameplay.image.ImageAssets;
@@ -20,11 +21,14 @@ import com.jordanbunke.translation.settings.TechnicalSettings;
 import com.jordanbunke.translation.settings.debug.DebugRenderer;
 
 public class Translation {
+    private static final int INDEX_SKIP_SPLASH_SCREEN = 0, INDEX_SHOW_BOUNDING_BOXES = 1, TOTAL_FLAGS = 2;
+
     public static final String TITLE = "Translation";
-    public static final String VERSION = "0.1.1";
+    public static final String VERSION = "0.2.0 (dev)";
 
     public static final int GAMEPLAY_INDEX = 0, PAUSE_INDEX = 1,
-            LEVEL_COMPLETE_INDEX = 2, MENU_INDEX = 3, SPLASH_SCREEN_INDEX = 4;
+            LEVEL_COMPLETE_INDEX = 2, MENU_INDEX = 3, SPLASH_SCREEN_INDEX = 4,
+            EDITOR_INDEX = 5, NAME_LEVEL_INDEX = 6;
 
     public static Campaign campaign;
 
@@ -33,6 +37,7 @@ public class Translation {
     public static LevelMenuGameState levelCompleteState;
     public static JBJGLMenuManager menuManager;
     public static JBJGLMenuManager splashScreenManager;
+    public static EditorGameState editorGameState;
 
     public static JBJGLGameManager manager;
     public static JBJGLGameDebugger debugger;
@@ -42,7 +47,27 @@ public class Translation {
     public static void main(String[] args) {
         Fonts.setGameFontToClassic();
         SettingsIO.read();
-        launch();
+        launch(processArgs(args));
+    }
+
+    private static boolean[] processArgs(final String[] args) {
+        final boolean[] flags = new boolean[TOTAL_FLAGS];
+
+        final String skipSplashScreenFlag = "-sss";
+        final String showBoundingBoxesFlag = "-sbb";
+
+        for (String arg : args) {
+            int index = switch (arg) {
+                case skipSplashScreenFlag -> INDEX_SKIP_SPLASH_SCREEN;
+                case showBoundingBoxesFlag -> INDEX_SHOW_BOUNDING_BOXES;
+                default -> -1;
+            };
+
+            if (index >= 0)
+                flags[index] = true;
+        }
+
+        return flags;
     }
 
     public static void resize(final boolean fullscreen) {
@@ -68,8 +93,8 @@ public class Translation {
         );
     }
 
-    private static void launch() {
-        debugger = prepDebugger();
+    private static void launch(final boolean[] flags) {
+        debugger = prepDebugger(flags);
 
         campaign = LevelIO.readCampaign(LevelIO.TUTORIAL_CAMPAIGN_FOLDER);
         final Level level = campaign.getLevel();
@@ -79,14 +104,17 @@ public class Translation {
         levelCompleteState = LevelMenuGameState.create(level, LevelMenuGameState.Type.LEVEL_COMPLETE);
         menuManager = Menus.generateMenuManager();
         splashScreenManager = Menus.generateSplashScreenManager();
+        editorGameState = EditorGameState.create();
+        // TODO - name level state
 
         manager = JBJGLGameManager.createOf(
-                SPLASH_SCREEN_INDEX,
+                flags[INDEX_SKIP_SPLASH_SCREEN] ? MENU_INDEX : SPLASH_SCREEN_INDEX,
                 gameState,
                 pauseState,
                 levelCompleteState,
                 menuManager,
-                splashScreenManager
+                splashScreenManager,
+                editorGameState // TODO, nameLevelState
         );
 
         game = JBJGLGame.create(TITLE, manager,
@@ -98,11 +126,12 @@ public class Translation {
         gameEngine.overrideDebugger(debugger);
     }
 
-    private static JBJGLGameDebugger prepDebugger() {
+    private static JBJGLGameDebugger prepDebugger(final boolean[] flags) {
         JBJGLGameDebugger d = JBJGLGameDebugger.create();
 
         // debugger settings
-        d.hideBoundingBoxes();
+        if (!flags[INDEX_SHOW_BOUNDING_BOXES])
+            d.hideBoundingBoxes();
 
         d.muteChannel(JBJGLGameDebugger.PERFORMANCE_CHANNEL);
 

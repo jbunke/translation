@@ -22,8 +22,8 @@ public class Sentry extends SentientSquare {
     public static final int MAX_PLATFORM_WIDTH = 480;
     public static final int GRAVITY_FACTOR = 3;
 
-    private static final int MAX_SENTRY_SPEED = 14;
-    private static final int LEFT = -1, RIGHT = 1;
+    public static final int MAX_SENTRY_SPEED = 14;
+    public static final int LEFT = -1, RIGHT = 1;
 
     private static final int STANDARD_TICK_CYCLE = 200;
     private static final int ANIMATION_CYCLE = STANDARD_TICK_CYCLE / 4;
@@ -354,6 +354,15 @@ public class Sentry extends SentientSquare {
         return alive;
     }
 
+    public boolean isHighlighted(final int[] cp) {
+        final int diffX = Math.abs(cp[RenderConstants.X] - getPosition()[RenderConstants.X]);
+        final int diffY = Math.abs(cp[RenderConstants.Y] - getPosition()[RenderConstants.Y]);
+
+        final int allowance = GameplayConstants.SQUARE_LENGTH() / 2;
+
+        return diffX <= allowance && diffY <= allowance;
+    }
+
     public void update() {
         if (alive) {
             patrol();
@@ -558,6 +567,21 @@ public class Sentry extends SentientSquare {
                 }
             }
         }
+
+        renderSquare(camera, g);
+    }
+
+    public void renderSquare(Camera camera, Graphics g) {
+        final int zoomFactor = camera.isZoomedIn() ? 1 : 2;
+        final int rawHalfLength = GameplayConstants.SQUARE_LENGTH() / 2;
+
+        final int sideLength = GameplayConstants.SQUARE_LENGTH() / zoomFactor;
+        final int pixel = TechnicalSettings.getPixelSize();
+
+        final int[] renderPosition = camera.getRenderPosition(
+                getPosition()[RenderConstants.X] - rawHalfLength,
+                getPosition()[RenderConstants.Y] - rawHalfLength
+        );
 
         JBJGLImage square = JBJGLImage.create(sideLength, sideLength);
         Graphics sg = square.getGraphics();

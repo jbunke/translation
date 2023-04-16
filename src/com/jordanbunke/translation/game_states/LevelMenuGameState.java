@@ -7,6 +7,7 @@ import com.jordanbunke.jbjgl.io.JBJGLListener;
 import com.jordanbunke.translation.Translation;
 import com.jordanbunke.translation.io.ControlScheme;
 import com.jordanbunke.translation.gameplay.level.Level;
+import com.jordanbunke.translation.menus.MenuIDs;
 import com.jordanbunke.translation.menus.Menus;
 import com.jordanbunke.translation.settings.debug.DebugRenderer;
 import com.jordanbunke.translation.settings.debug.DebugSettings;
@@ -64,9 +65,13 @@ public class LevelMenuGameState extends ProgramContext {
     public void process(JBJGLListener listener) {
         menuManager.process(listener);
 
-        listener.checkForMatchingKeyStroke(
-                ControlScheme.getKeyEvent(ControlScheme.Action.PAUSE), () ->
-                        Translation.manager.setActiveStateIndex(Translation.GAMEPLAY_INDEX)
-        );
+        if (type == Type.PAUSE)
+            listener.checkForMatchingKeyStroke(
+                    ControlScheme.getKeyEvent(ControlScheme.Action.PAUSE), () ->
+                            Translation.manager.setActiveStateIndex(
+                                    MenuIDs.isAnEditorMenu(menuManager.getActiveMenuID())
+                                            ? Translation.EDITOR_INDEX
+                                            : Translation.GAMEPLAY_INDEX)
+            );
     }
 }

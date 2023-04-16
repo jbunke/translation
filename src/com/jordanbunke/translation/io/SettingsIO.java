@@ -33,7 +33,9 @@ public class SettingsIO {
             PAUSE = "pause-c",
             TOGGLE_ZOOM = "zoom-c", TOGGLE_FOLLOW_MODE = "follow-c",
             CAM_UP = "cam-up-c", CAM_DOWN = "cam-down-c",
-            CAM_LEFT = "cam-left-c", CAM_RIGHT = "cam-right-c";
+            CAM_LEFT = "cam-left-c", CAM_RIGHT = "cam-right-c",
+            SNAP_TO_GRID = "snap-to-grid-c"
+            ;
 
     public static void read() {
         final String toParse = JBJGLFileIO.readFile(SETTINGS_FILE);
@@ -89,7 +91,8 @@ public class SettingsIO {
                 Map.entry(ControlScheme.Action.MOVE_CAM_UP, CAM_UP),
                 Map.entry(ControlScheme.Action.STOP_MOVING_CAM_UP, CAM_UP),
                 Map.entry(ControlScheme.Action.MOVE_CAM_DOWN, CAM_DOWN),
-                Map.entry(ControlScheme.Action.STOP_MOVING_CAM_DOWN, CAM_DOWN)
+                Map.entry(ControlScheme.Action.STOP_MOVING_CAM_DOWN, CAM_DOWN),
+                Map.entry(ControlScheme.Action.SNAP_TO_GRID, SNAP_TO_GRID)
         );
     }
 

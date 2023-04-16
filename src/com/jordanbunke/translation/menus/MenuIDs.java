@@ -36,6 +36,21 @@ public class MenuIDs {
                 ARE_YOU_SURE_PAUSE_QUIT_TO_MENU = "ays-p-qtm",
 
             LEVEL_COMPLETE = "level-complete",
-                STATS_LEVEL_COMPLETE = "stats-lc"
+                STATS_LEVEL_COMPLETE = "stats-lc",
+
+            EDITOR_MENU = "editor-menu",
+                ARE_YOU_SURE_EDITOR_RESET = "ays-e-r",
+                ARE_YOU_SURE_EDITOR_QUIT_TO_MENU = "ays-e-qtm",
+
+            // NON-GAME MENUS
+            CUSTOM_TEXT = "custom-text"
     ;
+
+    public static boolean isAnEditorMenu(final String menuID) {
+            return switch (menuID) {
+                    case EDITOR_MENU, ARE_YOU_SURE_EDITOR_QUIT_TO_MENU,
+                            ARE_YOU_SURE_EDITOR_RESET -> true;
+                    default -> false;
+            };
+    }
 }

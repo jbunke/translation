@@ -3,6 +3,7 @@ package com.jordanbunke.translation.gameplay.entities;
 import com.jordanbunke.jbjgl.debug.JBJGLGameDebugger;
 import com.jordanbunke.jbjgl.image.JBJGLImage;
 import com.jordanbunke.jbjgl.utility.RenderConstants;
+import com.jordanbunke.translation.editor.Editor;
 import com.jordanbunke.translation.gameplay.Camera;
 import com.jordanbunke.translation.settings.GameplayConstants;
 import com.jordanbunke.translation.settings.TechnicalSettings;
@@ -53,6 +54,16 @@ public class Platform extends Entity {
         return diffX < allowance;
     }
 
+    public boolean isHighlighted(final int[] cp) {
+        final int diffX = Math.abs(cp[RenderConstants.X] - getPosition()[RenderConstants.X]);
+        final int diffY = Math.abs(cp[RenderConstants.Y] - getPosition()[RenderConstants.Y]);
+
+        final int allowanceX = getWidth() / 2;
+        final int allowanceY = GameplayConstants.PLATFORM_HEIGHT() / 2;
+
+        return diffX <= allowanceX && diffY <= allowanceY;
+    }
+
     public void changeWidth(final int deltaWidth) {
         width += deltaWidth;
     }
@@ -99,5 +110,45 @@ public class Platform extends Entity {
                 platform, renderPosition[RenderConstants.X],
                 renderPosition[RenderConstants.Y], null
         );
+    }
+
+    public void renderForEditor(
+            final Camera camera, final Graphics g,
+            final JBJGLGameDebugger debugger
+    ) {
+        Platform selectedPlatform = Editor.getSelectedPlatform();
+
+        if (Editor.platformIsSelected() && selectedPlatform.equals(this)) {
+            final int zoomFactor = camera.isZoomedIn() ? 1 : 2;
+            final int pixel = TechnicalSettings.getPixelSize();
+
+            final int width = TechnicalSettings.pixelLockNumber(
+                    getWidth() / zoomFactor
+            ) + (pixel * 2);
+            final int height = TechnicalSettings.pixelLockNumber(
+                    GameplayConstants.PLATFORM_HEIGHT() / zoomFactor
+            ) + (pixel * 2);
+
+            final int rawHalfWidth = getWidth() / 2;
+            final int rawHalfHeight = GameplayConstants.PLATFORM_HEIGHT() / 2;
+
+            final int[] renderPosition = camera.getRenderPosition(
+                    getPosition()[RenderConstants.X] - rawHalfWidth,
+                    getPosition()[RenderConstants.Y] - rawHalfHeight
+            );
+
+            JBJGLImage selectionOutline = JBJGLImage.create(width, height);
+            Graphics sog = selectionOutline.getGraphics();
+
+            sog.setColor(TLColors.DEBUG());
+            sog.fillRect(0, 0, width, height);
+
+            g.drawImage(
+                    selectionOutline, renderPosition[RenderConstants.X] - pixel,
+                    renderPosition[RenderConstants.Y] - pixel, null
+            );
+        }
+
+        render(camera, g, debugger);
     }
 }

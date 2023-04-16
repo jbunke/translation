@@ -1,6 +1,7 @@
 package com.jordanbunke.translation.gameplay;
 
 import com.jordanbunke.jbjgl.utility.RenderConstants;
+import com.jordanbunke.translation.editor.Editor;
 import com.jordanbunke.translation.gameplay.entities.Entity;
 import com.jordanbunke.translation.settings.TechnicalSettings;
 
@@ -8,6 +9,7 @@ public class Camera extends HasPosition {
     private static final int CAMERA_MOVEMENT_SPEED = TechnicalSettings.getPixelSize();
 
     private final Entity target;
+    private final boolean canToggleFollowMode;
     private FollowMode followMode;
     private boolean zoom; // true - zoomed in, false - zoomed out
 
@@ -39,9 +41,11 @@ public class Camera extends HasPosition {
 
     private Camera(
             final int initialX, final int initialY,
+            final boolean canToggleFollowMode,
             final Entity target, final FollowMode followMode
     ) {
         super(initialX, initialY);
+        this.canToggleFollowMode = canToggleFollowMode;
         this.target = target;
         this.followMode = followMode;
         this.zoom = true;
@@ -58,7 +62,18 @@ public class Camera extends HasPosition {
         final int[] position = target.getPosition();
 
         return new Camera(
-                position[RenderConstants.X], position[RenderConstants.Y], target, followMode
+                position[RenderConstants.X], position[RenderConstants.Y],
+                true, target, followMode
+        );
+    }
+
+    public static Camera createForEditor() {
+        final int[] tp = Editor.getStartingPlatform().getPosition();
+
+        return new Camera(
+                tp[RenderConstants.X], tp[RenderConstants.Y],
+                false, Editor.getStartingPlatform(),
+                FollowMode.FIXED
         );
     }
 
@@ -68,10 +83,8 @@ public class Camera extends HasPosition {
     }
 
     private void follow() {
-        final int[] tp = target.getPosition();
-
         switch (followMode) {
-            case GLUED -> setPosition(tp[RenderConstants.X], tp[RenderConstants.Y]);
+            case GLUED -> snap();
             case STEADY -> {
                 final int[] deltas = calculateDeltas();
                 incrementX(deltas[RenderConstants.X]);
@@ -92,6 +105,11 @@ public class Camera extends HasPosition {
             incrementY(-CAMERA_MOVEMENT_SPEED);
         if (isMovingDown)
             incrementY(CAMERA_MOVEMENT_SPEED);
+    }
+
+    private void snap() {
+        final int[] tp = target.getPosition();
+        setPosition(tp[RenderConstants.X], tp[RenderConstants.Y]);
     }
 
     private int[] calculateDeltas() {
@@ -154,6 +172,9 @@ public class Camera extends HasPosition {
     }
 
     public void toggleFollowMode() {
+        if (!canToggleFollowMode)
+            return;
+
         followMode = followMode.next();
 
         updateMovementAfterFollowModeUpdate();
