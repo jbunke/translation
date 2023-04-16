@@ -37,10 +37,8 @@ public class MenuHelper {
 
     // Positioning
     private static final int LIST_MENU_INITIAL_Y = 140;
-    private static final int LIST_MENU_INCREMENT_Y = TechnicalSettings.getHeight() / 8;
     private static final int MENU_TITLE_Y = 0;
     private static final int MENU_SUBTITLE_Y = LIST_MENU_INITIAL_Y;
-    private static final int MENU_TEXT_INCREMENT_Y = TechnicalSettings.getHeight() / 12;
     private static final int MARGIN = 20;
 
     public static final String DOES_NOT_EXIST = "!does-not-exist!";
@@ -181,12 +179,12 @@ public class MenuHelper {
                         },
                         widthCoord(0.5),
                         heightCoord(1.0) -
-                                (LIST_MENU_INITIAL_Y + (int)(1.5 * LIST_MENU_INCREMENT_Y)),
+                                (LIST_MENU_INITIAL_Y + (int)(1.5 * listMenuIncrementY())),
                         JBJGLMenuElement.Anchor.CENTRAL_TOP),
                 JBJGLTextMenuElement.generate(
                         new int[] {
                                 widthCoord(0.5),
-                                LIST_MENU_INITIAL_Y + (int)(1.9 * LIST_MENU_INCREMENT_Y)
+                                LIST_MENU_INITIAL_Y + (int)(1.9 * listMenuIncrementY())
                         }, JBJGLMenuElement.Anchor.CENTRAL_TOP,
                         generateInitialMenuTextBuilder().addText(
                                 (level.isBlind() ? "BLIND" : "SIGHTED") + " & " +
@@ -431,7 +429,7 @@ public class MenuHelper {
             final Runnable[][] behaviours, final Callable<Integer>[] updateIndexLogic,
             final double offsetByNRows
     ) {
-        final int offsetY = (int)(offsetByNRows * LIST_MENU_INCREMENT_Y);
+        final int offsetY = (int)(offsetByNRows * listMenuIncrementY());
 
         final int width = TechnicalSettings.getWidth();
         final int pixel = TechnicalSettings.getPixelSize();
@@ -455,7 +453,7 @@ public class MenuHelper {
 
             menuElements[i * 2] = associatedText;
             menuElements[(i * 2) + 1] = button;
-            drawY += LIST_MENU_INCREMENT_Y;
+            drawY += listMenuIncrementY();
         }
 
         return JBJGLMenuElementGrouping.generate(menuElements);
@@ -477,7 +475,7 @@ public class MenuHelper {
                     headings[i], new int[] { x, drawY }, anchor,
                     TechnicalSettings.pixelLockNumber(width / 3), behaviours[i]);
             menuElements[i] = button;
-            drawY += LIST_MENU_INCREMENT_Y;
+            drawY += listMenuIncrementY();
         }
 
         return JBJGLMenuElementGrouping.generate(menuElements);
@@ -501,7 +499,7 @@ public class MenuHelper {
 
         return generateListMenuOptions(
                 headings, behaviours,
-                width / 2, (int)(offsetByNButtons * LIST_MENU_INCREMENT_Y),
+                width / 2, (int)(offsetByNButtons * listMenuIncrementY()),
                 JBJGLMenuElement.Anchor.CENTRAL_TOP);
     }
 
@@ -517,7 +515,7 @@ public class MenuHelper {
             final int column = i % COLUMNS;
             final int row = i / COLUMNS;
             final int x = widthCoord((column + 1) / (double)(COLUMNS + 1)),
-                    y = INITIAL_Y + (row * MENU_TEXT_INCREMENT_Y);
+                    y = INITIAL_Y + (row * menuTextIncrementY());
             menuElements[i] = generateSentryButton(x, y, roles[i],
                     widthCoord(1/(COLUMNS + 1.3)));
         }
@@ -530,7 +528,7 @@ public class MenuHelper {
     }
 
     public static JBJGLMenuElementGrouping generateControlsButtons() {
-        final int offsetY = (int)(LIST_MENU_INCREMENT_Y * 1.5);
+        final int offsetY = (int)(listMenuIncrementY() * 1.5);
         final int COLUMNS = 4, CONTROL_AMOUNT = 15, textSize = TechnicalSettings.getPixelSize() / 4;
         final JBJGLMenuElement[] menuElements = new JBJGLMenuElement[CONTROL_AMOUNT * 2];
 
@@ -615,7 +613,7 @@ public class MenuHelper {
                 default -> 3;
             };
             final int x = widthCoord((column + 1) / (double)(COLUMNS + 1));
-            final int y = LIST_MENU_INITIAL_Y + offsetY + (row * LIST_MENU_INCREMENT_Y);
+            final int y = LIST_MENU_INITIAL_Y + offsetY + (row * listMenuIncrementY());
 
             menuElements[i * 2] = JBJGLTextMenuElement.generate(
                     new int[] { x, y + (textSize * 2) },
@@ -623,7 +621,7 @@ public class MenuHelper {
                     generateInitialMenuTextBuilder(textSize).addText(associatedTexts[i]).build()
             );
             menuElements[(i * 2) + 1] = generateControlButton(
-                    new int[] { x, y + (int)(LIST_MENU_INCREMENT_Y * 0.3) },
+                    new int[] { x, y + (int)(listMenuIncrementY() * 0.3) },
                     buttonWidth, setFunctions.get(i), actions[i],
                     setButton, setHighlightedButton
             );
@@ -689,7 +687,7 @@ public class MenuHelper {
             final String title, final Campaign[] campaigns,
             final String backMenuID, final int page
     ) {
-        final int INITIAL_Y = LIST_MENU_INITIAL_Y + (int)(2.5 * LIST_MENU_INCREMENT_Y);
+        final int INITIAL_Y = LIST_MENU_INITIAL_Y + (int)(2.5 * listMenuIncrementY());
         final int BUTTON_WIDTH = widthCoord(1/5.3);
         final int CAMPAIGNS_ON_PAGE = 3, campaignCount = campaigns.length;
         final int campaignsOnThisPage = Math.min(
@@ -708,7 +706,7 @@ public class MenuHelper {
         // generate buttons
         for (int i = 0; i < campaignsOnThisPage; i++) {
             final int x = widthCoord(0.5),
-                    y = INITIAL_Y + (i * LIST_MENU_INCREMENT_Y);
+                    y = INITIAL_Y + (i * listMenuIncrementY());
             final Campaign campaign = campaigns[startingIndex + i];
             campaignButtons[i] = generateCampaignButton(
                     x, y, widthCoord(0.8), campaign);
@@ -750,7 +748,7 @@ public class MenuHelper {
             final int column = i % COLUMNS;
             final int row = i / COLUMNS;
             final int x = widthCoord((column + 1) / (double)(COLUMNS + 1)),
-                    y = INITIAL_Y + (row * LIST_MENU_INCREMENT_Y);
+                    y = INITIAL_Y + (row * listMenuIncrementY());
             final Level level = campaign.getLevelAt(startingIndex + i);
             levelButtons[i] = generateLevelButton(
                     x, y, BUTTON_WIDTH, campaign, level, startingIndex + i);
@@ -863,7 +861,7 @@ public class MenuHelper {
     ) {
         final int PREVIOUS_X = widthCoord(0.2);
         final int NEXT_X = widthCoord(0.8);
-        final int NAVIGATION_Y = LIST_MENU_INITIAL_Y + LIST_MENU_INCREMENT_Y;
+        final int NAVIGATION_Y = LIST_MENU_INITIAL_Y + listMenuIncrementY();
 
         final JBJGLMenuElement previousPageButton = determineTextButton(
                 "< " + previousHeading, new int[] { PREVIOUS_X, NAVIGATION_Y },
@@ -1024,7 +1022,7 @@ public class MenuHelper {
             final double textSize, final LevelStats levelStats
     ) {
         JBJGLText heading = generateInitialMenuTextBuilder(textSize)
-                .addText("PREVIOUS PERSONAL BESTS").build();
+                .addText("PREVIOUS BESTS").build();
         JBJGLText[] body = new JBJGLText[] {
                 generateInitialMenuTextBuilder(textSize)
                         .addText(levelStats.getPreviousPersonalBest(LevelStats.TIME)).build(),
@@ -1194,7 +1192,7 @@ public class MenuHelper {
             textMenuElements[i] = JBJGLTextMenuElement.generate(
                     new int[] { x, y }, anchor, texts[i]
             );
-            y += MENU_TEXT_INCREMENT_Y;
+            y += menuTextIncrementY();
         }
 
         return JBJGLMenuElementGrouping.generate(textMenuElements);
@@ -1302,6 +1300,14 @@ public class MenuHelper {
     }
 
     // MATHS HELPERS
+
+    private static int listMenuIncrementY() {
+        return TechnicalSettings.getHeight() / 8;
+    }
+
+    private static int menuTextIncrementY() {
+        return TechnicalSettings.getHeight() / 12;
+    }
 
     public static int widthCoord(final double fraction) {
         return coordinateFromFraction(TechnicalSettings.getWidth(), fraction);

@@ -78,7 +78,7 @@ public class TLColors {
     }
 
     public static Color SAME_AS_PB() {
-        return new Color(150, 120, 0, OPAQUE);
+        return PLATFORM(); // new Color(150, 120, 0, OPAQUE);
     }
 
     public static Color WORSE_THAN_PB() {
