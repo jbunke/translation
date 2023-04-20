@@ -67,6 +67,10 @@ public class EditorPlatformSentries {
         public Sentry.Role getRole() {
             return role;
         }
+
+        public Sentry.Role getSecondaryRole() {
+            return secondary;
+        }
     }
 
     private static final int NO_SENTRIES_INDEX = -1;

@@ -10,7 +10,6 @@ import com.jordanbunke.jbjgl.image.JBJGLImage;
 import com.jordanbunke.jbjgl.io.JBJGLListener;
 import com.jordanbunke.jbjgl.menus.menu_elements.JBJGLMenuElement;
 import com.jordanbunke.translation.Translation;
-import com.jordanbunke.translation.utility.Utility;
 
 import java.awt.*;
 import java.util.List;
@@ -18,9 +17,6 @@ import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 
 public class SetInputMenuElement extends JBJGLMenuElement {
-    private static final int UPDATE_FREQUENCY = 100;
-    private int updateCounter;
-
     private boolean setMode;
     private boolean isHighlighted;
 
@@ -54,7 +50,6 @@ public class SetInputMenuElement extends JBJGLMenuElement {
         isHighlighted = false;
 
         this.setFunction = setFunction;
-        updateCounter = Utility.boundedRandom(0, UPDATE_FREQUENCY); // randomize to reduce lag from synced updates
 
         generateImages();
     }
@@ -73,25 +68,20 @@ public class SetInputMenuElement extends JBJGLMenuElement {
         );
     }
 
-    private void generateImages() {
+    public void generateImages() {
         try {
             nonHighlightedImage = nhGeneratorFunction.call();
             highlightedImage = hGeneratorFunction.call();
         } catch (Exception e) {
             Translation.debugger.getChannel(JBJGLGameDebugger.LOGIC_CHANNEL).printMessage(
-                    "Callable function threw excecption. Did not generate images for " +
-                            "SetInputMenuElement."
+                    "Callable function threw exception. Did not generate images for SetInputMenuElement."
             );
         }
     }
 
     @Override
     public void update() {
-        if (updateCounter == 0)
-            generateImages();
 
-        updateCounter++;
-        updateCounter %= UPDATE_FREQUENCY;
     }
 
     @Override

@@ -73,11 +73,11 @@ public class Translation {
     public static void resize(final boolean fullscreen) {
         TechnicalSettings.setFullscreen(fullscreen);
         ImageAssets.updateAfterResize();
-        updateMenus();
+        updateMenusAfterResize();
         game.replaceWindow(generateWindow());
     }
 
-    private static void updateMenus() {
+    private static void updateMenusAfterResize() {
         final Level level = campaign.getLevel();
 
         if (manager.getActiveStateIndex() == PAUSE_INDEX)

@@ -209,6 +209,7 @@ public class MenuHelper {
     }
 
     private static JBJGLMenu generateSentryRoleWikiPage(final Sentry.Role role) {
+        final double METADATA_HEIGHT_FRACTION = 0.35;
         final int pixel = TechnicalSettings.getPixelSize();
 
         final Path sentryDescriptionFilepath = ParserWriter.RESOURCE_ROOT.resolve(
@@ -221,14 +222,14 @@ public class MenuHelper {
                 JBJGLStaticMenuElement.generate(
                         new int[] {
                                 widthCoord(0.5),
-                                heightCoord(0.5)
+                                heightCoord(METADATA_HEIGHT_FRACTION)
                         }, JBJGLMenuElement.Anchor.CENTRAL_TOP,
                         ImageAssets.drawSentry(role)),
                 // metadata
                 JBJGLTextMenuElement.generate(
                         new int[] {
                                 widthCoord(0.48),
-                                heightCoord(0.5)
+                                heightCoord(METADATA_HEIGHT_FRACTION) - pixel
                         }, JBJGLMenuElement.Anchor.RIGHT_TOP,
                         generateInitialMenuTextBuilder().addText(
                                 role.isSightDependent()
@@ -237,7 +238,7 @@ public class MenuHelper {
                 JBJGLTextMenuElement.generate(
                         new int[] {
                                 widthCoord(0.52) + pixel,
-                                heightCoord(0.5)
+                                heightCoord(METADATA_HEIGHT_FRACTION) - pixel
                         }, JBJGLMenuElement.Anchor.LEFT_TOP,
                         generateInitialMenuTextBuilder().addText(
                                 role.isDeterministic()
@@ -245,10 +246,10 @@ public class MenuHelper {
                                         : "NON-DETERMINISTIC BEHAVIOUR"
                         ).build()),
                 // description
-                generateMenuTextBlurb(
-                        sentryDescription, JBJGLText.Orientation.CENTER,
-                        widthCoord(0.5), heightCoord(0.57),
-                        2));
+                generateMenuTextBlurb(sentryDescription,
+                        JBJGLText.Orientation.CENTER,
+                        JBJGLMenuElement.Anchor.CENTRAL,
+                        widthCoord(0.5), heightCoord(0.68), 2));
 
         return generateBasicMenu(role.name(),
                 "SENTRY TYPE", contents, MenuIDs.SENTRIES_WIKI);
@@ -504,10 +505,7 @@ public class MenuHelper {
     }
 
     public static JBJGLMenuElementGrouping generateSentryButtons() {
-        final int width = TechnicalSettings.getWidth(),
-                height = TechnicalSettings.getHeight();
-
-        final int COLUMNS = 4, INITIAL_Y = heightCoord(0.45);
+        final int COLUMNS = 4, INITIAL_Y = LIST_MENU_INITIAL_Y + (listMenuIncrementY() / 2);
         final Sentry.Role[] roles = Sentry.Role.values();
         final JBJGLClickableMenuElement[] menuElements = new JBJGLClickableMenuElement[roles.length];
 
@@ -515,15 +513,12 @@ public class MenuHelper {
             final int column = i % COLUMNS;
             final int row = i / COLUMNS;
             final int x = widthCoord((column + 1) / (double)(COLUMNS + 1)),
-                    y = INITIAL_Y + (row * menuTextIncrementY());
+                    y = INITIAL_Y + (row * listMenuIncrementY());
             menuElements[i] = generateSentryButton(x, y, roles[i],
-                    widthCoord(1/(COLUMNS + 1.3)));
+                    widthCoord(1 / (COLUMNS + 1.3)));
         }
 
         return JBJGLMenuElementGrouping.generateOf(
-                MenuHelper.generateMenuTextBlurb(
-                        "", JBJGLText.Orientation.CENTER,
-                        width / 2, height / 3, 1),
                 JBJGLMenuElementGrouping.generate(menuElements));
     }
 
@@ -536,7 +531,7 @@ public class MenuHelper {
                 "MOVE LEFT", "MOVE RIGHT", "JUMP", "DROP",
                 "TELEPORT", "SAVE / * CREATE PLATFORM", "LOAD / * DELETE PLATFORM",
                 "CAMERA LEFT", "CAMERA RIGHT", "CAMERA UP", "CAMERA DOWN",
-                "TOGGLE ZOOM", "TOGGLE FOLLOW MODE / * EDIT MODE", "PAUSE", "* SNAP TO GRID"
+                "TOGGLE ZOOM", "TOGGLE FOLLOW (* EDIT) MODE", "PAUSE", "* SNAP TO GRID"
         };
         final java.util.List<Consumer<JBJGLKey>> setFunctions = List.of(
                 key -> {
@@ -627,9 +622,7 @@ public class MenuHelper {
             );
         }
 
-        return JBJGLMenuElementGrouping.generate(
-                menuElements
-        );
+        return JBJGLMenuElementGrouping.generate(menuElements);
     }
 
     public static JBJGLMenuElementGrouping generateLevelStatsText(final LevelStats levelStats) {
@@ -883,7 +876,7 @@ public class MenuHelper {
             final int x, final int y, final Sentry.Role role, final int buttonWidth
     ) {
         final JBJGLImage nonHighlightedButton =
-                drawNonHighlightedTextButton(buttonWidth, " ", 1);
+                drawNonHighlightedTextButton(buttonWidth, " ");
         final int width = nonHighlightedButton.getWidth(), height = nonHighlightedButton.getHeight();
         final JBJGLImage square = ImageAssets.drawSentry(role);
         final int squareX = (buttonWidth / 2) - (square.getWidth() / 2),
@@ -892,9 +885,10 @@ public class MenuHelper {
         final Graphics nhbg = nonHighlightedButton.getGraphics();
         nhbg.drawImage(square, squareX, squareY, null);
 
-        final JBJGLImage highlightedButton = drawHighlightedTextButton(
-                buttonWidth, role.name(),
-                1, role.getColor(TLColors.OPAQUE()));
+        final JBJGLImage highlightedButton =
+                drawHighlightedTextButton(buttonWidth, role.name(),
+                TechnicalSettings.getPixelSize() / 2.,
+                        role.getColor(TLColors.OPAQUE()));
 
         return JBJGLClickableMenuElement.generate(
                 new int[] { x, y }, new int[] { width, height },

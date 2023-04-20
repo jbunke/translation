@@ -190,13 +190,6 @@ public class Editor {
         processSelection(listener);
         processPlatform(listener);
         processSentry(listener);
-
-        /* TODO
-         * sentry addition
-         * sentry deletion
-         * sentry type
-         * sentry speed
-         * sentry secondary type (where applicable) */
     }
 
     private static void processCamera(
@@ -209,10 +202,11 @@ public class Editor {
         );
 
         // snap cursor/camera to grid
-        listener.checkForMatchingKeyStroke(
-                ControlScheme.getKeyEvent(ControlScheme.Action.SNAP_TO_GRID),
-                Editor::snapToGrid
-        );
+        if (canSnapToGrid())
+            listener.checkForMatchingKeyStroke(
+                    ControlScheme.getKeyEvent(ControlScheme.Action.SNAP_TO_GRID),
+                    Editor::snapToGrid
+            );
 
         // move camera
         listener.checkForMatchingKeyStroke(
@@ -408,7 +402,12 @@ public class Editor {
                             nextRole(false)
             );
 
-        // TODO - toggle sentry (spawner) secondary role
+        // toggle sentry (spawner) secondary role
+        if (canToggleSentrySpawnerSecondaryRole())
+            listener.checkForMatchingKeyStroke(
+                    ControlScheme.getKeyEvent(ControlScheme.Action.SNAP_TO_GRID),
+                    () -> thisPlatformSentries().getCurrentSentry().nextRole(true)
+            );
     }
 
     // DEFAULTS AND RESETS
@@ -417,14 +416,10 @@ public class Editor {
     }
 
     private static List<Platform> defaultAdditionalPlatforms() {
-        return new ArrayList<>(
-                List.of(
-                        Platform.create(
-                                DEFAULT_SECOND_PLATFORM_POSITION[RenderConstants.X],
-                                DEFAULT_SECOND_PLATFORM_POSITION[RenderConstants.Y],
-                                DEFAULT_PLATFORM_WIDTH)
-                )
-        );
+        return new ArrayList<>(List.of(Platform.create(
+                        DEFAULT_SECOND_PLATFORM_POSITION[RenderConstants.X],
+                        DEFAULT_SECOND_PLATFORM_POSITION[RenderConstants.Y],
+                        DEFAULT_PLATFORM_WIDTH)));
     }
 
     private static Map<Platform, EditorPlatformSentries> generateSentriesMap() {
@@ -631,6 +626,10 @@ public class Editor {
         return mode;
     }
 
+    public static EditorPlatformSentries.EditorSentrySpec getSelectedSentry() {
+        return thisPlatformSentries().getCurrentSentry();
+    }
+
     public static Platform getSelectedPlatform() {
         return selectedPlatform;
     }
@@ -644,6 +643,10 @@ public class Editor {
     }
 
     // CONTROL PROMPT CHECKERS
+    public static boolean canSnapToGrid() {
+        return !canToggleSentrySpawnerSecondaryRole();
+    }
+
     public static boolean canCreatePlatform() {
         final boolean isNotSelectingPlatformOnSentryMode =
                 !(platformIsSelected() && modeIsSentry());
@@ -737,7 +740,6 @@ public class Editor {
                 thisPlatformSentries().isNotEmpty();
     }
 
-    // TODO
     public static boolean canToggleSentrySpawnerSecondaryRole() {
         if (platformIsSelected() && modeIsSentry() &&
                 thisPlatformSentries().isNotEmpty()) {

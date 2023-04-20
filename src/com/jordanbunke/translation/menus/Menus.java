@@ -80,15 +80,15 @@ public class Menus {
                 MenuHelper.generateListMenuOptions(
                         new String[] {
                                 "PLAY", "LEVEL EDITOR", "SETTINGS",
-                                "WIKI", "INFORMATION", "QUIT"
+                                "GAME MECHANICS", "INFORMATION", "QUIT"
                         },
                         new Runnable[] {
                                 () -> MenuHelper.linkMenu(MenuIDs.CAMPAIGNS_MENU,
                                         generateCampaignsMenu()),
-                                () -> Translation.manager.setActiveStateIndex(Translation.EDITOR_INDEX), // TODO - editor
+                                () -> Translation.manager.setActiveStateIndex(Translation.EDITOR_INDEX),
                                 () -> MenuHelper.linkMenu(MenuIDs.SETTINGS,
                                         generateSettingsMenu(true)),
-                                () -> MenuHelper.linkMenu(MenuIDs.WIKI, generateWikiMenu()),
+                                () -> MenuHelper.linkMenu(MenuIDs.GAME_MECHANICS, generateGameMechanicsMenu()),
                                 () -> MenuHelper.linkMenu(MenuIDs.ABOUT, generateAboutMenu()),
                                 () -> MenuHelper.linkMenu(MenuIDs.ARE_YOU_SURE_QUIT_GAME,
                                         generateAreYouSureQuitGame())
@@ -137,7 +137,7 @@ public class Menus {
                         () -> MenuHelper.linkMenu(MenuIDs.GAMEPLAY_SETTINGS, generateGameplaySettingsMenu()),
                         () -> MenuHelper.linkMenu(MenuIDs.CONTROLS_SETTINGS, generateControlsSettingsMenu()),
                         () -> MenuHelper.linkMenu(MenuIDs.VIDEO_SETTINGS, generateVideoSettingsMenu()),
-                        null,
+                        () -> MenuHelper.linkMenu(MenuIDs.AUDIO_SETTINGS, generateAudioSettingsMenu()),
                         () -> MenuHelper.linkMenu(MenuIDs.TECHNICAL_SETTINGS, generateTechnicalSettingsMenu())
                 });
 
@@ -197,11 +197,16 @@ public class Menus {
     }
 
     private static JBJGLMenu generateControlsSettingsMenu() {
+        final JBJGLMenuElementGrouping controlsButtons =
+                MenuHelper.generateControlsButtons();
+
         final JBJGLMenuElementGrouping contents = JBJGLMenuElementGrouping.generateOf(
                 MenuHelper.generateListMenuOptions(
                         new String[] { "RESET" },
-                        new Runnable[] { ControlScheme::reset }),
-                MenuHelper.generateControlsButtons(),
+                        new Runnable[] {
+                                () -> ControlScheme.reset(controlsButtons.getMenuElements())
+                        }),
+                controlsButtons,
                 MenuHelper.generateMenuTextBlurb(
                         "* - level editor",
                         JBJGLText.Orientation.CENTER,
@@ -277,7 +282,7 @@ public class Menus {
                 contents, MenuIDs.SETTINGS);
     }
 
-    private static JBJGLMenu generateWikiMenu() {
+    private static JBJGLMenu generateGameMechanicsMenu() {
         final JBJGLMenuElementGrouping contents = MenuHelper.generateListMenuOptions(
                 new String[] { "SENTRIES", "PLATFORMS", "MOVEMENT" },
                 new Runnable[] {
@@ -290,7 +295,7 @@ public class Menus {
                 }, 1.0);
 
         return MenuHelper.generateBasicMenu(
-                "Wiki", "BRIEF DESCRIPTIONS OF THE GAME'S SYSTEMS",
+                "Game Mechanics", "BRIEF DESCRIPTIONS OF THE GAME'S SYSTEMS",
                 contents, MenuIDs.MAIN_MENU);
     }
 
@@ -299,7 +304,7 @@ public class Menus {
 
         return MenuHelper.generateBasicMenu(
                 "Sentries", MenuHelper.DOES_NOT_EXIST,
-                contents, MenuIDs.WIKI);
+                contents, MenuIDs.GAME_MECHANICS);
     }
 
     private static JBJGLMenu generatePlatformWikiPage() {
@@ -316,7 +321,7 @@ public class Menus {
                         MenuHelper.heightCoord(0.6), 2));
 
         return MenuHelper.generateBasicMenu("Platforms", MenuHelper.DOES_NOT_EXIST,
-                contents, MenuIDs.WIKI);
+                contents, MenuIDs.GAME_MECHANICS);
     }
 
     private static JBJGLMenu generateMovementRulesWikiPage() {
@@ -332,7 +337,7 @@ public class Menus {
                 });
 
         return MenuHelper.generateBasicMenu("Player Movement", MenuHelper.DOES_NOT_EXIST,
-                contents, MenuIDs.WIKI);
+                contents, MenuIDs.GAME_MECHANICS);
     }
 
     private static JBJGLMenu generateJumpDiveWikiPage() {
@@ -415,7 +420,7 @@ public class Menus {
                         JBJGLText.Orientation.CENTER,
                         JBJGLMenuElement.Anchor.CENTRAL,
                         MenuHelper.widthCoord(0.5), MenuHelper.heightCoord(0.6),
-                        TechnicalSettings.getPixelSize() / 4));
+                        TechnicalSettings.getPixelSize() / 4.));
 
         return MenuHelper.generateBasicMenu("Background", MenuHelper.DOES_NOT_EXIST,
                 contents, MenuIDs.ABOUT);
@@ -453,7 +458,7 @@ public class Menus {
                         JBJGLText.Orientation.CENTER,
                         MenuHelper.widthCoord(0.5),
                         MenuHelper.heightCoord(0.5),
-                        TechnicalSettings.getPixelSize() / 4));
+                        TechnicalSettings.getPixelSize() / 4.));
 
         return MenuHelper.generateBasicMenu("The Developer", MenuHelper.DOES_NOT_EXIST,
                 contents, MenuIDs.ABOUT);
