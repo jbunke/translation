@@ -23,12 +23,14 @@ import com.jordanbunke.translation.settings.debug.DebugRenderer;
 public class Translation {
     private static final int INDEX_SKIP_SPLASH_SCREEN = 0, INDEX_SHOW_BOUNDING_BOXES = 1, TOTAL_FLAGS = 2;
 
-    public static final String TITLE = "Translation";
-    public static final String VERSION = "0.2.0 (dev)";
+    public static final String TITLE = "Translation",
+            VERSION = "0.2.0 (dev)",
+            MY_GITHUB_LINK = "https://github.com/jbunke",
+            MY_GAMES_LINK = "https://flinkerflitzer.itch.io/";
 
     public static final int GAMEPLAY_INDEX = 0, PAUSE_INDEX = 1,
             LEVEL_COMPLETE_INDEX = 2, MENU_INDEX = 3, SPLASH_SCREEN_INDEX = 4,
-            EDITOR_INDEX = 5, NAME_LEVEL_INDEX = 6;
+            EDITOR_INDEX = 5;
 
     public static Campaign campaign;
 
@@ -105,7 +107,6 @@ public class Translation {
         menuManager = Menus.generateMenuManager();
         splashScreenManager = Menus.generateSplashScreenManager();
         editorGameState = EditorGameState.create();
-        // TODO - name level state
 
         manager = JBJGLGameManager.createOf(
                 flags[INDEX_SKIP_SPLASH_SCREEN] ? MENU_INDEX : SPLASH_SCREEN_INDEX,
@@ -114,7 +115,7 @@ public class Translation {
                 levelCompleteState,
                 menuManager,
                 splashScreenManager,
-                editorGameState // TODO, nameLevelState
+                editorGameState
         );
 
         game = JBJGLGame.create(TITLE, manager,

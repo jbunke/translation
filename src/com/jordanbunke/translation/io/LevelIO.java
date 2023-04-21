@@ -1,7 +1,7 @@
 package com.jordanbunke.translation.io;
 
+import com.jordanbunke.jbjgl.error.JBJGLError;
 import com.jordanbunke.jbjgl.io.JBJGLFileIO;
-import com.jordanbunke.jbjgl.utility.JBJGLGlobal;
 import com.jordanbunke.translation.gameplay.campaign.Campaign;
 import com.jordanbunke.translation.gameplay.entities.Sentry;
 import com.jordanbunke.translation.gameplay.level.Level;
@@ -79,10 +79,8 @@ public class LevelIO {
                 : ParserWriter.extractFromTagAndSplit(FILES, text);
 
         if (levelFileNames.length != levelCount)
-            JBJGLGlobal.printErrorToJBJGLChannel(
-                    "Campaign file contains " + levelFileNames.length +
-                            " levels despite declaring " + levelCount + "."
-            );
+            JBJGLError.send("Campaign file contains " + levelFileNames.length +
+                    " levels despite declaring " + levelCount + ".");
 
         if (defaultNaming)
             for (int i = 0; i < levelFileNames.length; i++)

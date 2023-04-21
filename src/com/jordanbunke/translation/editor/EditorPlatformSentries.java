@@ -130,6 +130,7 @@ public class EditorPlatformSentries {
     public void createSentry() {
         sentrySpecs.add(EditorSentrySpec.create());
         selectedIndex = sentrySpecs.size() - 1;
+        renderSentryIndex = selectedIndex;
     }
 
     public void deleteSentry() {

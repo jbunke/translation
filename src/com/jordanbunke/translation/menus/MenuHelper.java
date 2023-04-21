@@ -1261,17 +1261,24 @@ public class MenuHelper {
         ).addText(label).build().draw();
 
         final int height = text.getHeight();
-        final int trueWidth = Math.max(
-                width,
-                text.getWidth() + Math.max(pixel * 4, (int)(textSize * pixel * 2))
-        );
-        final int x = (trueWidth - text.getWidth()) / 2;
 
-        JBJGLImage nonHighlightedButton =
-                JBJGLImage.create(trueWidth, height);
+        double adjustableTextSize = textSize;
+
+        while (text.getWidth() + Math.max(pixel * 4, (int)(textSize * pixel * 2)) > width) {
+            adjustableTextSize -= 0.1;
+            text = JBJGLTextBuilder.initialize(
+                    adjustableTextSize, JBJGLText.Orientation.CENTER,
+                    color, Fonts.GAME_STANDARD()
+            ).addText(label).build().draw();
+        }
+
+        final int x = (width - text.getWidth()) / 2, y = (int)(textSize * 2) +
+                (int)(0.5 * (height - text.getHeight()));
+
+        JBJGLImage nonHighlightedButton = JBJGLImage.create(width, height);
         drawButtonPixelBorder(nonHighlightedButton, color);
         Graphics nhbg = nonHighlightedButton.getGraphics();
-        nhbg.drawImage(text, x, (int)(textSize * 2), null);
+        nhbg.drawImage(text, x, y, null);
 
         return nonHighlightedButton;
     }

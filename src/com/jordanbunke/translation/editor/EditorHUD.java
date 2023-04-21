@@ -364,7 +364,8 @@ public class EditorHUD {
 
                     yield "SENTRY " + (Editor.getSelectedPlatformSentries().getSelectedIndex() + 1) +
                             " OF " + Editor.getSelectedPlatformSentries().getSize() +
-                            NEW_LINE + " " + NEW_LINE + s.getRole() + // " " necessary to not trigger exception in JBJGLImage
+                            NEW_LINE + " " + NEW_LINE + // " " necessary to not trigger exception in JBJGLImage
+                            "ROLE: " + s.getRole() +
                             (s.getRole() == Sentry.Role.SPAWNER
                                     ? " (" + s.getSecondaryRole() + ")"
                                     : "") + NEW_LINE +

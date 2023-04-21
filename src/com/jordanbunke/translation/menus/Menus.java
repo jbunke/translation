@@ -11,15 +11,13 @@ import com.jordanbunke.translation.Translation;
 import com.jordanbunke.translation.editor.Editor;
 import com.jordanbunke.translation.gameplay.Camera;
 import com.jordanbunke.translation.gameplay.level.Level;
-import com.jordanbunke.translation.io.ControlScheme;
-import com.jordanbunke.translation.io.LevelIO;
-import com.jordanbunke.translation.io.ParserWriter;
-import com.jordanbunke.translation.io.TextIO;
+import com.jordanbunke.translation.io.*;
 import com.jordanbunke.translation.settings.GameplaySettings;
 import com.jordanbunke.translation.settings.TechnicalSettings;
 import com.jordanbunke.translation.settings.debug.DebugSettings;
 import com.jordanbunke.translation.utility.Utility;
 
+import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.Callable;
@@ -101,10 +99,10 @@ public class Menus {
 
     private static JBJGLMenu generateCampaignsMenu() {
         return MenuHelper.generateBasicMenu(
-                "Campaigns", MenuHelper.DOES_NOT_EXIST,
+                "Play...", MenuHelper.DOES_NOT_EXIST,
                 MenuHelper.generateListMenuOptions(
                         new String[] { "MAIN CAMPAIGNS", "TUTORIAL",
-                                "MY CAMPAIGNS", "IMPORTED CAMPAIGNS" },
+                                "MY CONTENT", "IMPORTED CAMPAIGNS" },
                         new Runnable[] {
                                 () -> MenuHelper.linkMenu(MenuIDs.CAMPAIGN_FOLDER,
                                         MenuHelper.generateCampaignFolderMenu(
@@ -441,24 +439,33 @@ public class Menus {
 
         for (int i = 0; i < NUM_IMAGES; i++) {
             final String filename = baseFilename + (i + FILENAME_INDEX_OFFSET) + ".png";
-            devImages[i] =
-                    JBJGLImageIO.readImage(devImageFolder.resolve(filename));
-
+            devImages[i] = JBJGLImageIO.readImage(devImageFolder.resolve(filename));
         }
 
         final JBJGLMenuElementGrouping contents = JBJGLMenuElementGrouping.generateOf(
                 JBJGLAnimationMenuElement.generate(
                         new int[] {
                                 MenuHelper.widthCoord(0.5),
-                                MenuHelper.heightCoord(0.30)
+                                MenuHelper.heightCoord(0.23)
                         }, new int[] { DIM_X, DIM_Y }, JBJGLMenuElement.Anchor.CENTRAL,
                         5, devImages
                 ),
                 MenuHelper.generateMenuTextBlurb(devText,
                         JBJGLText.Orientation.CENTER,
                         MenuHelper.widthCoord(0.5),
-                        MenuHelper.heightCoord(0.5),
-                        TechnicalSettings.getPixelSize() / 4.));
+                        MenuHelper.heightCoord(0.37),
+                        TechnicalSettings.getPixelSize() / 4.),
+                MenuHelper.generateListMenuOptions(
+                        new String[] { "PUBLISHED GAMES", "GITHUB", "WRITING" },
+                        new Runnable[] {
+                                () -> BrowserIO.openLink(URI.create(Translation.MY_GAMES_LINK)),
+                                () -> BrowserIO.openLink(URI.create(Translation.MY_GITHUB_LINK)),
+                                null
+                        },
+                        MenuHelper.widthCoord(0.5),
+                        MenuHelper.heightCoord(0.4),
+                        JBJGLMenuElement.Anchor.CENTRAL_TOP)
+        );
 
         return MenuHelper.generateBasicMenu("The Developer", MenuHelper.DOES_NOT_EXIST,
                 contents, MenuIDs.ABOUT);
