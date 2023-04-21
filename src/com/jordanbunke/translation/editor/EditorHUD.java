@@ -33,7 +33,7 @@ public class EditorHUD {
 
         void render(
                 final JBJGLImage image, final Graphics g,
-                final int previousAtAnchor
+                final double previousAtAnchor
         ) {
             final int margin = TechnicalSettings.getPixelSize() * 8;
 
@@ -54,13 +54,13 @@ public class EditorHUD {
             // y
             y = switch (this) {
                 case TOP_LEFT ->
-                        margin + (image.getHeight() * previousAtAnchor);
+                        margin + (int)(image.getHeight() * previousAtAnchor);
                 case MIDDLE_LEFT, MIDDLE_RIGHT ->
                         (height / 2) + margin +
-                                (image.getHeight() * previousAtAnchor);
+                                (int)(image.getHeight() * previousAtAnchor);
                 default ->
                         height - (margin + (image.getHeight() *
-                                (previousAtAnchor + 1)));
+                                (int)(previousAtAnchor + 1)));
             };
 
             g.drawImage(image, x, y, null);
@@ -250,6 +250,17 @@ public class EditorHUD {
     public static void update() {
         if (modeUpdateCounter > 0)
             modeUpdateCounter--;
+
+        updateSelectedSentryHUD();
+    }
+
+    private static void updateSelectedSentryHUD() {
+        if (!Editor.canDeleteSentry()) return;
+
+        final EditorPlatformSentries.EditorSentrySpec s =
+                Editor.getSelectedPlatformSentries().getSelectedSentry();
+
+        s.updateCounter();
     }
 
     public static void render(
@@ -269,6 +280,9 @@ public class EditorHUD {
 
         // selected entity information
         renderSelectedInformationForMode(g);
+
+        // render selected sentry as HUD
+        renderSelectedSentryAsHUD(g);
 
         // mode
         if (modeUpdateCounter > 0)
@@ -345,14 +359,17 @@ public class EditorHUD {
             case SENTRY -> {
                 if (Editor.canDeleteSentry()) {
                     final EditorPlatformSentries.EditorSentrySpec s =
-                            Editor.getSelectedSentry();
+                            Editor.getSelectedPlatformSentries().getSelectedSentry();
+                    final String direction = s.getDirection() == Sentry.LEFT ? "LEFT" : "RIGHT";
 
-                    yield s.getRole() +
+                    yield "SENTRY " + (Editor.getSelectedPlatformSentries().getSelectedIndex() + 1) +
+                            " OF " + Editor.getSelectedPlatformSentries().getSize() +
+                            NEW_LINE + " " + NEW_LINE + s.getRole() + // " " necessary to not trigger exception in JBJGLImage
                             (s.getRole() == Sentry.Role.SPAWNER
                                     ? " (" + s.getSecondaryRole() + ")"
                                     : "") + NEW_LINE +
                             "SPEED: " + s.getSpeed() + NEW_LINE +
-                            "INITIAL DIRECTION: " + s.getDirection(); // TODO: should read as LEFT or RIGHT
+                            "INITIAL DIRECTION: " + direction;
                 }
 
                 yield "NO SENTRIES ON PLATFORM";
@@ -363,11 +380,39 @@ public class EditorHUD {
             final String[] lines = textToRender.split(NEW_LINE);
 
             for (int i = 0; i < lines.length; i++)
-                Anchor.MIDDLE_RIGHT.render(
-                        generateText(lines[i], 1.), g, i);
+                Anchor.MIDDLE_RIGHT.render(generateText(lines[i], 1.), g, i);
         } else
-            Anchor.MIDDLE_RIGHT.render(
-                    generateText(textToRender, 1.), g, 0);
+            Anchor.MIDDLE_RIGHT.render(generateText(textToRender, 1.), g, 0.);
+    }
+
+    private static void renderSelectedSentryAsHUD(
+            final Graphics g
+    ) {
+        if (!Editor.canDeleteSentry()) return;
+
+        final EditorPlatformSentries.EditorSentrySpec s =
+                Editor.getSelectedPlatformSentries().getSelectedSentry();
+
+        final JBJGLImage selectedSentryHUD = Sentry.drawForEditorHUD(true,
+                s.getRole(), s.getSecondaryRole(), s.getCounter());
+
+        final Sentry.Role
+                previousRole = s.getRole().previous(),
+                nextRole = s.getRole().next();
+        final JBJGLImage previousSentryHUD = Sentry.drawForEditorHUD(false, previousRole, previousRole, 0);
+        final JBJGLImage nextSentryHUD = Sentry.drawForEditorHUD(false, nextRole, nextRole, 0);
+
+        final int dim = selectedSentryHUD.getWidth(), smallDim = previousSentryHUD.getWidth();
+        final JBJGLImage lastThisAndNext = JBJGLImage.create(dim, dim);
+        final Graphics ltnG = lastThisAndNext.getGraphics();
+
+        ltnG.drawImage(selectedSentryHUD, 0, 0, null);
+        ltnG.drawImage(previousSentryHUD, 0, (dim - smallDim) / 2, null);
+        ltnG.drawImage(nextSentryHUD, dim - smallDim, (dim - smallDim) / 2, null);
+
+        ltnG.dispose();
+
+        Anchor.MIDDLE_RIGHT.render(lastThisAndNext, g, 0.32);
     }
 
     private static void renderModeHUD(

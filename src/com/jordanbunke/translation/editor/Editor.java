@@ -48,6 +48,7 @@ public class Editor {
     }
 
     private static final int DEFAULT_PLATFORM_WIDTH = 200;
+    private static final int SENTRY_RENDER_CYCLE = 200;
     private static final int[] DEFAULT_SECOND_PLATFORM_POSITION = new int[] { 0, -200 };
 
     private static final int MESH_SIZE = 40;
@@ -63,13 +64,14 @@ public class Editor {
 
     private static Platform startingPlatform = generateStartingPlatform();
     private static List<Platform> additionalPlatforms = defaultAdditionalPlatforms();
-    // private static List<Sentry> sentries = new ArrayList<>();
     private static Map<Platform, EditorPlatformSentries> sentriesMap = generateSentriesMap();
     private static Camera camera = Camera.createForEditor();
     private static Platform selectedPlatform = null;
     private static Platform highlightedPlatform = null;
 
     private static String selectionText = determineSelectionText();
+
+    private static int sentryRenderCounter;
 
     public static void initialize() {
         reset();
@@ -82,7 +84,8 @@ public class Editor {
         highlightedPlatform = determineHighlightedPlatform();
         selectionText = determineSelectionText();
 
-        // TODO
+        // Sentry rendering updates
+        updateSentryRendering();
 
         // HUD updates
         EditorHUD.update();
@@ -110,6 +113,19 @@ public class Editor {
         }
     }
 
+    private static void updateSentryRendering() {
+        sentryRenderCounter++;
+
+        if (sentryRenderCounter >= SENTRY_RENDER_CYCLE) {
+            sentryRenderCounter = 0;
+
+            Editor.sentriesMap.get(startingPlatform).toggleRenderSentryIndex();
+
+            for (Platform p : additionalPlatforms)
+                Editor.sentriesMap.get(p).toggleRenderSentryIndex();
+        }
+    }
+
     public static void render(
             final Graphics g, final JBJGLGameDebugger debugger
     ) {
@@ -120,14 +136,10 @@ public class Editor {
         renderMesh(g);
 
         // platforms
-        startingPlatform.renderForEditor(camera, g, debugger);
+        renderPlatforms(g, debugger);
 
-        for (Platform p : additionalPlatforms)
-            p.renderForEditor(camera, g, debugger);
-
-        // TODO - sentries
-        // for (Sentry s : sentries)
-        //     s.renderSquare(camera, g);
+        // sentries
+        renderSentries(g);
 
         // HUD
         EditorHUD.render(g);
@@ -181,6 +193,40 @@ public class Editor {
         // horizontal lines
         for (int y = 0; y < repsY; y++)
             g.fillRect(0, startingMesh[RenderConstants.Y] + (y * adjustedSize), width, 1);
+    }
+
+    private static void renderPlatforms(
+            final Graphics g, final JBJGLGameDebugger debugger
+    ) {
+        startingPlatform.renderForEditor(camera, g, debugger);
+
+        for (Platform p : additionalPlatforms)
+            p.renderForEditor(camera, g, debugger);
+    }
+
+    private static void renderSentries(
+            final Graphics g
+    ) {
+        final List<Platform> platforms = new ArrayList<>(additionalPlatforms);
+        platforms.add(0, startingPlatform);
+
+        for (Platform p : platforms) {
+            final EditorPlatformSentries sentries = sentriesMap.get(p);
+
+            if (!sentries.isNotEmpty()) continue;
+
+            final boolean isSelected = sentries.isSelected();
+
+            final EditorPlatformSentries.EditorSentrySpec sentrySpec = isSelected
+                    ? sentries.getSelectedSentry()
+                    : sentries.getRenderSentry();
+            final Sentry sentry = Sentry.create(
+                    sentrySpec.getRole(), sentrySpec.getSecondaryRole(),
+                    null, p, sentrySpec.getDirection() * sentrySpec.getSpeed()
+            );
+
+            sentry.renderSquare(camera, g);
+        }
     }
 
     public static void process(
@@ -361,44 +407,44 @@ public class Editor {
         if (canCreateSentry())
             listener.checkForMatchingKeyStroke(
                     ControlScheme.getKeyEvent(ControlScheme.Action.SAVE_POS),
-                    () -> thisPlatformSentries().createSentry()
+                    () -> getSelectedPlatformSentries().createSentry()
             );
 
         // delete sentry
         if (canDeleteSentry())
             listener.checkForMatchingKeyStroke(
                     ControlScheme.getKeyEvent(ControlScheme.Action.LOAD_POS),
-                    () -> thisPlatformSentries().deleteSentry()
+                    () -> getSelectedPlatformSentries().deleteSentry()
             );
 
         // toggle sentry
         if (canToggleSentries())
             listener.checkForMatchingKeyStroke(
                     ControlScheme.getKeyEvent(ControlScheme.Action.JUMP),
-                    () -> thisPlatformSentries().toggleSentryIndex()
+                    () -> getSelectedPlatformSentries().toggleSentryIndex()
             );
 
         // decrease sentry speed
         if (canDecreaseSentrySpeed())
             listener.checkForMatchingKeyStroke(
                     ControlScheme.getKeyEvent(ControlScheme.Action.MOVE_LEFT),
-                    () -> thisPlatformSentries().
-                            getCurrentSentry().speedDown()
+                    () -> getSelectedPlatformSentries().
+                            getSelectedSentry().speedDown()
             );
 
         // increase sentry speed
         if (canIncreaseSentrySpeed())
             listener.checkForMatchingKeyStroke(
                     ControlScheme.getKeyEvent(ControlScheme.Action.MOVE_RIGHT),
-                    () -> thisPlatformSentries().
-                            getCurrentSentry().speedUp()
+                    () -> getSelectedPlatformSentries().
+                            getSelectedSentry().speedUp()
             );
 
         // toggle sentry role
         if (canToggleSentryRole())
             listener.checkForMatchingKeyStroke(
                     ControlScheme.getKeyEvent(ControlScheme.Action.DROP),
-                    () -> thisPlatformSentries().getCurrentSentry().
+                    () -> getSelectedPlatformSentries().getSelectedSentry().
                             nextRole(false)
             );
 
@@ -406,7 +452,7 @@ public class Editor {
         if (canToggleSentrySpawnerSecondaryRole())
             listener.checkForMatchingKeyStroke(
                     ControlScheme.getKeyEvent(ControlScheme.Action.SNAP_TO_GRID),
-                    () -> thisPlatformSentries().getCurrentSentry().nextRole(true)
+                    () -> getSelectedPlatformSentries().getSelectedSentry().nextRole(true)
             );
     }
 
@@ -448,6 +494,8 @@ public class Editor {
         selectedPlatform = null;
         highlightedPlatform = null;
         selectionText = determineSelectionText();
+
+        sentryRenderCounter = 0;
     }
 
     private static void resetPlatformMovementVariables() {
@@ -469,9 +517,9 @@ public class Editor {
 
         if (platformIsSelected()) {
             if (modeIsSentry())
-                thisPlatformSentries().select();
+                getSelectedPlatformSentries().select();
             else
-                thisPlatformSentries().deselect();
+                getSelectedPlatformSentries().deselect();
         }
 
     }
@@ -499,7 +547,9 @@ public class Editor {
         resetPlatformSizingVariables();
 
         if (platformIsSelected() && highlightedPlatform == null && modeIsSentry())
-            thisPlatformSentries().deselect();
+            getSelectedPlatformSentries().deselect();
+        else if (!platformIsSelected() && highlightedPlatform != null && modeIsSentry())
+            sentriesMap.get(highlightedPlatform).select();
 
         selectedPlatform = highlightedPlatform;
     }
@@ -609,7 +659,7 @@ public class Editor {
         return INVALID_SELECTION;
     }
 
-    private static EditorPlatformSentries thisPlatformSentries() {
+    public static EditorPlatformSentries getSelectedPlatformSentries() {
         return sentriesMap.get(selectedPlatform);
     }
 
@@ -624,10 +674,6 @@ public class Editor {
 
     public static Mode getMode() {
         return mode;
-    }
-
-    public static EditorPlatformSentries.EditorSentrySpec getSelectedSentry() {
-        return thisPlatformSentries().getCurrentSentry();
     }
 
     public static Platform getSelectedPlatform() {
@@ -698,18 +744,18 @@ public class Editor {
 
     public static boolean canDeleteSentry() {
         return platformIsSelected() && modeIsSentry() &&
-                thisPlatformSentries().isNotEmpty();
+                getSelectedPlatformSentries().isNotEmpty();
     }
 
     public static boolean canToggleSentries() {
         return platformIsSelected() && modeIsSentry() &&
-                thisPlatformSentries().hasMultiple();
+                getSelectedPlatformSentries().hasMultiple();
     }
 
     public static boolean canIncreaseSentrySpeed() {
         if (platformIsSelected() && modeIsSentry() &&
-                thisPlatformSentries().isNotEmpty()) {
-            EditorPlatformSentries.EditorSentrySpec sentry = thisPlatformSentries().getCurrentSentry();
+                getSelectedPlatformSentries().isNotEmpty()) {
+            EditorPlatformSentries.EditorSentrySpec sentry = getSelectedPlatformSentries().getSelectedSentry();
 
             final boolean sentryFacingLeft = sentry.getDirection() == Sentry.LEFT,
                     sentryBelowMaxSpeed = sentry.getSpeed() < Sentry.MAX_SENTRY_SPEED;
@@ -722,9 +768,9 @@ public class Editor {
 
     public static boolean canDecreaseSentrySpeed() {
         if (platformIsSelected() && modeIsSentry() &&
-                thisPlatformSentries().isNotEmpty()) {
+                getSelectedPlatformSentries().isNotEmpty()) {
             EditorPlatformSentries.EditorSentrySpec sentry =
-                    thisPlatformSentries().getCurrentSentry();
+                    getSelectedPlatformSentries().getSelectedSentry();
 
             final boolean sentryFacingRight = sentry.getDirection() == Sentry.RIGHT,
                     sentryBelowMaxSpeed = sentry.getSpeed() < Sentry.MAX_SENTRY_SPEED;
@@ -737,14 +783,14 @@ public class Editor {
 
     public static boolean canToggleSentryRole() {
         return platformIsSelected() && modeIsSentry() &&
-                thisPlatformSentries().isNotEmpty();
+                getSelectedPlatformSentries().isNotEmpty();
     }
 
     public static boolean canToggleSentrySpawnerSecondaryRole() {
         if (platformIsSelected() && modeIsSentry() &&
-                thisPlatformSentries().isNotEmpty()) {
+                getSelectedPlatformSentries().isNotEmpty()) {
             EditorPlatformSentries.EditorSentrySpec sentry =
-                    thisPlatformSentries().getCurrentSentry();
+                    getSelectedPlatformSentries().getSelectedSentry();
 
             return sentry.getRole() == Sentry.Role.SPAWNER;
         }
