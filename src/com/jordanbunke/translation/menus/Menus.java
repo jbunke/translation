@@ -470,7 +470,12 @@ public class Menus {
                 new String[] { "BACK TO EDITOR", "TEST LEVEL", "RESET", "QUIT TO MENU" },
                 new Runnable[] {
                         () -> Translation.manager.setActiveStateIndex(Translation.EDITOR_INDEX),
-                        null, // TODO
+                        () -> {
+                            final Level level = Level.fromEditor();
+                            Translation.setLevel(level);
+                            level.launchLevel();
+                            Translation.manager.setActiveStateIndex(Translation.GAMEPLAY_INDEX);
+                        },
                         () -> MenuHelper.linkMenu(MenuIDs.ARE_YOU_SURE_EDITOR_RESET,
                                 generateAreYouSureResetEditor()),
                         () -> MenuHelper.linkMenu(MenuIDs.ARE_YOU_SURE_EDITOR_QUIT_TO_MENU,
@@ -483,14 +488,23 @@ public class Menus {
 
     // GAMEPLAY SECTION
     private static JBJGLMenu generatePauseMenu(final Level level) {
+        final boolean isEditorLevel = level.isEditorLevel();
+        final String aysButtonHeading = isEditorLevel
+                ? "BACK TO EDITOR"
+                : "QUIT TO MENU";
+        final Runnable aysBehaviour = isEditorLevel
+                ? () -> MenuHelper.linkMenu(MenuIDs.ARE_YOU_SURE_PAUSE_RETURN_TO_EDITOR,
+                    generateAreYouSureBackToEditor(MenuIDs.PAUSE_MENU))
+                : () -> MenuHelper.linkMenu(MenuIDs.ARE_YOU_SURE_PAUSE_QUIT_TO_MENU,
+                    generateAreYouSureQuitToMainMenu(MenuIDs.PAUSE_MENU));
+
         final JBJGLMenuElementGrouping contents = MenuHelper.generateListMenuOptions(
-                new String[] { "RESUME", "SETTINGS", "QUIT TO MENU" },
+                new String[] { "RESUME", "SETTINGS", aysButtonHeading },
                 new Runnable[] {
                         () -> Translation.manager.setActiveStateIndex(Translation.GAMEPLAY_INDEX),
                         () -> MenuHelper.linkMenu(MenuIDs.SETTINGS,
                                 generateSettingsMenu(false)),
-                        () -> MenuHelper.linkMenu(MenuIDs.ARE_YOU_SURE_PAUSE_QUIT_TO_MENU,
-                                generateAreYouSureQuitToMainMenu(MenuIDs.PAUSE_MENU))
+                        aysBehaviour
                 }, 1.0);
 
         return MenuHelper.generateBasicMenu(level.getName(),
@@ -498,14 +512,25 @@ public class Menus {
     }
 
     private static JBJGLMenu generateLevelCompleteMenu(final Level level) {
-        final boolean hasNextLevel = Translation.campaign.hasNextLevel();
+        final boolean isEditorLevel = level.isEditorLevel();
+        final String aysButtonHeading = isEditorLevel
+                ? "BACK TO EDITOR"
+                : "BACK TO MENU";
+        final Runnable aysBehaviour = isEditorLevel
+                ? () -> MenuHelper.linkMenu(MenuIDs.ARE_YOU_SURE_PAUSE_RETURN_TO_EDITOR,
+                generateAreYouSureBackToEditor(MenuIDs.LEVEL_COMPLETE))
+                : () -> MenuHelper.linkMenu(MenuIDs.ARE_YOU_SURE_PAUSE_QUIT_TO_MENU,
+                generateAreYouSureQuitToMainMenu(MenuIDs.LEVEL_COMPLETE));
+
+        final boolean hasNextLevel = !isEditorLevel && Translation.campaign.hasNextLevel();
         final String[] buttonLabels = hasNextLevel 
-                ? new String[] { "STATS", "NEXT LEVEL", "REPLAY", "BACK TO MENU" }
-                : new String[] { "STATS", "REPLAY", "BACK TO MENU" };
+                ? new String[] { "STATS", "NEXT LEVEL", "REPLAY", aysButtonHeading }
+                : new String[] { isEditorLevel ? "SAVE LEVEL" : "STATS", "REPLAY", aysButtonHeading };
 
         final Runnable statsBehaviour =
                 () -> MenuHelper.linkMenu(MenuIDs.STATS_LEVEL_COMPLETE,
                         generateLevelCompleteStatsPage(level));
+        // TODO - final Runnable saveEditorLevelBehaviour = null; (replace null below)
         final Runnable nextLevelBehaviour = () -> {
             Translation.campaign.setToNextLevel();
             Translation.campaign.getLevel().getStats().reset();
@@ -519,24 +544,16 @@ public class Menus {
             Translation.manager
                     .setActiveStateIndex(Translation.GAMEPLAY_INDEX);
         };
-        final Runnable backToMenuBehaviour = () -> {
-            Translation.manager.setActiveStateIndex(Translation.MENU_INDEX);
-            MenuHelper.linkMenu(MenuIDs.MAIN_MENU);
-        };
 
         final Runnable[] buttonBehaviours = hasNextLevel
-                        ? new Runnable[] {
-                                statsBehaviour, nextLevelBehaviour,
-                        replayBehaviour, backToMenuBehaviour}
-                        : new Runnable[] {
-                                statsBehaviour, replayBehaviour,
-                        backToMenuBehaviour};
+                ? new Runnable[] { statsBehaviour, nextLevelBehaviour, replayBehaviour, aysBehaviour}
+                : new Runnable[] { isEditorLevel ? null : statsBehaviour, replayBehaviour, aysBehaviour};
 
         final JBJGLMenuElementGrouping contents = MenuHelper.generateListMenuOptions(
                 buttonLabels, buttonBehaviours, 1.0);
 
-        return MenuHelper.generateBasicMenu("Level Complete!",
-                level.getName().toUpperCase(), contents);
+        return MenuHelper.generateBasicMenu("Level " + (isEditorLevel ? "Verified" : "Complete") + "!",
+                isEditorLevel ? " " : level.getName().toUpperCase(), contents);
     }
 
     private static JBJGLMenu generateLevelCompleteStatsPage(final Level level) {
@@ -604,14 +621,14 @@ public class Menus {
     }
 
     private static JBJGLMenu generateAreYouSureQuitGame() {
-        return MenuHelper.generateAreYouSureMenu(
+        return MenuHelper.generateAreYouSureMenu(false,
                 "you want to quit the game?",
                 () -> MenuHelper.linkMenu(MenuIDs.MAIN_MENU),
                 Translation::quitGame);
     }
 
     private static JBJGLMenu generateAreYouSureQuitToMainMenu(final String noMenuID) {
-        return MenuHelper.generateAreYouSureMenu(
+        return MenuHelper.generateAreYouSureMenu(false,
                 "you want to quit to the main menu?",
                 () -> MenuHelper.linkMenu(noMenuID),
                 () -> {
@@ -620,9 +637,18 @@ public class Menus {
                 });
     }
 
+    private static JBJGLMenu generateAreYouSureBackToEditor(final String noMenuID) {
+        final String consequence = noMenuID.equals(MenuIDs.PAUSE_MENU) ? "from scratch" : "again";
+
+        return MenuHelper.generateAreYouSureMenu(true,
+                "Level will have to be verified " + consequence + "...",
+                () -> MenuHelper.linkMenu(noMenuID),
+                () -> Translation.manager.setActiveStateIndex(Translation.EDITOR_INDEX));
+    }
+
     private static JBJGLMenu generateAreYouSureResetEditor() {
-        return MenuHelper.generateAreYouSureMenu(
-                "you want to reset the level editor?",
+        return MenuHelper.generateAreYouSureMenu(true,
+                "All changes will be lost...",
                 () -> MenuHelper.linkMenu(MenuIDs.EDITOR_MENU),
                 () -> {
                     Editor.reset();

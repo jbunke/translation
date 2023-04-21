@@ -1,6 +1,7 @@
 package com.jordanbunke.translation.editor;
 
 import com.jordanbunke.translation.gameplay.entities.Sentry;
+import com.jordanbunke.translation.gameplay.level.SentrySpec;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +27,13 @@ public class EditorPlatformSentries {
 
         public static EditorSentrySpec create() {
             return new EditorSentrySpec();
+        }
+
+        public SentrySpec toSentrySpec(final int platformIndex) {
+            final int initialMovement = speed * direction;
+            return role == Sentry.Role.SPAWNER
+                    ? SentrySpec.defineSpawner(secondary, platformIndex, initialMovement)
+                    : SentrySpec.define(role, platformIndex, initialMovement);
         }
 
         public void speedDown() {
@@ -160,6 +168,10 @@ public class EditorPlatformSentries {
 
     public boolean hasMultiple() {
         return sentrySpecs.size() > 1;
+    }
+
+    public EditorSentrySpec get(final int index) {
+        return sentrySpecs.get(index);
     }
 
     public EditorSentrySpec getSelectedSentry() {

@@ -132,6 +132,7 @@ public class MenuHelper {
     }
 
     public static JBJGLMenu generateAreYouSureMenu(
+            final boolean initialQuestionMark,
             final String decisionDescription,
             final Runnable noBehaviour,
             final Runnable yesBehaviour
@@ -142,6 +143,8 @@ public class MenuHelper {
         final int promptY = heightCoord(1/3.);
         final int buttonsY = heightCoord(3/5.);
 
+        final String firstLine = "ARE YOU SURE" + (initialQuestionMark ? "?" : "");
+
         final JBJGLMenuElementGrouping contents = JBJGLMenuElementGrouping.generateOf(
                 JBJGLTextMenuElement.generate(
                         new int[] { widthCoord(0.5), promptY },
@@ -149,7 +152,7 @@ public class MenuHelper {
                         JBJGLTextBuilder.initialize(
                                         2., JBJGLText.Orientation.CENTER,
                                         TLColors.MENU_TEXT(), Fonts.GAME_ITALICS_SPACED()
-                                ).addText("ARE YOU SURE").addLineBreak()
+                                ).addText(firstLine).addLineBreak()
                                 .addText(decisionDescription.toUpperCase()).build()),
                 determineTextButton(
                         "NO", new int[] { leftX, buttonsY },

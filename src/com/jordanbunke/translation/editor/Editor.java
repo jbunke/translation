@@ -11,6 +11,8 @@ import com.jordanbunke.translation.gameplay.entities.Entity;
 import com.jordanbunke.translation.gameplay.entities.Platform;
 import com.jordanbunke.translation.gameplay.entities.Sentry;
 import com.jordanbunke.translation.gameplay.image.ImageAssets;
+import com.jordanbunke.translation.gameplay.level.PlatformSpec;
+import com.jordanbunke.translation.gameplay.level.SentrySpec;
 import com.jordanbunke.translation.io.ControlScheme;
 import com.jordanbunke.translation.settings.GameplayConstants;
 import com.jordanbunke.translation.settings.TechnicalSettings;
@@ -207,8 +209,7 @@ public class Editor {
     private static void renderSentries(
             final Graphics g
     ) {
-        final List<Platform> platforms = new ArrayList<>(additionalPlatforms);
-        platforms.add(0, startingPlatform);
+        final List<Platform> platforms = getAllPlatforms();
 
         for (Platform p : platforms) {
             final EditorPlatformSentries sentries = sentriesMap.get(p);
@@ -456,6 +457,41 @@ public class Editor {
             );
     }
 
+    // LEVEL SPEC DEFINITIONS
+    public static PlatformSpec[] definePlatformSpecsForLevel() {
+        final List<Platform> allPlatforms = getAllPlatforms();
+
+        final PlatformSpec[] platformSpecs = new PlatformSpec[allPlatforms.size()];
+
+        for (int i = 0; i < platformSpecs.length; i++) {
+            final Platform p = allPlatforms.get(i);
+            platformSpecs[i] = PlatformSpec.define(
+                    p.getPosition()[RenderConstants.X],
+                    p.getPosition()[RenderConstants.Y], p.getWidth());
+        }
+
+        return platformSpecs;
+    }
+
+    public static SentrySpec[] defineSentrySpecsForLevel() {
+        final List<Platform> allPlatforms = getAllPlatforms();
+
+        final List<SentrySpec> sentrySpecList = new ArrayList<>();
+
+        for (int i = 0; i < allPlatforms.size(); i++) {
+            final Platform p = allPlatforms.get(i);
+            final EditorPlatformSentries sentriesForPlatform = sentriesMap.get(p);
+
+            for (int j = 0; j < sentriesForPlatform.getSize(); j++)
+                sentrySpecList.add(sentriesForPlatform.get(j).toSentrySpec(i));
+        }
+
+        final SentrySpec[] sentrySpecs = new SentrySpec[sentrySpecList.size()];
+        sentrySpecList.toArray(sentrySpecs);
+
+        return sentrySpecs;
+    }
+
     // DEFAULTS AND RESETS
     private static Platform generateStartingPlatform() {
         return Platform.create(0, 0, DEFAULT_PLATFORM_WIDTH);
@@ -529,9 +565,7 @@ public class Editor {
          * 2 - check whether cursor position overlaps with the bounds of any entities
          * 3 - set selectedEntity to best match, or null if none found */
 
-        List<Platform> allPlatforms = new ArrayList<>();
-        allPlatforms.add(startingPlatform);
-        allPlatforms.addAll(additionalPlatforms);
+        final List<Platform> allPlatforms = getAllPlatforms();
 
         int[] cp = getCursorPosition();
 
@@ -661,6 +695,14 @@ public class Editor {
 
     public static EditorPlatformSentries getSelectedPlatformSentries() {
         return sentriesMap.get(selectedPlatform);
+    }
+
+    private static List<Platform> getAllPlatforms() {
+        List<Platform> allPlatforms = new ArrayList<>();
+        allPlatforms.add(startingPlatform);
+        allPlatforms.addAll(additionalPlatforms);
+
+        return allPlatforms;
     }
 
     // GETTER / SETTER

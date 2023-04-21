@@ -34,6 +34,7 @@ public class MenuIDs {
 
             PAUSE_MENU = "pause-menu",
                 ARE_YOU_SURE_PAUSE_QUIT_TO_MENU = "ays-p-qtm",
+                ARE_YOU_SURE_PAUSE_RETURN_TO_EDITOR = "ays-p-rte",
 
             LEVEL_COMPLETE = "level-complete",
                 STATS_LEVEL_COMPLETE = "stats-lc",
