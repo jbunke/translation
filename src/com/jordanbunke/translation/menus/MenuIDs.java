@@ -38,6 +38,7 @@ public class MenuIDs {
 
             LEVEL_COMPLETE = "level-complete",
                 STATS_LEVEL_COMPLETE = "stats-lc",
+                SAVE_EDITOR_LEVEL = "save-editor-level-lc",
 
             EDITOR_MENU = "editor-menu",
                 ARE_YOU_SURE_EDITOR_RESET = "ays-e-r",

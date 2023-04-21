@@ -81,15 +81,12 @@ public class Menus {
                                 "GAME MECHANICS", "INFORMATION", "QUIT"
                         },
                         new Runnable[] {
-                                () -> MenuHelper.linkMenu(MenuIDs.CAMPAIGNS_MENU,
-                                        generateCampaignsMenu()),
+                                () -> MenuHelper.linkMenu(MenuIDs.CAMPAIGNS_MENU, generateCampaignsMenu()),
                                 () -> Translation.manager.setActiveStateIndex(Translation.EDITOR_INDEX),
-                                () -> MenuHelper.linkMenu(MenuIDs.SETTINGS,
-                                        generateSettingsMenu(true)),
+                                () -> MenuHelper.linkMenu(MenuIDs.SETTINGS, generateSettingsMenu(true)),
                                 () -> MenuHelper.linkMenu(MenuIDs.GAME_MECHANICS, generateGameMechanicsMenu()),
                                 () -> MenuHelper.linkMenu(MenuIDs.ABOUT, generateAboutMenu()),
-                                () -> MenuHelper.linkMenu(MenuIDs.ARE_YOU_SURE_QUIT_GAME,
-                                        generateAreYouSureQuitGame())
+                                () -> MenuHelper.linkMenu(MenuIDs.ARE_YOU_SURE_QUIT_GAME, generateAreYouSureQuitGame())
                         }),
                 MenuHelper.generateDevelopmentInformation()
         );
@@ -534,33 +531,46 @@ public class Menus {
                 ? new String[] { "STATS", "NEXT LEVEL", "REPLAY", aysButtonHeading }
                 : new String[] { isEditorLevel ? "SAVE LEVEL" : "STATS", "REPLAY", aysButtonHeading };
 
-        final Runnable statsBehaviour =
-                () -> MenuHelper.linkMenu(MenuIDs.STATS_LEVEL_COMPLETE,
-                        generateLevelCompleteStatsPage(level));
-        // TODO - final Runnable saveEditorLevelBehaviour = null; (replace null below)
+        final Runnable statsBehaviour = () -> MenuHelper.linkMenu(MenuIDs.STATS_LEVEL_COMPLETE,
+                generateLevelCompleteStatsPage(level));
+        final Runnable saveEditorLevelBehaviour = () -> MenuHelper.linkMenu(MenuIDs.SAVE_EDITOR_LEVEL,
+                generateSaveLevelMenu(level));
         final Runnable nextLevelBehaviour = () -> {
             Translation.campaign.setToNextLevel();
             Translation.campaign.getLevel().getStats().reset();
             Translation.campaign.getLevel().launchLevel();
-            Translation.manager
-                    .setActiveStateIndex(Translation.GAMEPLAY_INDEX);
+            Translation.manager.setActiveStateIndex(Translation.GAMEPLAY_INDEX);
         };
         final Runnable replayBehaviour = () -> {
             level.getStats().reset();
             level.launchLevel();
-            Translation.manager
-                    .setActiveStateIndex(Translation.GAMEPLAY_INDEX);
+            Translation.manager.setActiveStateIndex(Translation.GAMEPLAY_INDEX);
         };
 
         final Runnable[] buttonBehaviours = hasNextLevel
-                ? new Runnable[] { statsBehaviour, nextLevelBehaviour, replayBehaviour, aysBehaviour}
-                : new Runnable[] { isEditorLevel ? null : statsBehaviour, replayBehaviour, aysBehaviour};
+                ? new Runnable[] { statsBehaviour, nextLevelBehaviour, replayBehaviour, aysBehaviour }
+                : new Runnable[] {
+                isEditorLevel
+                        ? saveEditorLevelBehaviour
+                        : statsBehaviour,
+                replayBehaviour, aysBehaviour
+        };
 
         final JBJGLMenuElementGrouping contents = MenuHelper.generateListMenuOptions(
                 buttonLabels, buttonBehaviours, 1.0);
 
-        return MenuHelper.generateBasicMenu("Level " + (isEditorLevel ? "Verified" : "Complete") + "!",
-                isEditorLevel ? " " : level.getName().toUpperCase(), contents);
+        return MenuHelper.generateBasicMenu(
+                "Level " + (isEditorLevel ? "Verified" : "Complete") + "!",
+                isEditorLevel ? " " : level.getName().toUpperCase(),
+                contents);
+    }
+
+    private static JBJGLMenu generateSaveLevelMenu(final Level level) {
+        final JBJGLMenuElementGrouping contents = JBJGLMenuElementGrouping.generateOf();
+        // TODO
+
+        return MenuHelper.generateBasicMenu("Save Editor Level",
+                "Under construction...", contents, MenuIDs.LEVEL_COMPLETE);
     }
 
     private static JBJGLMenu generateLevelCompleteStatsPage(final Level level) {
