@@ -5,14 +5,16 @@ import com.jordanbunke.jbjgl.image.JBJGLImage;
 import com.jordanbunke.jbjgl.io.JBJGLFileIO;
 import com.jordanbunke.jbjgl.io.JBJGLImageIO;
 import com.jordanbunke.jbjgl.menus.JBJGLMenu;
-import com.jordanbunke.jbjgl.menus.menu_elements.*;
+import com.jordanbunke.jbjgl.menus.menu_elements.JBJGLAnimationMenuElement;
+import com.jordanbunke.jbjgl.menus.menu_elements.JBJGLMenuElement;
+import com.jordanbunke.jbjgl.menus.menu_elements.JBJGLMenuElementGrouping;
+import com.jordanbunke.jbjgl.menus.menu_elements.JBJGLTimedMenuElement;
 import com.jordanbunke.jbjgl.text.JBJGLText;
 import com.jordanbunke.translation.Translation;
 import com.jordanbunke.translation.editor.Editor;
 import com.jordanbunke.translation.gameplay.Camera;
 import com.jordanbunke.translation.gameplay.level.Level;
 import com.jordanbunke.translation.io.*;
-import com.jordanbunke.translation.menus.custom_elements.VerticalScrollableMenuElement;
 import com.jordanbunke.translation.settings.GameplaySettings;
 import com.jordanbunke.translation.settings.TechnicalSettings;
 import com.jordanbunke.translation.settings.debug.DebugSettings;
@@ -82,7 +84,7 @@ public class Menus {
                                 "GAME MECHANICS", "INFORMATION", "QUIT"
                         },
                         new Runnable[] {
-                                () -> MenuHelper.linkMenu(MenuIDs.CAMPAIGNS_MENU, generateCampaignsMenu()),
+                                () -> MenuHelper.linkMenu(MenuIDs.CAMPAIGNS_MENU, generatePlayMenu()),
                                 () -> Translation.manager.setActiveStateIndex(Translation.EDITOR_INDEX),
                                 () -> MenuHelper.linkMenu(MenuIDs.SETTINGS, generateSettingsMenu(true)),
                                 () -> MenuHelper.linkMenu(MenuIDs.GAME_MECHANICS, generateGameMechanicsMenu()),
@@ -95,7 +97,7 @@ public class Menus {
         return MenuHelper.generatePlainMenu(contents);
     }
 
-    private static JBJGLMenu generateCampaignsMenu() {
+    private static JBJGLMenu generatePlayMenu() {
         return MenuHelper.generateBasicMenu(
                 "Play...", MenuHelper.DOES_NOT_EXIST,
                 MenuHelper.generateListMenuOptions(
@@ -104,9 +106,9 @@ public class Menus {
                         new Runnable[] {
                                 () -> MenuHelper.linkMenu(MenuIDs.CAMPAIGN_FOLDER,
                                         MenuHelper.generateCampaignFolderMenu(
-                                                "MAIN CAMPAIGNS",
+                                                "Main Campaigns",
                                                 LevelIO.readCampaignsInFolder(LevelIO.MAIN_CAMPAIGNS_FOLDER),
-                                                MenuIDs.CAMPAIGNS_MENU, 0)),
+                                                MenuIDs.CAMPAIGNS_MENU)),
                                 () -> {
                                     Translation.campaign =
                                             LevelIO.readCampaign(LevelIO.TUTORIAL_CAMPAIGN_FOLDER);
@@ -243,31 +245,7 @@ public class Menus {
     }
 
     private static JBJGLMenu generateAudioSettingsMenu() {
-        final JBJGLMenuElementGrouping contents = JBJGLMenuElementGrouping.generateOf(
-                // TODO - remove temp
-                VerticalScrollableMenuElement.generate(
-                        new String[] {
-                                "1",
-                                "2",
-                                "3",
-                                "4",
-                                "5",
-                                "6"
-                        },
-                        new Runnable[] {
-                                null,
-                                Translation::quitGame,
-                                Translation::quitGame,
-                                Translation::quitGame,
-                                null,
-                                Translation::quitGame
-                        },
-                        MenuHelper.widthCoord(0.5),
-                        MenuHelper.heightCoord(0.35),
-                        MenuHelper.widthCoord(0.5),
-                        MenuHelper.heightCoord(0.5)
-                )
-        );
+        final JBJGLMenuElementGrouping contents = JBJGLMenuElementGrouping.generateOf();
         // TODO - audio settings toggle options and sliders
 
         return MenuHelper.generateBasicMenu(

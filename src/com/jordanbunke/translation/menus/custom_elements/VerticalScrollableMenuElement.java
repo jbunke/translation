@@ -154,19 +154,17 @@ public class VerticalScrollableMenuElement extends JBJGLMenuElement {
         final List<JBJGLEvent> unprocessed = listener.getUnprocessedEvents();
         for (JBJGLEvent e : unprocessed) {
             if (e instanceof JBJGLMouseEvent mouseEvent) {
-                mouseEvent.markAsProcessed();
-
                 // mouse down event
-                if (mouseEvent.matchesAction(JBJGLMouseEvent.Action.DOWN)) {
-                    if (isHighlighted && !isScrolling) {
-                        // set pinch
-                        setPinchedScrollBarAtLocalY(listener.getMousePosition()[RenderConstants.Y]);
+                if (mouseEvent.matchesAction(JBJGLMouseEvent.Action.DOWN) && isHighlighted && !isScrolling) {
+                    mouseEvent.markAsProcessed();
 
-                        isScrolling = true;
-                    }
+                    setPinchedScrollBarAtLocalY(listener.getMousePosition()[RenderConstants.Y]);
+                    isScrolling = true;
                 }
                 // mouse up event
                 else if (mouseEvent.matchesAction(JBJGLMouseEvent.Action.UP)) {
+                    mouseEvent.markAsProcessed();
+
                     pinchedScrollBarAtLocalY = NOT_PINCHED;
                     isScrolling = false;
                 }

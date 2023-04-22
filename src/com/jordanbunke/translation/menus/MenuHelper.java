@@ -21,6 +21,7 @@ import com.jordanbunke.translation.io.ControlScheme;
 import com.jordanbunke.translation.io.ParserWriter;
 import com.jordanbunke.translation.io.PatchNotes;
 import com.jordanbunke.translation.menus.custom_elements.SetInputMenuElement;
+import com.jordanbunke.translation.menus.custom_elements.VerticalScrollableMenuElement;
 import com.jordanbunke.translation.settings.TechnicalSettings;
 import com.jordanbunke.translation.colors.TLColors;
 import com.jordanbunke.translation.utility.Utility;
@@ -270,29 +271,22 @@ public class MenuHelper {
 
     public static JBJGLMenu generateCampaignFolderMenu(
             final String title, final Campaign[] campaigns,
-            final String backMenuID, final int page
+            final String backMenuID
     ) {
-        final JBJGLMenuElementGrouping contents =
-                generateCampaignsOnPage(title, campaigns, backMenuID, page);
+        final JBJGLMenuElementGrouping contents = generateCampaignsOnPage(campaigns);
 
-        return generateBasicMenu(title,
-                "PAGE " + (page + 1), contents, backMenuID);
+        return generateBasicMenu(title, DOES_NOT_EXIST, contents, backMenuID);
     }
 
     public static JBJGLMenu generateMenuForCampaign(
             final Campaign campaign, final String backMenuID
     ) {
-        return generateMenuForCampaign(campaign, backMenuID, 0);
-    }
+        final JBJGLMenuElementGrouping contents = MenuHelper.generateLevelsOnPage(campaign);
 
-    public static JBJGLMenu generateMenuForCampaign(
-            final Campaign campaign, final String backMenuID, final int page
-    ) {
-        final JBJGLMenuElementGrouping contents =
-                MenuHelper.generateLevelsOnPage(campaign, backMenuID, page);
+        final String subtitle = campaign.getLevelsBeaten() + " / " +
+                campaign.getLevelCount() + " levels beaten";
 
-        return MenuHelper.generateBasicMenu(campaign.getName(),
-                "PAGE " + (page + 1), contents, backMenuID);
+        return MenuHelper.generateBasicMenu(campaign.getName(), subtitle, contents, backMenuID);
     }
 
     public static JBJGLMenu generateSplashScreen(
@@ -679,131 +673,61 @@ public class MenuHelper {
         return JBJGLMenuElementGrouping.generate(content);
     }
 
-    private static JBJGLMenuElementGrouping generateCampaignsOnPage(
-            final String title, final Campaign[] campaigns,
-            final String backMenuID, final int page
-    ) {
-        final int INITIAL_Y = LIST_MENU_INITIAL_Y + (int)(2.5 * listMenuIncrementY());
-        final int BUTTON_WIDTH = widthCoord(1/5.3);
-        final int CAMPAIGNS_ON_PAGE = 3, campaignCount = campaigns.length;
-        final int campaignsOnThisPage = Math.min(
-                CAMPAIGNS_ON_PAGE, campaignCount - (CAMPAIGNS_ON_PAGE * page));
-        final int startingIndex = page * CAMPAIGNS_ON_PAGE;
+    private static JBJGLMenuElementGrouping generateCampaignsOnPage(final Campaign[] campaigns) {
+        final int CAMPAIGN_NAME_TOO_LONG = 40;
 
-        // calculate the menu element count and create content array
-        final boolean hasPreviousPage = page > 0;
-        final boolean hasNextPage = campaignCount > ((page + 1) * CAMPAIGNS_ON_PAGE);
+        final int campaignCount = campaigns.length;
 
-        final int menuElementsCount = campaignsOnThisPage +
-                calculatePreviousNextTotal(hasPreviousPage, hasNextPage);
+        final String[] headings = new String[campaignCount];
+        final Runnable[] behaviours = new Runnable[campaignCount];
 
-        final JBJGLMenuElement[] campaignButtons = new JBJGLMenuElement[menuElementsCount];
+        for (int i = 0; i < campaignCount; i++) {
+            final Campaign campaign = campaigns[i];
 
-        // generate buttons
-        for (int i = 0; i < campaignsOnThisPage; i++) {
-            final int x = widthCoord(0.5),
-                    y = INITIAL_Y + (i * listMenuIncrementY());
-            final Campaign campaign = campaigns[startingIndex + i];
-            campaignButtons[i] = generateCampaignButton(
-                    x, y, widthCoord(0.8), campaign);
+            final Runnable behaviour = () -> {
+                Translation.campaign = campaign;
+                MenuHelper.linkMenu(MenuIDs.CAMPAIGN_LEVELS,
+                        generateMenuForCampaign(campaign, MenuIDs.CAMPAIGN_FOLDER));
+            };
+
+            headings[i] = Utility.cutOffIfLongerThan(campaign.getName(), CAMPAIGN_NAME_TOO_LONG).toUpperCase();
+            behaviours[i] = behaviour;
         }
 
-        // generate previous and next buttons, if they exist
-        populatePreviousAndNext(campaignButtons,
-                hasPreviousPage, hasNextPage, BUTTON_WIDTH,
-                () -> MenuHelper.linkMenu(MenuIDs.CAMPAIGN_FOLDER,
-                        generateCampaignFolderMenu(
-                                title, campaigns, backMenuID, page - 1)),
-                () -> MenuHelper.linkMenu(
-                        MenuIDs.CAMPAIGN_FOLDER,
-                        generateCampaignFolderMenu(
-                                title, campaigns, backMenuID, page + 1)));
-
-        return JBJGLMenuElementGrouping.generate(campaignButtons);
+        return JBJGLMenuElementGrouping.generateOf(
+                VerticalScrollableMenuElement.generate(headings, behaviours,
+                        widthCoord(0.5), heightCoord(0.25),
+                        widthCoord(0.7), heightCoord(0.6)));
     }
 
-    public static JBJGLMenuElementGrouping generateLevelsOnPage(
-            final Campaign campaign, final String backMenuID, final int page
-    ) {
-        final int COLUMNS = 4, INITIAL_Y = heightCoord(0.45);
-        final int BUTTON_WIDTH = widthCoord(1/(COLUMNS + 1.3));
-        final int LEVELS_ON_PAGE = 16, levelCount = campaign.getLevelCount();
-        final int levelsOnThisPage = Math.min(
-                LEVELS_ON_PAGE, levelCount - (LEVELS_ON_PAGE * page));
-        final int startingIndex = page * LEVELS_ON_PAGE;
+    public static JBJGLMenuElementGrouping generateLevelsOnPage(final Campaign campaign) {
+        final int LEVEL_NAME_TOO_LONG = 30;
+        final int levelCount = campaign.getLevelCount();
 
-        final boolean hasPreviousPage = page > 0;
-        final boolean hasNextPage = levelCount > ((page + 1) * LEVELS_ON_PAGE);
+        final String[] headings = new String[levelCount];
+        final Runnable[] behaviours = new Runnable[levelCount];
 
-        final int menuElementsCount = levelsOnThisPage +
-                calculatePreviousNextTotal(hasPreviousPage, hasNextPage);
+        for (int i = 0; i < levelCount; i++) {
+            final int index = i;
+            final Level level = campaign.getLevelAt(i);
+            final boolean isUnlocked = campaign.isUnlocked(i);
+            final Runnable behaviour = isUnlocked
+                    ? () -> MenuHelper.linkMenu(MenuIDs.LEVEL_OVERVIEW,
+                        generateLevelOverview(level, index, campaign))
+                    : null;
 
-        final JBJGLMenuElement[] levelButtons = new JBJGLMenuElement[menuElementsCount];
-
-        for (int i = 0; i < levelsOnThisPage; i++) {
-            final int column = i % COLUMNS;
-            final int row = i / COLUMNS;
-            final int x = widthCoord((column + 1) / (double)(COLUMNS + 1)),
-                    y = INITIAL_Y + (row * listMenuIncrementY());
-            final Level level = campaign.getLevelAt(startingIndex + i);
-            levelButtons[i] = generateLevelButton(
-                    x, y, BUTTON_WIDTH, campaign, level, startingIndex + i);
+            headings[i] = Utility.cutOffIfLongerThan(level.getName(),
+                    LEVEL_NAME_TOO_LONG).toUpperCase();
+            behaviours[i] = behaviour;
         }
 
-        populatePreviousAndNext(
-                levelButtons, hasPreviousPage, hasNextPage,
-                BUTTON_WIDTH,
-                () -> MenuHelper.linkMenu(MenuIDs.CAMPAIGN_LEVELS,
-                        generateMenuForCampaign(
-                                Translation.campaign, backMenuID, page - 1)),
-                () -> MenuHelper.linkMenu(MenuIDs.CAMPAIGN_LEVELS,
-                        generateMenuForCampaign(
-                                Translation.campaign, backMenuID, page + 1)));
-
-        return JBJGLMenuElementGrouping.generate(levelButtons);
+        return JBJGLMenuElementGrouping.generateOf(
+                VerticalScrollableMenuElement.generate(headings, behaviours,
+                        widthCoord(0.5), heightCoord(0.35),
+                        widthCoord(0.7), heightCoord(0.5)));
     }
-
-    // HIDDEN
-
-    // MENUS
-
-
 
     // ELEMENT GENERATORS
-
-    // level 0
-
-    private static JBJGLMenuElement generateCampaignButton(
-            final int x, final int y, final int buttonWidth,
-            final Campaign campaign
-    ) {
-        final Runnable behaviour = () -> {
-            Translation.campaign = campaign;
-            MenuHelper.linkMenu(MenuIDs.CAMPAIGN_LEVELS,
-                    generateMenuForCampaign(campaign, MenuIDs.CAMPAIGN_FOLDER));
-        };
-
-        return determineTextButton(
-                Utility.cutOffIfLongerThan(campaign.getName().toUpperCase(), 40),
-                new int[] { x, y }, JBJGLMenuElement.Anchor.CENTRAL_TOP,
-                buttonWidth, behaviour);
-    }
-
-    private static JBJGLMenuElement generateLevelButton(
-            final int x, final int y, final int buttonWidth,
-            final Campaign campaign, final Level level, final int index
-    ) {
-        final boolean isUnlocked = campaign.isUnlocked(index);
-        final Runnable behaviour = isUnlocked
-                ? () -> MenuHelper.linkMenu(MenuIDs.LEVEL_OVERVIEW,
-                generateLevelOverview(level, index, campaign))
-                : null;
-
-        return determineTextButton(
-                Utility.cutOffIfLongerThan(level.getName().toUpperCase(), 10),
-                new int[] { x, y }, JBJGLMenuElement.Anchor.CENTRAL_TOP,
-                buttonWidth, behaviour);
-    }
 
     // level 1
 
