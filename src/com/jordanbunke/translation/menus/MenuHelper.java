@@ -1095,7 +1095,7 @@ public class MenuHelper {
                 behaviours, updateIndexLogic);
     }
 
-    private static JBJGLMenuElement determineTextButton(
+    public static JBJGLMenuElement determineTextButton(
             final String heading, final int[] position,
             final JBJGLMenuElement.Anchor anchor, final int buttonWidth,
             final Runnable behaviour
@@ -1305,7 +1305,7 @@ public class MenuHelper {
 
     // MATHS HELPERS
 
-    private static int listMenuIncrementY() {
+    public static int listMenuIncrementY() {
         return TechnicalSettings.getHeight() / 8;
     }
 

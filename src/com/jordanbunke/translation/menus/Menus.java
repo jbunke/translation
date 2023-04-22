@@ -12,6 +12,7 @@ import com.jordanbunke.translation.editor.Editor;
 import com.jordanbunke.translation.gameplay.Camera;
 import com.jordanbunke.translation.gameplay.level.Level;
 import com.jordanbunke.translation.io.*;
+import com.jordanbunke.translation.menus.custom_elements.VerticalScrollableMenuElement;
 import com.jordanbunke.translation.settings.GameplaySettings;
 import com.jordanbunke.translation.settings.TechnicalSettings;
 import com.jordanbunke.translation.settings.debug.DebugSettings;
@@ -242,7 +243,31 @@ public class Menus {
     }
 
     private static JBJGLMenu generateAudioSettingsMenu() {
-        final JBJGLMenuElementGrouping contents = JBJGLMenuElementGrouping.generateOf();
+        final JBJGLMenuElementGrouping contents = JBJGLMenuElementGrouping.generateOf(
+                // TODO - remove temp
+                VerticalScrollableMenuElement.generate(
+                        new String[] {
+                                "1",
+                                "2",
+                                "3",
+                                "4",
+                                "5",
+                                "6"
+                        },
+                        new Runnable[] {
+                                null,
+                                Translation::quitGame,
+                                Translation::quitGame,
+                                Translation::quitGame,
+                                null,
+                                Translation::quitGame
+                        },
+                        MenuHelper.widthCoord(0.5),
+                        MenuHelper.heightCoord(0.35),
+                        MenuHelper.widthCoord(0.5),
+                        MenuHelper.heightCoord(0.5)
+                )
+        );
         // TODO - audio settings toggle options and sliders
 
         return MenuHelper.generateBasicMenu(
