@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Level {
-    private static final String EDITOR_LEVEL_NAME = "TESTING EDITOR LEVEL"; // TODO: make this name invalid for loaded or created levels
+    public static final String EDITOR_LEVEL_NAME = "TESTING EDITOR LEVEL";
     private static final String EDITOR_LEVEL_HINT = "Editor levels must be completed to pass verification";
     private static final int PLAYER_OUT_OF_BOUNDS_AT = 1000;
     private static final int SENTRY_TOO_FAR_FROM_PLAYER = 6000;

@@ -15,6 +15,7 @@ import com.jordanbunke.translation.editor.Editor;
 import com.jordanbunke.translation.gameplay.Camera;
 import com.jordanbunke.translation.gameplay.level.Level;
 import com.jordanbunke.translation.io.*;
+import com.jordanbunke.translation.menus.custom_elements.TypedInputMenuElement;
 import com.jordanbunke.translation.settings.GameplaySettings;
 import com.jordanbunke.translation.settings.TechnicalSettings;
 import com.jordanbunke.translation.settings.debug.DebugSettings;
@@ -23,6 +24,7 @@ import com.jordanbunke.translation.utility.Utility;
 import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Set;
 import java.util.concurrent.Callable;
 
 public class Menus {
@@ -56,8 +58,12 @@ public class Menus {
             final JBJGLMenuManager manager, final boolean isMainMenu, final Level level) {
         if (isMainMenu)
             manager.addMenu(MenuIDs.MAIN_MENU, generateMainMenu(), false);
-        else
+        else {
             manager.addMenu(MenuIDs.PAUSE_MENU, generatePauseMenu(level), false);
+
+            Translation.levelCompleteState.getMenuManager().addMenu(
+                    MenuIDs.LEVEL_COMPLETE, generateLevelCompleteMenu(level), true);
+        }
 
         manager.addMenu(MenuIDs.SETTINGS, generateSettingsMenu(isMainMenu), false);
         manager.addMenu(MenuIDs.VIDEO_SETTINGS, generateVideoSettingsMenu(), true);
@@ -487,7 +493,7 @@ public class Menus {
                                 generateAreYouSureResetEditor()),
                         () -> MenuHelper.linkMenu(MenuIDs.ARE_YOU_SURE_EDITOR_QUIT_TO_MENU,
                                 generateAreYouSureQuitToMainMenu(MenuIDs.EDITOR_MENU))
-                }, 1.0);
+                });
 
         return MenuHelper.generateBasicMenu("Level Editor",
                 MenuHelper.DOES_NOT_EXIST, contents);
@@ -560,7 +566,7 @@ public class Menus {
         };
 
         final JBJGLMenuElementGrouping contents = MenuHelper.generateListMenuOptions(
-                buttonLabels, buttonBehaviours, 1.0);
+                buttonLabels, buttonBehaviours, isEditorLevel ? 0. : 1.);
 
         return MenuHelper.generateBasicMenu(
                 "Level " + (isEditorLevel ? "Verified" : "Complete") + "!",
@@ -569,11 +575,34 @@ public class Menus {
     }
 
     private static JBJGLMenu generateSaveLevelMenu(final Level level) {
-        final JBJGLMenuElementGrouping contents = JBJGLMenuElementGrouping.generateOf();
-        // TODO
+        final int x = MenuHelper.widthCoord(0.5), width = MenuHelper.widthCoord(0.8);
+
+        final TypedInputMenuElement setLevelNameButton =
+                MenuHelper.generateTypedInputButton(x,
+                        MenuHelper.heightCoord(0.4), width, "SET LEVEL NAME",
+                        "", Set.of("", Level.EDITOR_LEVEL_NAME)),
+                setLevelHintButton = MenuHelper.generateTypedInputButton(x,
+                        MenuHelper.heightCoord(0.6), width, "SET LEVEL HINT",
+                        "", Set.of(""));
+
+        final JBJGLMenuElementGrouping contents = JBJGLMenuElementGrouping.generateOf(
+                setLevelNameButton,
+                setLevelHintButton,
+                // TODO: SAVE LEVEL should be custom menu element that contains a button that is checks if a condition is validated
+                // in this case the condition is setLevelNameButton.inputIsValid() && setLevelHintButton.inputIsValid()
+                MenuHelper.determineTextButton(
+                        "SAVE LEVEL",
+                        new int[] {
+                                MenuHelper.widthCoord(0.5), MenuHelper.heightCoord(0.8)
+                        }, JBJGLMenuElement.Anchor.CENTRAL_TOP, MenuHelper.widthCoord(0.3),
+                        () -> {
+                            // TODO: save level behaviour here
+                        }
+                )
+        );
 
         return MenuHelper.generateBasicMenu("Save Editor Level",
-                "Under construction...", contents, MenuIDs.LEVEL_COMPLETE);
+                MenuHelper.DOES_NOT_EXIST, contents, MenuIDs.LEVEL_COMPLETE);
     }
 
     private static JBJGLMenu generateLevelCompleteStatsPage(final Level level) {

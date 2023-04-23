@@ -33,6 +33,7 @@ public class Translation {
             EDITOR_INDEX = 5;
 
     public static Campaign campaign;
+    private static Level currentLevel;
 
     public static GameplayGameState gameState;
     public static LevelMenuGameState pauseState;
@@ -80,7 +81,7 @@ public class Translation {
     }
 
     private static void updateMenusAfterResize() {
-        final Level level = campaign.getLevel();
+        final Level level = currentLevel == null ? campaign.getLevel() : currentLevel;
 
         if (manager.getActiveStateIndex() == PAUSE_INDEX)
             Menus.generateAfterResize(pauseState.getMenuManager(), false, level);
@@ -148,6 +149,8 @@ public class Translation {
         gameState.setLevel(level);
         pauseState.setLevel(level);
         levelCompleteState.setLevel(level);
+
+        currentLevel = level;
     }
 
     public static void quitGame() {

@@ -21,6 +21,7 @@ import com.jordanbunke.translation.io.ControlScheme;
 import com.jordanbunke.translation.io.ParserWriter;
 import com.jordanbunke.translation.io.PatchNotes;
 import com.jordanbunke.translation.menus.custom_elements.SetInputMenuElement;
+import com.jordanbunke.translation.menus.custom_elements.TypedInputMenuElement;
 import com.jordanbunke.translation.menus.custom_elements.VerticalScrollableMenuElement;
 import com.jordanbunke.translation.settings.TechnicalSettings;
 import com.jordanbunke.translation.colors.TLColors;
@@ -30,6 +31,7 @@ import java.awt.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -674,7 +676,7 @@ public class MenuHelper {
     }
 
     private static JBJGLMenuElementGrouping generateCampaignsOnPage(final Campaign[] campaigns) {
-        final int CAMPAIGN_NAME_TOO_LONG = 40;
+        final int CAMPAIGN_NAME_TOO_LONG = 50;
 
         final int campaignCount = campaigns.length;
 
@@ -701,7 +703,7 @@ public class MenuHelper {
     }
 
     public static JBJGLMenuElementGrouping generateLevelsOnPage(final Campaign campaign) {
-        final int LEVEL_NAME_TOO_LONG = 30;
+        final int LEVEL_NAME_TOO_LONG = 50;
         final int levelCount = campaign.getLevelCount();
 
         final String[] headings = new String[levelCount];
@@ -823,6 +825,23 @@ public class MenuHelper {
                 nonHighlightedButton, highlightedButton,
                 () -> linkMenu(MenuIDs.SENTRY_ROLE_WIKI,
                         generateSentryRoleWikiPage(role)));
+    }
+
+    public static TypedInputMenuElement generateTypedInputButton(
+            final int x, final int y, final int width,
+            final String setPrompt, final String defaultInput,
+            final Set<String> invalidInputs
+    ) {
+        final Function<String, JBJGLImage> hGeneratorFunction = s -> drawHighlightedTextButton(width, s);
+        final Function<String, JBJGLImage> nhGeneratorFunction = s -> drawNonHighlightedTextButton(width, s);
+
+        final JBJGLImage highlightedImage = hGeneratorFunction.apply(setPrompt);
+        final int height = highlightedImage.getHeight();
+
+        return TypedInputMenuElement.generate(
+                new int[] { x, y }, new int[] { width, height },
+                JBJGLMenuElement.Anchor.CENTRAL, hGeneratorFunction, nhGeneratorFunction,
+                highlightedImage, defaultInput, invalidInputs);
     }
 
     private static SetInputMenuElement generateControlButton(

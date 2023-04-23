@@ -29,7 +29,7 @@ public class VerticalScrollableMenuElement extends JBJGLMenuElement {
     private int scrollBarOffsetY, pinchedScrollBarAtLocalY;
 
     private final boolean canScroll;
-    private boolean isHighlighted, isScrolling;
+    private boolean highlighted, scrolling;
 
     private VerticalScrollableMenuElement(
             final int[] position, final int[] dimensions,
@@ -47,8 +47,8 @@ public class VerticalScrollableMenuElement extends JBJGLMenuElement {
 
         this.scrollBarOffsetY = 0;
         this.pinchedScrollBarAtLocalY = NOT_PINCHED;
-        this.isHighlighted = false;
-        this.isScrolling = false;
+        this.highlighted = false;
+        this.scrolling = false;
     }
 
     public static VerticalScrollableMenuElement generate(
@@ -136,10 +136,10 @@ public class VerticalScrollableMenuElement extends JBJGLMenuElement {
     }
 
     private void processScrollBar(final JBJGLListener listener) {
-        isHighlighted = isScrolling || (canScroll && mouseIsOverScrollBar(listener.getMousePosition()));
+        highlighted = scrolling || (canScroll && mouseIsOverScrollBar(listener.getMousePosition()));
 
         // mouse move for scrolling check
-        if (isScrolling) {
+        if (scrolling) {
             // set scrollBarOffsetY
             setScrollBarOffsetY(listener.getMousePosition()[RenderConstants.Y]);
 
@@ -155,18 +155,18 @@ public class VerticalScrollableMenuElement extends JBJGLMenuElement {
         for (JBJGLEvent e : unprocessed) {
             if (e instanceof JBJGLMouseEvent mouseEvent) {
                 // mouse down event
-                if (mouseEvent.matchesAction(JBJGLMouseEvent.Action.DOWN) && isHighlighted && !isScrolling) {
+                if (mouseEvent.matchesAction(JBJGLMouseEvent.Action.DOWN) && highlighted && !scrolling) {
                     mouseEvent.markAsProcessed();
 
                     setPinchedScrollBarAtLocalY(listener.getMousePosition()[RenderConstants.Y]);
-                    isScrolling = true;
+                    scrolling = true;
                 }
                 // mouse up event
                 else if (mouseEvent.matchesAction(JBJGLMouseEvent.Action.UP)) {
                     mouseEvent.markAsProcessed();
 
                     pinchedScrollBarAtLocalY = NOT_PINCHED;
-                    isScrolling = false;
+                    scrolling = false;
                 }
             }
         }
@@ -195,12 +195,12 @@ public class VerticalScrollableMenuElement extends JBJGLMenuElement {
 
     private JBJGLImage drawScrollBar() {
         final Color border = canScroll
-                ? (isHighlighted
+                ? (highlighted
                     ? TLColors.BLACK()
                     : TLColors.PLAYER())
                 : TLColors.PLATFORM();
 
-        final Color filled = isHighlighted
+        final Color filled = highlighted
                 ? TLColors.PLAYER()
                 : TLColors.PLAYER(0);
 
@@ -211,7 +211,7 @@ public class VerticalScrollableMenuElement extends JBJGLMenuElement {
 
         g.setColor(filled);
 
-        if (isScrolling)
+        if (scrolling)
             g.fillRect(scrollBarOffsetX, scrollBarOffsetY, SCROLL_BAR_WIDTH, scrollBarHeight);
         else
             g.fillRect(scrollBarOffsetX + margin, scrollBarOffsetY + margin,

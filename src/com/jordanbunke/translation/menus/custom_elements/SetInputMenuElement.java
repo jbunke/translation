@@ -18,7 +18,7 @@ import java.util.function.Consumer;
 
 public class SetInputMenuElement extends JBJGLMenuElement {
     private boolean setMode;
-    private boolean isHighlighted;
+    private boolean highlighted;
 
     private final Callable<JBJGLImage> nhGeneratorFunction;
     private final Callable<JBJGLImage> hGeneratorFunction;
@@ -47,7 +47,7 @@ public class SetInputMenuElement extends JBJGLMenuElement {
         this.highlightedSetImage = highlightedSetImage;
 
         setMode = false;
-        isHighlighted = false;
+        highlighted = false;
 
         this.setFunction = setFunction;
 
@@ -87,12 +87,8 @@ public class SetInputMenuElement extends JBJGLMenuElement {
     @Override
     public void render(final Graphics g, final JBJGLGameDebugger debugger) {
         final JBJGLImage renderImage = setMode
-                ? (isHighlighted
-                        ? highlightedSetImage
-                        : nonHighlightedSetImage)
-                : (isHighlighted
-                        ? highlightedImage
-                        : nonHighlightedImage);
+                ? (highlighted ? highlightedSetImage : nonHighlightedSetImage)
+                : (highlighted ? highlightedImage : nonHighlightedImage);
         draw(renderImage, g);
 
         // Debug
@@ -106,18 +102,26 @@ public class SetInputMenuElement extends JBJGLMenuElement {
     }
 
     private void processClick(final JBJGLListener listener) {
-        isHighlighted = mouseIsWithinBounds(listener.getMousePosition());
+        highlighted = mouseIsWithinBounds(listener.getMousePosition());
 
-        if (isHighlighted) {
+        if (highlighted) {
             final List<JBJGLEvent> unprocessed = listener.getUnprocessedEvents();
+
             for (JBJGLEvent e : unprocessed)
                 if (e instanceof JBJGLMouseEvent mouseEvent &&
                         mouseEvent.matchesAction(JBJGLMouseEvent.Action.CLICK)) {
                     mouseEvent.markAsProcessed();
 
                     setMode = !setMode;
-                    isHighlighted = false;
+                    highlighted = false;
                 }
+        } else {
+            final List<JBJGLEvent> all = listener.getAllEvents();
+
+            for (JBJGLEvent e : all)
+                if (e instanceof JBJGLMouseEvent mouseEvent &&
+                        mouseEvent.matchesAction(JBJGLMouseEvent.Action.CLICK))
+                    setMode = false;
         }
     }
 
