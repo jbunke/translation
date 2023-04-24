@@ -551,7 +551,7 @@ public class Menus {
         final Runnable statsBehaviour = () -> MenuHelper.linkMenu(MenuIDs.STATS_LEVEL_COMPLETE,
                 generateLevelCompleteStatsPage(level));
         final Runnable saveEditorLevelBehaviour = () -> MenuHelper.linkMenu(MenuIDs.SAVE_EDITOR_LEVEL,
-                generateSaveLevelMenu(level));
+                generateSaveEditorLevelMenu());
         final Runnable nextLevelBehaviour = () -> {
             Translation.campaign.setToNextLevel();
             Translation.campaign.getLevel().getStats().reset();
@@ -582,7 +582,7 @@ public class Menus {
                 contents);
     }
 
-    private static JBJGLMenu generateSaveLevelMenu(final Level level) {
+    private static JBJGLMenu generateSaveEditorLevelMenu() {
         final int x = MenuHelper.widthCoord(0.5), width = MenuHelper.widthCoord(0.8);
 
         final TypedInputMenuElement setLevelNameButton =
@@ -600,7 +600,10 @@ public class Menus {
                         MenuHelper.widthCoord(0.5), MenuHelper.heightCoord(0.8),
                         MenuHelper.widthCoord(0.3), JBJGLMenuElement.Anchor.CENTRAL_TOP,
                         () -> {
-                            // TODO: save level behaviour here
+                            final String name = setLevelNameButton.getInput();
+                            LevelIO.saveValidatedEditorLevel(name, setLevelHintButton.getInput());
+                            MenuHelper.linkMenu(MenuIDs.SAVED_EDITOR_LEVEL_CONFIRMATION,
+                                    generateSavedConfirmationMenu(name));
                         },
                         () -> setLevelNameButton.inputIsValid() && setLevelHintButton.inputIsValid()
                 )
@@ -608,6 +611,18 @@ public class Menus {
 
         return MenuHelper.generateBasicMenu("Save Editor Level",
                 MenuHelper.DOES_NOT_EXIST, contents, MenuIDs.LEVEL_COMPLETE);
+    }
+
+    private static JBJGLMenu generateSavedConfirmationMenu(final String name) {
+        final JBJGLMenuElementGrouping contents = MenuHelper.generateListMenuOptions(
+                new String[] { "BACK TO EDITOR", "MAIN MENU" },
+                new Runnable[] {
+                        () -> Translation.manager.setActiveStateIndex(Translation.EDITOR_INDEX),
+                        () -> MenuHelper.linkMenu(MenuIDs.MAIN_MENU, generateMainMenu())
+                },
+                1.);
+
+        return MenuHelper.generateBasicMenu("Level Saved:", name, contents);
     }
 
     private static JBJGLMenu generateLevelCompleteStatsPage(final Level level) {

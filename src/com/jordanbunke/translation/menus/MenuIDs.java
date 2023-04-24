@@ -11,6 +11,7 @@ public class MenuIDs {
                     CAMPAIGN_FOLDER = "campaign-f",
                         CAMPAIGN_LEVELS = "campaign-l",
                             LEVEL_OVERVIEW = "level-overview",
+                                ARE_YOU_SURE_DELETE_LEVEL = "ays-dl-lo",
                     MY_CONTENT_MENU = "my-content-p",
                 SETTINGS = "settings",
                     GAMEPLAY_SETTINGS = "gameplay-s",
@@ -40,6 +41,7 @@ public class MenuIDs {
             LEVEL_COMPLETE = "level-complete",
                 STATS_LEVEL_COMPLETE = "stats-lc",
                 SAVE_EDITOR_LEVEL = "save-editor-level-lc",
+                    SAVED_EDITOR_LEVEL_CONFIRMATION = "saved-confirmation-sel-lc",
 
             EDITOR_MENU = "editor-menu",
                 ARE_YOU_SURE_EDITOR_RESET = "ays-e-r",

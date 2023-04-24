@@ -1,0 +1,10 @@
+name:{Just Another Example}
+hint:{This level should be deleted}
+stats:{}
+platforms:{
+	(0,0,200);
+	(-441,-160,200)
+}
+sentries:{
+	(SLIDER,1,-8)
+}

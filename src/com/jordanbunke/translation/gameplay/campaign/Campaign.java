@@ -1,30 +1,32 @@
 package com.jordanbunke.translation.gameplay.campaign;
 
+import com.jordanbunke.jbjgl.error.JBJGLError;
 import com.jordanbunke.translation.Translation;
 import com.jordanbunke.translation.gameplay.level.Level;
 
 import java.nio.file.Path;
+import java.util.List;
 
 public class Campaign {
     private final Path campaignFolder;
-    private final String[] levelFiles;
+    private final List<String> levelFilenames;
 
     private final String name;
     private int levelIndex;
     private int levelsBeaten;
-    private final Level[] levels;
+    private final List<Level> levels;
 
     // metadata
     private final boolean showHint;
     private final boolean defaultNaming;
 
     private Campaign(
-            final String name, final int levelsBeaten, final Level[] levels,
+            final String name, final int levelsBeaten, final List<Level> levels,
             final boolean showHint, final boolean defaultNaming,
-            final Path campaignFolder, final String[] levelFiles
+            final Path campaignFolder, final List<String> levelFilenames
     ) {
         this.campaignFolder = campaignFolder;
-        this.levelFiles = levelFiles;
+        this.levelFilenames = levelFilenames;
 
         this.name = name;
         levelIndex = 0;
@@ -36,14 +38,42 @@ public class Campaign {
     }
 
     public static Campaign load(
-            final String name, final int levelsBeaten, final Level[] levels,
+            final String name, final int levelsBeaten, final List<Level> levels,
             final boolean showHint, final boolean defaultNaming,
-            final Path campaignFolder, final String[] levelFiles
+            final Path campaignFolder, final List<String> levelFiles
     ) {
         return new Campaign(
                 name, levelsBeaten, levels, showHint,
                 defaultNaming, campaignFolder, levelFiles
         );
+    }
+
+    public void addLevel(
+            final Level level, final String levelFilename,
+            final boolean isMyLevels
+    ) {
+        levels.add(level);
+        levelFilenames.add(levelFilename);
+
+        if (isMyLevels) levelsBeaten = getLevelCount();
+    }
+
+    public void removeLevel(final Level level) {
+        final int NOT_FOUND = -1;
+
+        final int index = levels.indexOf(level);
+
+        if (index == NOT_FOUND) {
+            JBJGLError.send("Could not find level \"" + level.getName() +
+                    "\" in campaign \"" + getName() + "\", so it was not removed.");
+            return;
+        }
+
+        levels.remove(index);
+        levelFilenames.remove(index);
+
+        if (levelsBeaten > index)
+            levelsBeaten--;
     }
 
     public void updateBeaten() {
@@ -52,7 +82,7 @@ public class Campaign {
     }
 
     public boolean hasNextLevel() {
-        return levelIndex + 1 < levels.length;
+        return levelIndex + 1 < getLevelCount();
     }
 
     public void setToNextLevel() {
@@ -61,7 +91,7 @@ public class Campaign {
     }
 
     public void setLevel() {
-        Translation.setLevel(levels[levelIndex]);
+        Translation.setLevel(getLevel());
     }
 
     public void setLevel(final int levelIndex) {
@@ -70,11 +100,11 @@ public class Campaign {
     }
 
     public Level getLevel() {
-        return levels[levelIndex];
+        return getLevelAt(levelIndex);
     }
 
     public Level getLevelAt(final int index) {
-        return levels[index];
+        return levels.get(index);
     }
 
     public boolean isUnlocked(final int index) {
@@ -82,7 +112,7 @@ public class Campaign {
     }
 
     public int getLevelCount() {
-        return levels.length;
+        return levels.size();
     }
 
     // TRUE GETTERS
@@ -95,8 +125,8 @@ public class Campaign {
         return campaignFolder;
     }
 
-    public String[] getLevelFiles() {
-        return levelFiles;
+    public List<String> getLevelFilenames() {
+        return levelFilenames;
     }
 
     public String getName() {
@@ -115,6 +145,6 @@ public class Campaign {
 
     @Override
     public String toString() {
-        return name + " [" + levels.length + " level campaign]";
+        return name + " [" + levels.size() + " level campaign]";
     }
 }

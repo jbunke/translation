@@ -10,6 +10,9 @@ import com.jordanbunke.translation.gameplay.level.PlatformSpec;
 import com.jordanbunke.translation.gameplay.level.SentrySpec;
 
 import java.nio.file.Path;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 public class LevelIO {
     public static final Path CAMPAIGNS_FOLDER = ParserWriter.RESOURCE_ROOT.resolve("campaigns");
@@ -65,18 +68,15 @@ public class LevelIO {
         final boolean showHint = Boolean.parseBoolean(ParserWriter.extractFromTag(SHOW_HINT, toParse));
         final String fileNaming = ParserWriter.extractFromTag(FILE_NAMING, toParse);
         final boolean defaultNaming = fileNaming.equals(DEFAULT);
-        final String[] levelFiles = new String[levelCount];
-        final Level[] levels = extractLevels(
-                toParse, levelCount, defaultNaming, campaignFolder, levelFiles);
+        final List<String> levelFiles = new ArrayList<>();
+        final List<Level> levels = extractLevels(toParse, levelCount, defaultNaming, campaignFolder, levelFiles);
 
-        return Campaign.load(
-                name, levelsBeaten, levels, showHint,
-                defaultNaming, campaignFolder, levelFiles);
+        return Campaign.load(name, levelsBeaten, levels, showHint, defaultNaming, campaignFolder, levelFiles);
     }
 
-    private static Level[] extractLevels(
+    private static List<Level> extractLevels(
             final String text, final int levelCount, final boolean defaultNaming,
-            final Path campaignFolder, final String[] levelFiles
+            final Path campaignFolder, final List<String> levelFiles
     ) {
 
         final String[] levelFileNames = defaultNaming
@@ -91,11 +91,11 @@ public class LevelIO {
             for (int i = 0; i < levelFileNames.length; i++)
                 levelFileNames[i] = i + LEVEL_FILE_SUFFIX;
 
-        final Level[] levels = new Level[levelFileNames.length];
+        final List<Level> levels = new ArrayList<>();
 
         for (int i = 0; i < levelCount; i++) {
-            levelFiles[i] = levelFileNames[i].trim();
-            levels[i] = readLevel(campaignFolder.resolve(levelFiles[i]));
+            levelFiles.add(levelFileNames[i].trim());
+            levels.add(readLevel(campaignFolder.resolve(levelFiles.get(i))));
         }
 
         return levels;
@@ -103,7 +103,9 @@ public class LevelIO {
 
     // CAMPAIGN - WRITE
 
-    public static void writeCampaign(final Campaign campaign, final boolean reset) {
+    public static void writeCampaign(
+            final Campaign campaign, final boolean resetLevelsBeaten
+    ) {
         final Path filepath = campaign.getFolder().resolve(CAMPAIGN_SPEC);
         final StringBuilder sb = new StringBuilder();
 
@@ -118,7 +120,7 @@ public class LevelIO {
 
         sb.append(ParserWriter.encloseInTag(
                 LEVELS_BEATEN,
-                String.valueOf(reset ? 0 : campaign.getLevelsBeaten())
+                String.valueOf(resetLevelsBeaten ? 0 : campaign.getLevelsBeaten())
         ));
         ParserWriter.newLineSB(sb);
 
@@ -140,8 +142,11 @@ public class LevelIO {
     }
 
     private static void writeCampaignFiles(final Campaign campaign, final StringBuilder sb) {
-        final String[] levelFiles = campaign.getLevelFiles();
-        sb.append(ParserWriter.packAndEncloseInTag(FILES, levelFiles, true));
+        final List<String> levelFiles = campaign.getLevelFilenames();
+        final String[] levelFilenameArray = new String[levelFiles.size()];
+
+        sb.append(ParserWriter.packAndEncloseInTag(FILES,
+                levelFiles.toArray(levelFilenameArray), true));
     }
 
     // LEVEL - READ
@@ -237,6 +242,49 @@ public class LevelIO {
         );
     }
 
+    // LEVEL - SAVE
+
+    public static void saveValidatedEditorLevel(
+            final String name, final String hint
+    ) {
+        final String filename = generateLevelFilename(name);
+        final Path filepath = MY_LEVELS_FOLDER.resolve(filename);
+        final Level level = Level.fromEditorValidated(name, hint, filepath);
+
+        writeLevel(level, true);
+
+        Campaign myLevels = readMyLevels();
+        myLevels.addLevel(level, filename, true);
+
+        writeCampaign(myLevels, false);
+    }
+
+    private static String generateLevelFilename(final String name) {
+        final String NAME_COMPONENT_SEPARATOR = "-";
+        final StringBuilder sb = new StringBuilder();
+
+        for (char c : name.toCharArray()) {
+            if ((c >= 'a' && c <= 'z') || (c >= '0' && c <= '9'))
+                sb.append(c);
+            else if (c >= 'A' && c <= 'Z')
+                sb.append(String.valueOf(c).toLowerCase());
+            else if (c == ' ' || c == '-')
+                sb.append('-');
+        }
+
+        final LocalDateTime now = LocalDateTime.now();
+
+        sb.append(" from ").append(now.getYear()).append(NAME_COMPONENT_SEPARATOR)
+                .append(now.getMonthValue()).append(NAME_COMPONENT_SEPARATOR)
+                .append(now.getDayOfMonth()).append(" at ").append(now.getHour())
+                .append(NAME_COMPONENT_SEPARATOR).append(now.getMinute())
+                .append(NAME_COMPONENT_SEPARATOR).append(now.getSecond());
+
+        sb.append(LEVEL_FILE_SUFFIX);
+
+        return sb.toString();
+    }
+
     // LEVEL - WRITE
 
     public static void writeLevel(final Level level, final boolean reset) {
@@ -314,5 +362,11 @@ public class LevelIO {
 
         sb.append(ParserWriter.packAndEncloseInTag(SENTRIES, sentryStrings, true));
         ParserWriter.newLineSB(sb);
+    }
+
+    // LEVEL - DELETE
+
+    public static void deleteLevelFile(final Level level) {
+        JBJGLFileIO.deleteFile(level.getFilepath());
     }
 }

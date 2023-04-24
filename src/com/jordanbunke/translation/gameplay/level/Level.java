@@ -25,14 +25,14 @@ import java.util.List;
 public class Level {
     public static final String EDITOR_LEVEL_NAME = "TESTING EDITOR LEVEL";
     private static final String EDITOR_LEVEL_HINT = "Editor levels must be completed to pass verification";
-    private static final int PLAYER_OUT_OF_BOUNDS_AT = 1000;
-    private static final int SENTRY_TOO_FAR_FROM_PLAYER = 6000;
-    private static final int TICKS_AFTER_COMPLETION = 50;
+    private static final int
+            PLAYER_OUT_OF_BOUNDS_AT = 1000,
+            SENTRY_TOO_FAR_FROM_PLAYER = 6000,
+            TICKS_AFTER_COMPLETION = 50;
 
     private final Path filepath;
 
-    private final String name;
-    private final String hint;
+    private final String name, hint;
     private final LevelStats stats;
     private final PlatformSpec[] platformSpecs;
     private final SentrySpec[] sentrySpecs;
@@ -82,6 +82,14 @@ public class Level {
                 LevelStats.createNew(),
                 Editor.definePlatformSpecsForLevel(),
                 Editor.defineSentrySpecsForLevel(), null);
+    }
+
+    public static Level fromEditorValidated(
+            final String name, final String hint, final Path filepath
+    ) {
+        return new Level(name, hint, LevelStats.createNew(),
+                Editor.definePlatformSpecsForLevel(),
+                Editor.defineSentrySpecsForLevel(), filepath);
     }
 
     public static Level load(
