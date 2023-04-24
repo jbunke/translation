@@ -7,7 +7,8 @@ public class ParserWriter {
     public static final Path RESOURCE_ROOT = Paths.get("resources");
 
     private static final int NF = -1;
-    private static final String NOT_FOUND = "NOT_FOUND",
+    private static final String
+            NOT_FOUND = "NOT_FOUND", EMPTY = "",
             CONTENT_FOLLOWING = ":",
             BIG_OPEN = "{", BIG_CLOSE = "}",
             SMALL_OPEN = "(", SMALL_CLOSE = ")",
@@ -75,7 +76,12 @@ public class ParserWriter {
     }
 
     public static String[] extractFromTagAndSplit(final String tag, final String text) {
-        return extractFromTag(tag, text).split(BIG_SEP);
+        final String[] contents = extractFromTag(tag, text).split(BIG_SEP);
+
+        if (contents.length == 1 && contents[0].equals(EMPTY))
+            return new String[] {};
+
+        return contents;
     }
 
     public static String extractFromTag(final String tag, final String text) {

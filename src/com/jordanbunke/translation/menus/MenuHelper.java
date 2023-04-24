@@ -18,8 +18,10 @@ import com.jordanbunke.translation.gameplay.image.ImageAssets;
 import com.jordanbunke.translation.gameplay.level.Level;
 import com.jordanbunke.translation.gameplay.level.LevelStats;
 import com.jordanbunke.translation.io.ControlScheme;
+import com.jordanbunke.translation.io.LevelIO;
 import com.jordanbunke.translation.io.ParserWriter;
 import com.jordanbunke.translation.io.PatchNotes;
+import com.jordanbunke.translation.menus.custom_elements.ConditionalMenuElement;
 import com.jordanbunke.translation.menus.custom_elements.SetInputMenuElement;
 import com.jordanbunke.translation.menus.custom_elements.TypedInputMenuElement;
 import com.jordanbunke.translation.menus.custom_elements.VerticalScrollableMenuElement;
@@ -211,7 +213,7 @@ public class MenuHelper {
                         generateMenuTextBlurb(text, JBJGLText.Orientation.CENTER,
                                 JBJGLMenuElement.Anchor.CENTRAL,
                                 widthCoord(0.5), heightCoord(0.6), 2)),
-                MenuIDs.MOVEMENT_RULES_WIKI);
+                MenuIDs.MOVEMENT_RULES_GM);
     }
 
     private static JBJGLMenu generateSentryRoleWikiPage(final Sentry.Role role) {
@@ -258,7 +260,7 @@ public class MenuHelper {
                         widthCoord(0.5), heightCoord(0.68), 2));
 
         return generateBasicMenu(role.name(),
-                "SENTRY TYPE", contents, MenuIDs.SENTRIES_WIKI);
+                "SENTRY TYPE", contents, MenuIDs.SENTRIES_GM);
     }
 
     public static JBJGLMenu generatePatchNotesPage(
@@ -271,22 +273,75 @@ public class MenuHelper {
                 patchNotes[page].getVersion(), contents, backMenuID);
     }
 
-    public static JBJGLMenu generateCampaignFolderMenu(
-            final String title, final Campaign[] campaigns,
-            final String backMenuID
+    public static JBJGLMenu generateMyCampaignsFolderMenu(
+            final String title, final Path folder, final String backMenuID
     ) {
-        final JBJGLMenuElementGrouping contents = generateCampaignsOnPage(campaigns);
+        return generateCampaignFolderMenu(title, folder,
+                backMenuID, JBJGLMenuElementGrouping.generateOf(
+                        determineTextButton("NEW +",
+                                new int[] { widthCoord(1.0) - MARGIN, MARGIN },
+                                JBJGLMenuElement.Anchor.RIGHT_TOP,
+                                widthCoord(0.175),
+                                null) // TODO - create new campaign button behaviour
+                ));
+    }
+
+    public static JBJGLMenu generateImportedCampaignsFolderMenu(
+            final String title, final Path folder, final String backMenuID
+    ) {
+        return generateCampaignFolderMenu(title, folder,
+                backMenuID, JBJGLMenuElementGrouping.generateOf(
+                        determineTextButton("IMPORT +",
+                                new int[] { widthCoord(1.0) - MARGIN, MARGIN },
+                                JBJGLMenuElement.Anchor.RIGHT_TOP,
+                                widthCoord(0.175),
+                                null) // TODO - import button behaviour
+                ));
+    }
+
+    public static JBJGLMenu generateCampaignFolderMenu(
+            final String title, final Path folder, final String backMenuID
+    ) {
+        return generateCampaignFolderMenu(title, folder, backMenuID,
+                JBJGLMenuElementGrouping.generateOf());
+    }
+
+    private static JBJGLMenu generateCampaignFolderMenu(
+            final String title, final Path folder, final String backMenuID,
+            final JBJGLMenuElementGrouping additional
+    ) {
+        final Campaign[] campaigns = LevelIO.readCampaignsInFolder(folder);
+
+        final JBJGLMenuElementGrouping contents =
+                JBJGLMenuElementGrouping.generateOf(
+                        generateCampaignsOnPage(campaigns), additional);
 
         return generateBasicMenu(title, DOES_NOT_EXIST, contents, backMenuID);
     }
 
+    public static JBJGLMenu generateMenuForMyLevels(final String backMenuID) {
+        Translation.campaign = LevelIO.readMyLevels();
+
+        return generateMenuForCampaign(Translation.campaign, backMenuID, true);
+    }
+
     public static JBJGLMenu generateMenuForCampaign(
-            final Campaign campaign, final String backMenuID
+            final Path campaignFolder, final String backMenuID
+    ) {
+        Translation.campaign = LevelIO.readCampaign(campaignFolder);
+
+        return generateMenuForCampaign(Translation.campaign, backMenuID, false);
+    }
+
+    private static JBJGLMenu generateMenuForCampaign(
+            final Campaign campaign, final String backMenuID,
+            final boolean isMyLevels
     ) {
         final JBJGLMenuElementGrouping contents = MenuHelper.generateLevelsOnPage(campaign);
 
-        final String subtitle = campaign.getLevelsBeaten() + " / " +
-                campaign.getLevelCount() + " levels beaten";
+        final String subtitle = isMyLevels
+                ? campaign.getLevelCount() + " levels created"
+                : campaign.getLevelsBeaten() + " / " + campaign.getLevelCount() + " levels beaten";
 
         return MenuHelper.generateBasicMenu(campaign.getName(), subtitle, contents, backMenuID);
     }
@@ -385,7 +440,7 @@ public class MenuHelper {
                 new int[] { pixel, height }, JBJGLMenuElement.Anchor.LEFT_BOTTOM,
                 generateInitialMenuTextBuilder()
                         .addText("version " + Translation.VERSION).addLineBreak()
-                        .addText("Jordan Bunke, 2022").build());
+                        .addText("Jordan Bunke, 2022-2023").build());
     }
 
     public static JBJGLTextMenuElement generateMenuTextBlurb(
@@ -680,6 +735,13 @@ public class MenuHelper {
 
         final int campaignCount = campaigns.length;
 
+        if (campaignCount == 0) return JBJGLMenuElementGrouping.generateOf(
+                generateMenuTextBlurb(
+                        "This folder does not contain any campaigns.",
+                        JBJGLText.Orientation.CENTER, JBJGLMenuElement.Anchor.CENTRAL,
+                        widthCoord(0.5), heightCoord(0.5),
+                        TechnicalSettings.getPixelSize() / 2.));
+
         final String[] headings = new String[campaignCount];
         final Runnable[] behaviours = new Runnable[campaignCount];
 
@@ -689,7 +751,7 @@ public class MenuHelper {
             final Runnable behaviour = () -> {
                 Translation.campaign = campaign;
                 MenuHelper.linkMenu(MenuIDs.CAMPAIGN_LEVELS,
-                        generateMenuForCampaign(campaign, MenuIDs.CAMPAIGN_FOLDER));
+                        generateMenuForCampaign(campaign, MenuIDs.CAMPAIGN_FOLDER, false));
             };
 
             headings[i] = Utility.cutOffIfLongerThan(campaign.getName(), CAMPAIGN_NAME_TOO_LONG).toUpperCase();
@@ -705,6 +767,13 @@ public class MenuHelper {
     public static JBJGLMenuElementGrouping generateLevelsOnPage(final Campaign campaign) {
         final int LEVEL_NAME_TOO_LONG = 50;
         final int levelCount = campaign.getLevelCount();
+
+        if (levelCount == 0) return JBJGLMenuElementGrouping.generateOf(
+                generateMenuTextBlurb(
+                        "This campaign does not contain any levels.",
+                        JBJGLText.Orientation.CENTER, JBJGLMenuElement.Anchor.CENTRAL,
+                        widthCoord(0.5), heightCoord(0.5),
+                        TechnicalSettings.getPixelSize() / 2.));
 
         final String[] headings = new String[levelCount];
         final Runnable[] behaviours = new Runnable[levelCount];
@@ -823,8 +892,21 @@ public class MenuHelper {
                 new int[] { x, y }, new int[] { width, height },
                 JBJGLMenuElement.Anchor.CENTRAL_TOP,
                 nonHighlightedButton, highlightedButton,
-                () -> linkMenu(MenuIDs.SENTRY_ROLE_WIKI,
+                () -> linkMenu(MenuIDs.SENTRY_ROLE_GM,
                         generateSentryRoleWikiPage(role)));
+    }
+
+    public static ConditionalMenuElement generateConditionalButton(
+            final String label, final int x, final int y, final int width,
+            final JBJGLMenuElement.Anchor anchor,
+            final Runnable behaviour, final Callable<Boolean> condition
+    ) {
+        final JBJGLMenuElement trueElement = determineTextButton(label,
+                new int[] { x, y }, anchor, width, behaviour);
+        final JBJGLMenuElement falseElement = determineTextButton(label,
+                new int[] { x, y }, anchor, width, null);
+
+        return ConditionalMenuElement.generate(falseElement, trueElement, condition);
     }
 
     public static TypedInputMenuElement generateTypedInputButton(

@@ -12,7 +12,9 @@ public class ResetGame {
     private static void reset() {
         resetTutorial();
         resetMain();
-        // TODO - extend for my campaigns & imported campaigns
+        resetMyLevels();
+        resetMyCampaigns();
+        resetImported();
     }
 
     private static void resetMain() {
@@ -20,6 +22,25 @@ public class ResetGame {
 
         for (Campaign world : mainCampaigns)
             resetCampaign(world);
+    }
+
+    private static void resetImported() {
+        final Campaign[] importedCampaigns = LevelIO.readCampaignsInFolder(LevelIO.IMPORTED_CAMPAIGNS_FOLDER);
+
+        for (Campaign campaign : importedCampaigns)
+            resetCampaign(campaign);
+    }
+
+    private static void resetMyLevels() {
+        final Campaign myLevels = LevelIO.readMyLevels();
+        resetCampaign(myLevels);
+    }
+
+    private static void resetMyCampaigns() {
+        final Campaign[] myCampaigns = LevelIO.readCampaignsInFolder(LevelIO.MY_CAMPAIGNS_FOLDER);
+
+        for (Campaign campaign : myCampaigns)
+            resetCampaign(campaign);
     }
 
     private static void resetTutorial() {

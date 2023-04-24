@@ -87,10 +87,10 @@ public class Menus {
                 MenuHelper.generateListMenuOptions(
                         new String[] {
                                 "PLAY", "LEVEL EDITOR", "SETTINGS",
-                                "GAME MECHANICS", "INFORMATION", "QUIT"
+                                "GAME MECHANICS", "INFORMATION", "QUIT GAME"
                         },
                         new Runnable[] {
-                                () -> MenuHelper.linkMenu(MenuIDs.CAMPAIGNS_MENU, generatePlayMenu()),
+                                () -> MenuHelper.linkMenu(MenuIDs.PLAY_MENU, generatePlayMenu()),
                                 () -> Translation.manager.setActiveStateIndex(Translation.EDITOR_INDEX),
                                 () -> MenuHelper.linkMenu(MenuIDs.SETTINGS, generateSettingsMenu(true)),
                                 () -> MenuHelper.linkMenu(MenuIDs.GAME_MECHANICS, generateGameMechanicsMenu()),
@@ -111,23 +111,31 @@ public class Menus {
                                 "MY CONTENT", "IMPORTED CAMPAIGNS" },
                         new Runnable[] {
                                 () -> MenuHelper.linkMenu(MenuIDs.CAMPAIGN_FOLDER,
-                                        MenuHelper.generateCampaignFolderMenu(
-                                                "Main Campaigns",
-                                                LevelIO.readCampaignsInFolder(LevelIO.MAIN_CAMPAIGNS_FOLDER),
-                                                MenuIDs.CAMPAIGNS_MENU)),
-                                () -> {
-                                    Translation.campaign =
-                                            LevelIO.readCampaign(LevelIO.TUTORIAL_CAMPAIGN_FOLDER);
-                                    MenuHelper.linkMenu(
-                                            MenuIDs.CAMPAIGN_LEVELS,
-                                            MenuHelper.generateMenuForCampaign(
-                                                    Translation.campaign, MenuIDs.CAMPAIGNS_MENU
-                                            ));
-                                },
-                                // TODO - implement & link my campaigns, imported campaigns
-                                null,
-                                null
+                                        MenuHelper.generateCampaignFolderMenu("Main Campaigns",
+                                                LevelIO.MAIN_CAMPAIGNS_FOLDER, MenuIDs.PLAY_MENU)),
+                                () -> MenuHelper.linkMenu(MenuIDs.CAMPAIGN_LEVELS,
+                                        MenuHelper.generateMenuForCampaign(LevelIO.TUTORIAL_CAMPAIGN_FOLDER,
+                                                MenuIDs.PLAY_MENU)),
+                                () -> MenuHelper.linkMenu(MenuIDs.MY_CONTENT_MENU, generateMyContentMenu()),
+                                () -> MenuHelper.linkMenu(MenuIDs.CAMPAIGN_FOLDER,
+                                        MenuHelper.generateImportedCampaignsFolderMenu("Imported Campaigns",
+                                                LevelIO.IMPORTED_CAMPAIGNS_FOLDER, MenuIDs.PLAY_MENU))
                         }), MenuIDs.MAIN_MENU);
+    }
+
+    private static JBJGLMenu generateMyContentMenu() {
+        return MenuHelper.generateBasicMenu(
+                "My Content", MenuHelper.DOES_NOT_EXIST,
+                MenuHelper.generateListMenuOptions(
+                        new String[] { "MY LEVELS", "MY CAMPAIGNS" },
+                        new Runnable[] {
+                                () -> MenuHelper.linkMenu(MenuIDs.CAMPAIGN_LEVELS,
+                                        MenuHelper.generateMenuForMyLevels(MenuIDs.MY_CONTENT_MENU)),
+                                () -> MenuHelper.linkMenu(MenuIDs.CAMPAIGN_FOLDER,
+                                        MenuHelper.generateMyCampaignsFolderMenu("My Campaigns",
+                                                LevelIO.MY_CAMPAIGNS_FOLDER, MenuIDs.MY_CONTENT_MENU))
+                        }
+                ), MenuIDs.PLAY_MENU);
     }
 
     private static JBJGLMenu generateSettingsMenu(final boolean isMainMenu) {
@@ -290,11 +298,11 @@ public class Menus {
         final JBJGLMenuElementGrouping contents = MenuHelper.generateListMenuOptions(
                 new String[] { "SENTRIES", "PLATFORMS", "MOVEMENT" },
                 new Runnable[] {
-                        () -> MenuHelper.linkMenu(MenuIDs.SENTRIES_WIKI,
+                        () -> MenuHelper.linkMenu(MenuIDs.SENTRIES_GM,
                                 generateSentriesWikiPage()),
-                        () -> MenuHelper.linkMenu(MenuIDs.PLATFORMS_WIKI,
+                        () -> MenuHelper.linkMenu(MenuIDs.PLATFORMS_GM,
                                 generatePlatformWikiPage()),
-                        () -> MenuHelper.linkMenu(MenuIDs.MOVEMENT_RULES_WIKI,
+                        () -> MenuHelper.linkMenu(MenuIDs.MOVEMENT_RULES_GM,
                                 generateMovementRulesWikiPage())
                 }, 1.0);
 
@@ -332,11 +340,11 @@ public class Menus {
         final JBJGLMenuElementGrouping contents = MenuHelper.generateListMenuOptions(
                 new String[] { "JUMP & DIVE", "TELEPORTATION", "SAVE & LOAD" },
                 new Runnable[] {
-                        () -> MenuHelper.linkMenu(MenuIDs.JUMP_DROP_MOVEMENT_WIKI,
+                        () -> MenuHelper.linkMenu(MenuIDs.JUMP_DROP_MOVEMENT_GM,
                                 generateJumpDiveWikiPage()),
-                        () -> MenuHelper.linkMenu(MenuIDs.TELEPORTATION_MOVEMENT_WIKI,
+                        () -> MenuHelper.linkMenu(MenuIDs.TELEPORTATION_MOVEMENT_GM,
                                 generateTeleportationWikiPage()),
-                        () -> MenuHelper.linkMenu(MenuIDs.SAVE_LOAD_MOVEMENT_WIKI,
+                        () -> MenuHelper.linkMenu(MenuIDs.SAVE_LOAD_MOVEMENT_GM,
                                 generateSaveLoadWikiPage())
                 });
 
@@ -588,16 +596,13 @@ public class Menus {
         final JBJGLMenuElementGrouping contents = JBJGLMenuElementGrouping.generateOf(
                 setLevelNameButton,
                 setLevelHintButton,
-                // TODO: SAVE LEVEL should be custom menu element that contains a button that is checks if a condition is validated
-                // in this case the condition is setLevelNameButton.inputIsValid() && setLevelHintButton.inputIsValid()
-                MenuHelper.determineTextButton(
-                        "SAVE LEVEL",
-                        new int[] {
-                                MenuHelper.widthCoord(0.5), MenuHelper.heightCoord(0.8)
-                        }, JBJGLMenuElement.Anchor.CENTRAL_TOP, MenuHelper.widthCoord(0.3),
+                MenuHelper.generateConditionalButton("SAVE LEVEL",
+                        MenuHelper.widthCoord(0.5), MenuHelper.heightCoord(0.8),
+                        MenuHelper.widthCoord(0.3), JBJGLMenuElement.Anchor.CENTRAL_TOP,
                         () -> {
                             // TODO: save level behaviour here
-                        }
+                        },
+                        () -> setLevelNameButton.inputIsValid() && setLevelHintButton.inputIsValid()
                 )
         );
 

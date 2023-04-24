@@ -10,17 +10,17 @@ import com.jordanbunke.translation.gameplay.level.PlatformSpec;
 import com.jordanbunke.translation.gameplay.level.SentrySpec;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 public class LevelIO {
-    public static final Path CAMPAIGNS_FOLDER =
-            ParserWriter.RESOURCE_ROOT.resolve(Paths.get("campaigns"));
-    public static final Path MAIN_CAMPAIGNS_FOLDER = CAMPAIGNS_FOLDER.resolve(Paths.get("main"));
-    public static final Path TUTORIAL_CAMPAIGN_FOLDER = CAMPAIGNS_FOLDER.resolve(Paths.get("tutorial"));
+    public static final Path CAMPAIGNS_FOLDER = ParserWriter.RESOURCE_ROOT.resolve("campaigns");
+    public static final Path MY_CONTENT_FOLDER = ParserWriter.RESOURCE_ROOT.resolve("my_content"); // TODO - potentially elsewhere
 
-    // TODO
-    public static final Path MY_CAMPAIGNS_FOLDER = CAMPAIGNS_FOLDER.resolve(Paths.get("my_campaigns"));
-    public static final Path IMPORTED_CAMPAIGNS_FOLDER = CAMPAIGNS_FOLDER.resolve(Paths.get("imported"));
+    public static final Path MAIN_CAMPAIGNS_FOLDER = CAMPAIGNS_FOLDER.resolve("main");
+    public static final Path TUTORIAL_CAMPAIGN_FOLDER = CAMPAIGNS_FOLDER.resolve("tutorial");
+    public static final Path IMPORTED_CAMPAIGNS_FOLDER = CAMPAIGNS_FOLDER.resolve("imported");
+
+    public static final Path MY_CAMPAIGNS_FOLDER = MY_CONTENT_FOLDER.resolve("campaigns");
+    private static final Path MY_LEVELS_FOLDER = MY_CONTENT_FOLDER.resolve("levels");
 
     private static final String CAMPAIGNS_IN_FOLDER = ".campaigns";
     private static final String CAMPAIGN_SPEC = ".spec";
@@ -37,19 +37,24 @@ public class LevelIO {
     // CAMPAIGN - READ
 
     public static Campaign[] readCampaignsInFolder(final Path folder) {
-        String toParse = JBJGLFileIO.readFile(folder.resolve(Paths.get(CAMPAIGNS_IN_FOLDER)));
+        String toParse = JBJGLFileIO.readFile(folder.resolve(CAMPAIGNS_IN_FOLDER));
         final String[] campaignFolders = ParserWriter.extractFromTagAndSplit(CAMPAIGNS, toParse);
 
         final Campaign[] campaigns = new Campaign[campaignFolders.length];
 
         for (int i = 0; i < campaigns.length; i++)
-            campaigns[i] = readCampaign(folder.resolve(Paths.get(campaignFolders[i].trim())));
+            campaigns[i] = readCampaign(folder.resolve(campaignFolders[i].trim()));
 
         return campaigns;
     }
 
+    public static Campaign readMyLevels() {
+        // TODO - unique implementation
+        return readCampaign(MY_LEVELS_FOLDER);
+    }
+
     public static Campaign readCampaign(final Path campaignFolder) {
-        String toParse = JBJGLFileIO.readFile(campaignFolder.resolve(Paths.get(CAMPAIGN_SPEC)));
+        String toParse = JBJGLFileIO.readFile(campaignFolder.resolve(CAMPAIGN_SPEC));
         return parseCampaign(toParse, campaignFolder);
     }
 
@@ -90,7 +95,7 @@ public class LevelIO {
 
         for (int i = 0; i < levelCount; i++) {
             levelFiles[i] = levelFileNames[i].trim();
-            levels[i] = readLevel(campaignFolder.resolve(Paths.get(levelFiles[i])));
+            levels[i] = readLevel(campaignFolder.resolve(levelFiles[i]));
         }
 
         return levels;
@@ -99,7 +104,7 @@ public class LevelIO {
     // CAMPAIGN - WRITE
 
     public static void writeCampaign(final Campaign campaign, final boolean reset) {
-        final Path filepath = campaign.getFolder().resolve(Paths.get(CAMPAIGN_SPEC));
+        final Path filepath = campaign.getFolder().resolve(CAMPAIGN_SPEC);
         final StringBuilder sb = new StringBuilder();
 
         sb.append(ParserWriter.encloseInTag(NAME, campaign.getName()));
