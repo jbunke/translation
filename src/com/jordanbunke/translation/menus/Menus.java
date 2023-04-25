@@ -110,15 +110,10 @@ public class Menus {
                         new String[] { "MAIN CAMPAIGNS", "TUTORIAL",
                                 "MY CONTENT", "IMPORTED CAMPAIGNS" },
                         new Runnable[] {
-                                () -> MenuHelper.linkMenu(MenuIDs.CAMPAIGN_FOLDER,
-                                        MenuHelper.generateCampaignFolderMenu("Main Campaigns",
-                                                LevelIO.MAIN_CAMPAIGNS_FOLDER, MenuIDs.PLAY_MENU)),
-                                () -> MenuHelper.linkMenu(MenuIDs.CAMPAIGN_LEVELS,
-                                        MenuHelper.generateMenuForCampaign(LevelIO.TUTORIAL_CAMPAIGN_FOLDER,
-                                                MenuIDs.PLAY_MENU)),
+                                () -> MenuHelper.linkMenu(MenuIDs.CAMPAIGN_FOLDER, MenuHelper.generateMainCampaignsFolderMenu()),
+                                () -> MenuHelper.linkMenu(MenuIDs.CAMPAIGN_LEVELS, MenuHelper.generateMenuForTutorial()),
                                 () -> MenuHelper.linkMenu(MenuIDs.MY_CONTENT_MENU, generateMyContentMenu()),
-                                () -> MenuHelper.linkMenu(MenuIDs.CAMPAIGN_FOLDER,
-                                        MenuHelper.generateImportedCampaignsFolderMenu())
+                                () -> MenuHelper.linkMenu(MenuIDs.CAMPAIGN_FOLDER, MenuHelper.generateImportedCampaignsFolderMenu())
                         }), MenuIDs.MAIN_MENU);
     }
 
@@ -128,10 +123,8 @@ public class Menus {
                 MenuHelper.generateListMenuOptions(
                         new String[] { "MY LEVELS", "MY CAMPAIGNS" },
                         new Runnable[] {
-                                () -> MenuHelper.linkMenu(MenuIDs.CAMPAIGN_LEVELS,
-                                        MenuHelper.generateMenuForMyLevels(MenuIDs.MY_CONTENT_MENU)),
-                                () -> MenuHelper.linkMenu(MenuIDs.CAMPAIGN_FOLDER,
-                                        MenuHelper.generateMyCampaignsFolderMenu())
+                                () -> MenuHelper.linkMenu(MenuIDs.CAMPAIGN_LEVELS, MenuHelper.generateMenuForMyLevels()),
+                                () -> MenuHelper.linkMenu(MenuIDs.CAMPAIGN_FOLDER, MenuHelper.generateMyCampaignsFolderMenu())
                         }
                 ), MenuIDs.PLAY_MENU);
     }

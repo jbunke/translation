@@ -43,12 +43,34 @@ import java.util.function.Function;
 public class MenuHelper {
 
     // Positioning
-    private static final int LIST_MENU_INITIAL_Y = 140;
-    private static final int MENU_TITLE_Y = 0;
-    private static final int MENU_SUBTITLE_Y = LIST_MENU_INITIAL_Y;
-    private static final int MARGIN = 20;
+    private static final int
+            LIST_MENU_INITIAL_Y = 140,
+            MENU_TITLE_Y = 0,
+            MENU_SUBTITLE_Y = LIST_MENU_INITIAL_Y,
+            MARGIN = 20;
 
     public static final String DOES_NOT_EXIST = "!does-not-exist!";
+
+    private enum Context {
+        MY_LEVELS(true),
+        MY_CAMPAIGNS(true),
+        IMPORTED_CAMPAIGNS(false),
+        STANDARD(false);
+
+        final boolean levelsCanBeDeleted;
+
+        Context(final boolean levelsCanBeDeleted) {
+            this.levelsCanBeDeleted = levelsCanBeDeleted;
+        }
+
+        String getDeleteHeading() {
+            return switch (this) {
+                case MY_CAMPAIGNS -> "REMOVE";
+                case MY_LEVELS -> "DELETE";
+                default -> "";
+            };
+        }
+    }
 
     // MENU LINKING
 
@@ -178,27 +200,27 @@ public class MenuHelper {
     }
 
     public static JBJGLMenu generateLevelOverview(
-            final Level level, final int index, final Campaign campaign,
-            final boolean canBeDeleted, final boolean isMyLevels
+            final Level level, final int index,
+            final Campaign campaign, final Context context
     ) {
-        final String PLAY_HEADING = "PLAY", DELETE_HEADING = isMyLevels ? "DELETE" : "REMOVE";
+        final String PLAY_HEADING = "PLAY", DELETE_HEADING = context.getDeleteHeading();
         final Runnable playBehaviour = () -> {
             Translation.campaign.setLevel(index);
             Translation.campaign.getLevel().getStats().reset();
             Translation.campaign.getLevel().launchLevel();
             Translation.manager.setActiveStateIndex(Translation.GAMEPLAY_INDEX);
         }, deleteBehaviour = () -> linkMenu(MenuIDs.ARE_YOU_SURE_DELETE_LEVEL,
-                generateAreYouSureDeleteLevelMenu(campaign, level, isMyLevels));
+                generateAreYouSureDeleteLevelMenu(campaign, level, context));
 
         final JBJGLMenuElementGrouping contents = JBJGLMenuElementGrouping.generateOf(
                 generateHorizontalListMenuOptions(
-                        canBeDeleted
+                        context.levelsCanBeDeleted
                                 ? new String[] { PLAY_HEADING, DELETE_HEADING }
                                 : new String[] { PLAY_HEADING },
-                        canBeDeleted
+                        context.levelsCanBeDeleted
                                 ? new Runnable[] { playBehaviour, deleteBehaviour }
-                                : new Runnable[] { playBehaviour },
-                        heightCoord(0.85), widthCoord(canBeDeleted ? 0.3 : 0.5)),
+                                : new Runnable[] { playBehaviour }, heightCoord(0.85),
+                        widthCoord(context.levelsCanBeDeleted ? 0.3 : 0.5)),
                 JBJGLTextMenuElement.generate(
                         new int[] {
                                 widthCoord(0.5),
@@ -209,31 +231,30 @@ public class MenuHelper {
                                         (level.isDeterministic() ? "DETERMINISTIC" : "NON-DETERMINISTIC")
                         ).build()),
                 generateLevelKeyInfo(level),
-                generatePrevNextLevelButtons(index, campaign, canBeDeleted, isMyLevels));
+                generatePrevNextLevelButtons(index, campaign, context));
 
         return generateBasicMenu(level.getName(), level.getHint(),
                 contents, MenuIDs.CAMPAIGN_LEVELS);
     }
 
     private static JBJGLMenu generateAreYouSureDeleteLevelMenu(
-            final Campaign campaign, final Level level, final boolean isMyLevels
+            final Campaign campaign, final Level level, final Context context
     ) {
         final int LEVEL_NAME_TOO_LONG = 23;
 
         return generateAreYouSureMenu(false, "you want to " +
-                        (isMyLevels ? "delete" : "remove") +  " \"" +
+                        context.getDeleteHeading().toLowerCase() +  " \"" +
                         Utility.cutOffIfLongerThan(level.getName(), LEVEL_NAME_TOO_LONG) + "\"?",
                 () -> linkMenu(MenuIDs.LEVEL_OVERVIEW), () -> {
                     campaign.removeLevel(level);
                     LevelIO.writeCampaign(campaign, false);
 
-                    // TODO: depending on import implementation, this may need an if (isMyLevels) check
                     LevelIO.deleteLevelFile(level);
 
                     linkMenu(MenuIDs.CAMPAIGN_LEVELS,
-                            generateMenuForCampaign(campaign, isMyLevels
+                            generateMenuForCampaign(campaign, context == Context.MY_LEVELS
                                     ? MenuIDs.MY_CONTENT_MENU
-                                    : MenuIDs.CAMPAIGN_FOLDER, isMyLevels, true));
+                                    : MenuIDs.CAMPAIGN_FOLDER, context));
                 });
     }
 
@@ -305,19 +326,6 @@ public class MenuHelper {
                 patchNotes[page].getVersion(), contents, backMenuID);
     }
 
-    public static JBJGLMenu generateMyCampaignsFolderMenu() {
-        final Runnable newButtonBehaviour =
-                () -> linkMenu(MenuIDs.NEW_CAMPAIGN, generateNewCampaignMenu());
-
-        return generateCampaignFolderMenu("My Campaigns", LevelIO.MY_CAMPAIGNS_FOLDER,
-                MenuIDs.MY_CONTENT_MENU, JBJGLMenuElementGrouping.generateOf(
-                        determineTextButton("NEW +",
-                                new int[] { widthCoord(1.0) - MARGIN, MARGIN },
-                                JBJGLMenuElement.Anchor.RIGHT_TOP,
-                                widthCoord(0.175),
-                                newButtonBehaviour)), true);
-    }
-
     private static JBJGLMenu generateNewCampaignMenu() {
         final TypedInputMenuElement setCampaignNameButton =
                 generateTypedInputButton(widthCoord(0.5), heightCoord(0.5),
@@ -329,7 +337,8 @@ public class MenuHelper {
                     setCampaignNameButton.getInput());
 
             linkMenu(MenuIDs.CAMPAIGN_FOLDER, generateMyCampaignsFolderMenu(), false);
-            linkMenu(MenuIDs.CAMPAIGN_LEVELS, generateMenuForCreatedCampaign(campaign));
+            linkMenu(MenuIDs.CAMPAIGN_LEVELS, generateMenuForCampaign(campaign,
+                            MenuIDs.CAMPAIGN_FOLDER, Context.MY_CAMPAIGNS));
         };
 
         final JBJGLMenuElementGrouping contents = JBJGLMenuElementGrouping.generateOf(
@@ -338,17 +347,36 @@ public class MenuHelper {
                         widthCoord(0.3), JBJGLMenuElement.Anchor.CENTRAL_TOP,
                         createCampaignButtonBehaviour, setCampaignNameButton::inputIsValid));
 
-        return generateBasicMenu("Create a New Campaign", DOES_NOT_EXIST, contents, MenuIDs.CAMPAIGN_FOLDER);
+        return generateBasicMenu("Create a New Campaign", DOES_NOT_EXIST,
+                contents, MenuIDs.CAMPAIGN_FOLDER);
+    }
+
+    public static JBJGLMenu generateMyCampaignsFolderMenu() {
+        return generateCampaignFolderMenu("My Campaigns", LevelIO.MY_CAMPAIGNS_FOLDER,
+                MenuIDs.MY_CONTENT_MENU, Context.MY_CAMPAIGNS);
     }
 
     public static JBJGLMenu generateImportedCampaignsFolderMenu() {
+        return generateCampaignFolderMenu("Imported Campaigns",
+                LevelIO.IMPORTED_CAMPAIGNS_FOLDER, MenuIDs.PLAY_MENU, Context.IMPORTED_CAMPAIGNS);
+    }
+
+    public static JBJGLMenu generateMainCampaignsFolderMenu() {
+        return generateCampaignFolderMenu("Main Campaigns",
+                LevelIO.MAIN_CAMPAIGNS_FOLDER, MenuIDs.PLAY_MENU, Context.STANDARD);
+    }
+
+    private static JBJGLMenu generateCampaignFolderMenu(
+            final String title, final Path folder,
+            final String backMenuID, final Context context
+    ) {
+        final Campaign[] campaigns = LevelIO.readCampaignsInFolder(folder);
+
+        final Runnable newButtonBehaviour = () -> linkMenu(MenuIDs.NEW_CAMPAIGN, generateNewCampaignMenu());
         final Runnable importButtonBehaviour = () -> {
             final Optional<File> toImport = JBJGLFileIO.openFileFromSystem(
                     new String[] { "[ Select any level file in the desired campaign folder ]" },
-                    new String[][] {
-                            new String[] { LevelIO.LEVEL_FILE_SUFFIX }
-                    }
-            );
+                    new String[][] { new String[] { LevelIO.LEVEL_FILE_SUFFIX } });
 
             if (toImport.isEmpty()) return;
 
@@ -360,68 +388,65 @@ public class MenuHelper {
             linkMenu(MenuIDs.CAMPAIGN_FOLDER, generateImportedCampaignsFolderMenu());
         };
 
-        return generateCampaignFolderMenu("Imported Campaigns",
-                LevelIO.IMPORTED_CAMPAIGNS_FOLDER, MenuIDs.PLAY_MENU,
-                JBJGLMenuElementGrouping.generateOf(
-                        determineTextButton("IMPORT +",
-                                new int[] { widthCoord(1.0) - MARGIN, MARGIN },
-                                JBJGLMenuElement.Anchor.RIGHT_TOP,
-                                widthCoord(0.175),
-                                importButtonBehaviour)), false);
-    }
-
-    public static JBJGLMenu generateCampaignFolderMenu(
-            final String title, final Path folder, final String backMenuID
-    ) {
-        return generateCampaignFolderMenu(title, folder, backMenuID,
-                JBJGLMenuElementGrouping.generateOf(), false);
-    }
-
-    private static JBJGLMenu generateCampaignFolderMenu(
-            final String title, final Path folder, final String backMenuID,
-            final JBJGLMenuElementGrouping additional, final boolean levelsCanBeDeleted
-    ) {
-        final Campaign[] campaigns = LevelIO.readCampaignsInFolder(folder);
+        final JBJGLMenuElement additional = switch (context) {
+            case IMPORTED_CAMPAIGNS -> generateTopRightButton("IMPORT +",
+                    widthCoord(0.175), importButtonBehaviour);
+            case MY_CAMPAIGNS -> generateTopRightButton("NEW +",
+                    widthCoord(0.125), newButtonBehaviour);
+            default -> JBJGLPlaceholderMenuElement.generate();
+        };
 
         final JBJGLMenuElementGrouping contents =
                 JBJGLMenuElementGrouping.generateOf(
-                        generateCampaignsOnPage(campaigns, levelsCanBeDeleted), additional);
+                        generateCampaignsOnPage(campaigns, context), additional);
 
         return generateBasicMenu(title, DOES_NOT_EXIST, contents, backMenuID);
     }
 
-    public static JBJGLMenu generateMenuForMyLevels(final String backMenuID) {
-        Translation.campaign = LevelIO.readMyLevels();
-
-        return generateMenuForCampaign(Translation.campaign, backMenuID, true, true);
+    public static JBJGLMenu generateMenuForMyLevels() {
+        return generateMenuForCampaign(LevelIO.readMyLevels(),
+                MenuIDs.MY_CONTENT_MENU, Context.MY_LEVELS);
     }
 
-    public static JBJGLMenu generateMenuForCreatedCampaign(final Campaign campaign) {
-        // TODO - additional component for adding levels to campaign
-
-        return generateMenuForCampaign(campaign, MenuIDs.CAMPAIGN_FOLDER, false, true);
-    }
-
-    public static JBJGLMenu generateMenuForCampaign(
-            final Path campaignFolder, final String backMenuID
-    ) {
-        Translation.campaign = LevelIO.readCampaign(campaignFolder);
-
-        return generateMenuForCampaign(Translation.campaign, backMenuID, false, false);
+    public static JBJGLMenu generateMenuForTutorial() {
+        return generateMenuForCampaign(LevelIO.readCampaign(LevelIO.TUTORIAL_CAMPAIGN_FOLDER),
+                MenuIDs.PLAY_MENU, Context.STANDARD);
     }
 
     private static JBJGLMenu generateMenuForCampaign(
-            final Campaign campaign, final String backMenuID,
-            final boolean isMyLevels, final boolean levelsCanBeDeleted
+            final Campaign campaign, final String backMenuID, final Context context
     ) {
-        final JBJGLMenuElementGrouping contents = generateLevelsOnPage(campaign, levelsCanBeDeleted, isMyLevels);
+        Translation.campaign = campaign;
+
+        final int belowButtonY = heightCoord(0.85);
+
+        final Runnable addLevelBehaviour = () -> {}; // TODO -
+        final Runnable deleteBehaviour = () -> {}; // TODO - Are you sure menu
+        final Runnable newLevelBehaviour = () -> Translation.manager.setActiveStateIndex(Translation.EDITOR_INDEX);
+
+        final JBJGLMenuElement additional = switch (context) {
+            case MY_CAMPAIGNS -> generateHorizontalListMenuOptions(
+                    new String[] { "ADD LEVEL", "DELETE" },
+                    new Runnable[] { addLevelBehaviour, deleteBehaviour },
+                    belowButtonY, widthCoord(0.3));
+            case IMPORTED_CAMPAIGNS -> generateHorizontalListMenuOptions(
+                    new String[] { "DELETE" }, new Runnable[] { deleteBehaviour },
+                    belowButtonY, widthCoord(0.5));
+            case MY_LEVELS -> generateTopRightButton("NEW +",
+                    widthCoord(0.125), newLevelBehaviour);
+            default -> JBJGLPlaceholderMenuElement.generate();
+        };
+
+        final JBJGLMenuElementGrouping contents = JBJGLMenuElementGrouping.generateOf(
+                generateLevelsOnPage(campaign, context), additional);
 
         final String
-                subtitleA = (isMyLevels ? "" : campaign.getLevelsBeaten() + " / ") + campaign.getLevelCount(),
+                subtitleA = (context == Context.MY_LEVELS ? "" : campaign.getLevelsBeaten() + " / ") + campaign.getLevelCount(),
                 subtitleB = " level" + (campaign.getLevelCount() == 1 ? " " : "s "),
-                subtitleC = isMyLevels ? "created" : "beaten";
+                subtitleC = context == Context.MY_LEVELS ? "created" : "beaten";
 
-        return generateBasicMenu(campaign.getName(), subtitleA + subtitleB + subtitleC, contents, backMenuID);
+        return generateBasicMenu(campaign.getName(),
+                subtitleA + subtitleB + subtitleC, contents, backMenuID);
     }
 
     public static JBJGLMenu generateSplashScreen(
@@ -834,7 +859,7 @@ public class MenuHelper {
     }
 
     private static JBJGLMenuElementGrouping generateCampaignsOnPage(
-            final Campaign[] campaigns, final boolean levelsCanBeDeleted
+            final Campaign[] campaigns, final Context context
     ) {
         final int CAMPAIGN_NAME_TOO_LONG = 50;
 
@@ -853,11 +878,8 @@ public class MenuHelper {
         for (int i = 0; i < campaignCount; i++) {
             final Campaign campaign = campaigns[i];
 
-            final Runnable behaviour = () -> {
-                Translation.campaign = campaign;
-                linkMenu(MenuIDs.CAMPAIGN_LEVELS,
-                        generateMenuForCampaign(campaign, MenuIDs.CAMPAIGN_FOLDER, false, levelsCanBeDeleted));
-            };
+            final Runnable behaviour = () -> linkMenu(MenuIDs.CAMPAIGN_LEVELS,
+                    generateMenuForCampaign(campaign, MenuIDs.CAMPAIGN_FOLDER, context));
 
             headings[i] = Utility.cutOffIfLongerThan(campaign.getName(), CAMPAIGN_NAME_TOO_LONG).toUpperCase();
             behaviours[i] = behaviour;
@@ -870,7 +892,7 @@ public class MenuHelper {
     }
 
     public static JBJGLMenuElementGrouping generateLevelsOnPage(
-            final Campaign campaign, final boolean canBeDeleted, final boolean isMyLevels
+            final Campaign campaign, final Context context
     ) {
         final int LEVEL_NAME_TOO_LONG = 50;
         final int levelCount = campaign.getLevelCount();
@@ -891,7 +913,7 @@ public class MenuHelper {
             final boolean isUnlocked = campaign.isUnlocked(i);
             final Runnable behaviour = isUnlocked
                     ? () -> linkMenu(MenuIDs.LEVEL_OVERVIEW,
-                        generateLevelOverview(level, index, campaign, canBeDeleted, isMyLevels))
+                        generateLevelOverview(level, index, campaign, context))
                     : null;
 
             headings[i] = Utility.cutOffIfLongerThan(level.getName(),
@@ -899,10 +921,13 @@ public class MenuHelper {
             behaviours[i] = behaviour;
         }
 
+        final boolean hasBelowButtons = context == Context.MY_CAMPAIGNS ||
+                context == Context.IMPORTED_CAMPAIGNS;
+
         return JBJGLMenuElementGrouping.generateOf(
                 VerticalScrollableMenuElement.generate(headings, behaviours,
-                        widthCoord(0.5), heightCoord(0.35),
-                        widthCoord(0.7), heightCoord(0.5)));
+                        widthCoord(0.5), heightCoord(0.3), widthCoord(0.7),
+                        heightCoord(hasBelowButtons ? 0.4 : 0.5)));
     }
 
     // ELEMENT GENERATORS
@@ -917,9 +942,16 @@ public class MenuHelper {
                 () -> linkMenu(backMenuID));
     }
 
+    private static JBJGLMenuElement generateTopRightButton(
+            final String prompt, final int width, final Runnable behaviour
+    ) {
+        return determineTextButton(prompt, new int[] { widthCoord(1.0) - MARGIN, MARGIN },
+                JBJGLMenuElement.Anchor.RIGHT_TOP, width, behaviour);
+    }
+
     private static JBJGLMenuElementGrouping generatePrevNextLevelButtons(
             final int index, final Campaign campaign,
-            final boolean canBeDeleted, final boolean isMyLevels
+            final Context context
     ) {
         final int BUTTON_WIDTH = widthCoord(1/5.3);
 
@@ -933,10 +965,10 @@ public class MenuHelper {
                 hasPreviousPage, hasNextPage, BUTTON_WIDTH,
                 () -> linkMenu(MenuIDs.LEVEL_OVERVIEW,
                         generateLevelOverview(campaign.getLevelAt(index - 1),
-                                index - 1, campaign, canBeDeleted, isMyLevels)),
+                                index - 1, campaign, context)),
                 () -> linkMenu(MenuIDs.LEVEL_OVERVIEW,
                         generateLevelOverview(campaign.getLevelAt(index + 1),
-                                index + 1, campaign, canBeDeleted, isMyLevels)));
+                                index + 1, campaign, context)));
 
         return JBJGLMenuElementGrouping.generate(prevNextButtons);
     }
