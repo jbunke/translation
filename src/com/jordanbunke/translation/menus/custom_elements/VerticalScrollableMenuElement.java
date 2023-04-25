@@ -194,23 +194,28 @@ public class VerticalScrollableMenuElement extends JBJGLMenuElement {
     }
 
     private JBJGLImage drawScrollBar() {
-        final Color border = canScroll
-                ? (highlighted
-                    ? TLColors.BLACK()
-                    : TLColors.PLAYER())
-                : TLColors.PLATFORM();
+        final int pixel = TechnicalSettings.getPixelSize();
 
-        final Color filled = highlighted
-                ? TLColors.PLAYER()
-                : TLColors.PLAYER(0);
+        final Color background = TLColors.PLATFORM(),
+                border = canScroll
+                    ? (highlighted
+                        ? TLColors.BLACK()
+                        : TLColors.PLAYER())
+                    : TLColors.BLACK(),
+                filled = highlighted
+                    ? TLColors.PLAYER()
+                    : TLColors.PLAYER(0);
 
-        final int margin = (2 * TechnicalSettings.getPixelSize());
+        final int margin = 2 * pixel;
 
         final JBJGLImage renderImage = JBJGLImage.create(getWidth(), getHeight());
         final Graphics g = renderImage.getGraphics();
 
-        g.setColor(filled);
+        g.setColor(background);
+        g.fillRect(scrollBarOffsetX + pixel, pixel,
+                SCROLL_BAR_WIDTH - (2 * pixel), getHeight() - (2 * pixel));
 
+        g.setColor(filled);
         if (scrolling)
             g.fillRect(scrollBarOffsetX, scrollBarOffsetY, SCROLL_BAR_WIDTH, scrollBarHeight);
         else
@@ -218,12 +223,10 @@ public class VerticalScrollableMenuElement extends JBJGLMenuElement {
                     SCROLL_BAR_WIDTH - (2 * margin), scrollBarHeight - (2 * margin));
 
         g.setColor(border);
-        g.fillRect(scrollBarOffsetX, scrollBarOffsetY, SCROLL_BAR_WIDTH, TechnicalSettings.getPixelSize());
-        g.fillRect(scrollBarOffsetX, (scrollBarOffsetY + scrollBarHeight) -
-                TechnicalSettings.getPixelSize(), SCROLL_BAR_WIDTH, TechnicalSettings.getPixelSize());
-        g.fillRect(scrollBarOffsetX, scrollBarOffsetY, TechnicalSettings.getPixelSize(), scrollBarHeight);
-        g.fillRect((scrollBarOffsetX + SCROLL_BAR_WIDTH) - TechnicalSettings.getPixelSize(),
-                scrollBarOffsetY, TechnicalSettings.getPixelSize(), scrollBarHeight);
+        g.fillRect(scrollBarOffsetX, scrollBarOffsetY, SCROLL_BAR_WIDTH, pixel);
+        g.fillRect(scrollBarOffsetX, (scrollBarOffsetY + scrollBarHeight) - pixel, SCROLL_BAR_WIDTH, pixel);
+        g.fillRect(scrollBarOffsetX, scrollBarOffsetY, pixel, scrollBarHeight);
+        g.fillRect((scrollBarOffsetX + SCROLL_BAR_WIDTH) - pixel, scrollBarOffsetY, pixel, scrollBarHeight);
 
         g.dispose();
 

@@ -30,9 +30,11 @@ import com.jordanbunke.translation.colors.TLColors;
 import com.jordanbunke.translation.utility.Utility;
 
 import java.awt.*;
+import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
@@ -50,8 +52,12 @@ public class MenuHelper {
 
     // MENU LINKING
 
+    public static void linkMenu(final String menuID, final JBJGLMenu menu, final boolean setActive) {
+        getMenuManager().addMenu(menuID, menu, setActive);
+    }
+
     public static void linkMenu(final String menuID, final JBJGLMenu menu) {
-        getMenuManager().addMenu(menuID, menu, true);
+        linkMenu(menuID, menu, true);
     }
 
     public static void linkMenu(final String menuID) {
@@ -299,30 +305,69 @@ public class MenuHelper {
                 patchNotes[page].getVersion(), contents, backMenuID);
     }
 
-    public static JBJGLMenu generateMyCampaignsFolderMenu(
-            final String title, final Path folder, final String backMenuID
-    ) {
-        return generateCampaignFolderMenu(title, folder,
-                backMenuID, JBJGLMenuElementGrouping.generateOf(
+    public static JBJGLMenu generateMyCampaignsFolderMenu() {
+        final Runnable newButtonBehaviour =
+                () -> linkMenu(MenuIDs.NEW_CAMPAIGN, generateNewCampaignMenu());
+
+        return generateCampaignFolderMenu("My Campaigns", LevelIO.MY_CAMPAIGNS_FOLDER,
+                MenuIDs.MY_CONTENT_MENU, JBJGLMenuElementGrouping.generateOf(
                         determineTextButton("NEW +",
                                 new int[] { widthCoord(1.0) - MARGIN, MARGIN },
                                 JBJGLMenuElement.Anchor.RIGHT_TOP,
                                 widthCoord(0.175),
-                                null) // TODO - create new campaign button behaviour
-                ), true);
+                                newButtonBehaviour)), true);
     }
 
-    public static JBJGLMenu generateImportedCampaignsFolderMenu(
-            final String title, final Path folder, final String backMenuID
-    ) {
-        return generateCampaignFolderMenu(title, folder,
-                backMenuID, JBJGLMenuElementGrouping.generateOf(
+    private static JBJGLMenu generateNewCampaignMenu() {
+        final TypedInputMenuElement setCampaignNameButton =
+                generateTypedInputButton(widthCoord(0.5), heightCoord(0.5),
+                        widthCoord(0.8), "SET CAMPAIGN NAME", "",
+                        Set.of("", "My Levels"));
+
+        final Runnable createCampaignButtonBehaviour = () -> {
+            final Campaign campaign = LevelIO.createAndSaveNewCampaign(
+                    setCampaignNameButton.getInput());
+
+            linkMenu(MenuIDs.CAMPAIGN_FOLDER, generateMyCampaignsFolderMenu(), false);
+            linkMenu(MenuIDs.CAMPAIGN_LEVELS, generateMenuForCreatedCampaign(campaign));
+        };
+
+        final JBJGLMenuElementGrouping contents = JBJGLMenuElementGrouping.generateOf(
+                setCampaignNameButton, generateConditionalButton("CREATE CAMPAIGN",
+                        widthCoord(0.5), heightCoord(0.8),
+                        widthCoord(0.3), JBJGLMenuElement.Anchor.CENTRAL_TOP,
+                        createCampaignButtonBehaviour, setCampaignNameButton::inputIsValid));
+
+        return generateBasicMenu("Create a New Campaign", DOES_NOT_EXIST, contents, MenuIDs.CAMPAIGN_FOLDER);
+    }
+
+    public static JBJGLMenu generateImportedCampaignsFolderMenu() {
+        final Runnable importButtonBehaviour = () -> {
+            final Optional<File> toImport = JBJGLFileIO.openFileFromSystem(
+                    new String[] { "[ Select any level file in the desired campaign folder ]" },
+                    new String[][] {
+                            new String[] { LevelIO.LEVEL_FILE_SUFFIX }
+                    }
+            );
+
+            if (toImport.isEmpty()) return;
+
+            final Path importFromFolder = toImport.get().toPath().getParent();
+            final Campaign importedCampaign = LevelIO.readCampaign(importFromFolder);
+
+            LevelIO.saveImportedCampaign(importedCampaign);
+
+            linkMenu(MenuIDs.CAMPAIGN_FOLDER, generateImportedCampaignsFolderMenu());
+        };
+
+        return generateCampaignFolderMenu("Imported Campaigns",
+                LevelIO.IMPORTED_CAMPAIGNS_FOLDER, MenuIDs.PLAY_MENU,
+                JBJGLMenuElementGrouping.generateOf(
                         determineTextButton("IMPORT +",
                                 new int[] { widthCoord(1.0) - MARGIN, MARGIN },
                                 JBJGLMenuElement.Anchor.RIGHT_TOP,
                                 widthCoord(0.175),
-                                null) // TODO - import button behaviour
-                ), false);
+                                importButtonBehaviour)), false);
     }
 
     public static JBJGLMenu generateCampaignFolderMenu(
@@ -349,6 +394,12 @@ public class MenuHelper {
         Translation.campaign = LevelIO.readMyLevels();
 
         return generateMenuForCampaign(Translation.campaign, backMenuID, true, true);
+    }
+
+    public static JBJGLMenu generateMenuForCreatedCampaign(final Campaign campaign) {
+        // TODO - additional component for adding levels to campaign
+
+        return generateMenuForCampaign(campaign, MenuIDs.CAMPAIGN_FOLDER, false, true);
     }
 
     public static JBJGLMenu generateMenuForCampaign(

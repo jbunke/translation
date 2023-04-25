@@ -13,6 +13,7 @@ public class MenuIDs {
                             LEVEL_OVERVIEW = "level-overview",
                                 ARE_YOU_SURE_DELETE_LEVEL = "ays-dl-lo",
                     MY_CONTENT_MENU = "my-content-p",
+                        NEW_CAMPAIGN = "new-campaign-mcp",
                 SETTINGS = "settings",
                     GAMEPLAY_SETTINGS = "gameplay-s",
                     CONTROLS_SETTINGS = "controls-s",

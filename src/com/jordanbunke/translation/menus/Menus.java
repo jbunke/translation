@@ -118,8 +118,7 @@ public class Menus {
                                                 MenuIDs.PLAY_MENU)),
                                 () -> MenuHelper.linkMenu(MenuIDs.MY_CONTENT_MENU, generateMyContentMenu()),
                                 () -> MenuHelper.linkMenu(MenuIDs.CAMPAIGN_FOLDER,
-                                        MenuHelper.generateImportedCampaignsFolderMenu("Imported Campaigns",
-                                                LevelIO.IMPORTED_CAMPAIGNS_FOLDER, MenuIDs.PLAY_MENU))
+                                        MenuHelper.generateImportedCampaignsFolderMenu())
                         }), MenuIDs.MAIN_MENU);
     }
 
@@ -132,8 +131,7 @@ public class Menus {
                                 () -> MenuHelper.linkMenu(MenuIDs.CAMPAIGN_LEVELS,
                                         MenuHelper.generateMenuForMyLevels(MenuIDs.MY_CONTENT_MENU)),
                                 () -> MenuHelper.linkMenu(MenuIDs.CAMPAIGN_FOLDER,
-                                        MenuHelper.generateMyCampaignsFolderMenu("My Campaigns",
-                                                LevelIO.MY_CAMPAIGNS_FOLDER, MenuIDs.MY_CONTENT_MENU))
+                                        MenuHelper.generateMyCampaignsFolderMenu())
                         }
                 ), MenuIDs.PLAY_MENU);
     }

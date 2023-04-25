@@ -30,7 +30,7 @@ public class Level {
             SENTRY_TOO_FAR_FROM_PLAYER = 6000,
             TICKS_AFTER_COMPLETION = 50;
 
-    private final Path filepath;
+    private Path filepath;
 
     private final String name, hint;
     private final LevelStats stats;
@@ -99,6 +99,10 @@ public class Level {
             final Path filepath
     ) {
         return new Level(name, hint, levelStats, platformSpecs, sentrySpecs, filepath);
+    }
+
+    public void updateFilepathFromCampaign(final Path folder, final String levelFilename) {
+        filepath = folder.resolve(levelFilename);
     }
 
     public void saveLevel(final boolean reset) {

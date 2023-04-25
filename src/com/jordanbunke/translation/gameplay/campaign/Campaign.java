@@ -5,10 +5,11 @@ import com.jordanbunke.translation.Translation;
 import com.jordanbunke.translation.gameplay.level.Level;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Campaign {
-    private final Path campaignFolder;
+    private Path campaignFolder;
     private final List<String> levelFilenames;
 
     private final String name;
@@ -42,10 +43,20 @@ public class Campaign {
             final boolean showHint, final boolean defaultNaming,
             final Path campaignFolder, final List<String> levelFiles
     ) {
-        return new Campaign(
-                name, levelsBeaten, levels, showHint,
-                defaultNaming, campaignFolder, levelFiles
-        );
+        return new Campaign(name, levelsBeaten, levels, showHint,
+                defaultNaming, campaignFolder, levelFiles);
+    }
+
+    public static Campaign createNew(final String name, final Path campaignFolder) {
+        return new Campaign(name, 0, new ArrayList<>(), true, false,
+                campaignFolder, new ArrayList<>());
+    }
+
+    public void updateFolder(final Path newFolder) {
+        campaignFolder = newFolder;
+
+        for (int i = 0; i < getLevelCount(); i++)
+            getLevelAt(i).updateFilepathFromCampaign(campaignFolder, levelFilenames.get(i));
     }
 
     public void addLevel(
@@ -123,6 +134,10 @@ public class Campaign {
 
     public Path getFolder() {
         return campaignFolder;
+    }
+
+    public String getFolderName() {
+        return campaignFolder.getName(campaignFolder.getNameCount() - 1).toString();
     }
 
     public List<String> getLevelFilenames() {

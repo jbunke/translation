@@ -12,6 +12,7 @@ import com.jordanbunke.translation.gameplay.level.SentrySpec;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class LevelIO {
@@ -26,8 +27,11 @@ public class LevelIO {
     private static final Path MY_LEVELS_FOLDER = MY_CONTENT_FOLDER.resolve("levels");
 
     private static final String CAMPAIGNS_IN_FOLDER = ".campaigns";
-    private static final String CAMPAIGN_SPEC = ".spec";
-    private static final String LEVEL_FILE_SUFFIX = ".lvl";
+    public static final String
+            CAMPAIGN_SPECIFICATION_SUFFIX = "spec",
+            LEVEL_FILE_SUFFIX = "lvl";
+    private static final String FILENAME_EXTENSION_START = ".",
+            CAMPAIGN_SPEC = FILENAME_EXTENSION_START + CAMPAIGN_SPECIFICATION_SUFFIX;
 
     private static final String NAME = "name", HINT = "hint",
             STATS = "stats", PLATFORMS = "platforms", SENTRIES = "sentries",
@@ -89,7 +93,7 @@ public class LevelIO {
 
         if (defaultNaming)
             for (int i = 0; i < levelFileNames.length; i++)
-                levelFileNames[i] = i + LEVEL_FILE_SUFFIX;
+                levelFileNames[i] = i + FILENAME_EXTENSION_START + LEVEL_FILE_SUFFIX;
 
         final List<Level> levels = new ArrayList<>();
 
@@ -102,6 +106,21 @@ public class LevelIO {
     }
 
     // CAMPAIGN - WRITE
+
+    public static void writeCampaignsInFolder(
+            final Path folder, final Campaign[] campaigns
+    ) {
+        final Path filepath = folder.resolve(CAMPAIGNS_IN_FOLDER);
+        final StringBuilder sb = new StringBuilder();
+
+        final String[] campaignFolderNames = new String[campaigns.length];
+        Arrays.stream(campaigns).map(Campaign::getFolderName).toList().toArray(campaignFolderNames);
+
+        sb.append(ParserWriter.packAndEncloseInTag(CAMPAIGNS, campaignFolderNames, true));
+        ParserWriter.newLineSB(sb);
+
+        JBJGLFileIO.writeFile(filepath, sb.toString());
+    }
 
     public static void writeCampaign(
             final Campaign campaign, final boolean resetLevelsBeaten
@@ -242,49 +261,6 @@ public class LevelIO {
         );
     }
 
-    // LEVEL - SAVE
-
-    public static void saveValidatedEditorLevel(
-            final String name, final String hint
-    ) {
-        final String filename = generateLevelFilename(name);
-        final Path filepath = MY_LEVELS_FOLDER.resolve(filename);
-        final Level level = Level.fromEditorValidated(name, hint, filepath);
-
-        writeLevel(level, true);
-
-        Campaign myLevels = readMyLevels();
-        myLevels.addLevel(level, filename, true);
-
-        writeCampaign(myLevels, false);
-    }
-
-    private static String generateLevelFilename(final String name) {
-        final String NAME_COMPONENT_SEPARATOR = "-";
-        final StringBuilder sb = new StringBuilder();
-
-        for (char c : name.toCharArray()) {
-            if ((c >= 'a' && c <= 'z') || (c >= '0' && c <= '9'))
-                sb.append(c);
-            else if (c >= 'A' && c <= 'Z')
-                sb.append(String.valueOf(c).toLowerCase());
-            else if (c == ' ' || c == '-')
-                sb.append('-');
-        }
-
-        final LocalDateTime now = LocalDateTime.now();
-
-        sb.append(" from ").append(now.getYear()).append(NAME_COMPONENT_SEPARATOR)
-                .append(now.getMonthValue()).append(NAME_COMPONENT_SEPARATOR)
-                .append(now.getDayOfMonth()).append(" at ").append(now.getHour())
-                .append(NAME_COMPONENT_SEPARATOR).append(now.getMinute())
-                .append(NAME_COMPONENT_SEPARATOR).append(now.getSecond());
-
-        sb.append(LEVEL_FILE_SUFFIX);
-
-        return sb.toString();
-    }
-
     // LEVEL - WRITE
 
     public static void writeLevel(final Level level, final boolean reset) {
@@ -364,7 +340,92 @@ public class LevelIO {
         ParserWriter.newLineSB(sb);
     }
 
-    // LEVEL - DELETE
+    // SAVE
+
+    public static void saveImportedCampaign(final Campaign campaign) {
+        saveCampaign(campaign, IMPORTED_CAMPAIGNS_FOLDER);
+    }
+
+    public static Campaign createAndSaveNewCampaign(final String name) {
+        final Campaign campaign = Campaign.createNew(name, MY_CAMPAIGNS_FOLDER);
+        saveCampaign(campaign, MY_CAMPAIGNS_FOLDER);
+        return campaign;
+    }
+
+    private static void saveCampaign(final Campaign campaign, final Path campaignsFolder) {
+        final String folderName = generateCampaignFolderName(campaign.getName());
+        final Path folder = campaignsFolder.resolve(folderName);
+
+        // 1: place campaign in destination folder and save campaign files
+        JBJGLFileIO.makeDirectory(folder);
+        campaign.updateFolder(folder);
+        writeCampaign(campaign, true);
+
+        for (int i = 0; i < campaign.getLevelCount(); i++)
+            writeLevel(campaign.getLevelAt(i), true);
+
+        // 2: add campaign folder name to .campaigns file
+        final Campaign[] beforeAddition = readCampaignsInFolder(campaignsFolder);
+        final int index = beforeAddition.length;
+        final Campaign[] afterAddition = new Campaign[index + 1];
+
+        System.arraycopy(beforeAddition, 0, afterAddition, 0, index);
+
+        afterAddition[index] = campaign;
+        writeCampaignsInFolder(campaignsFolder, afterAddition);
+    }
+
+    public static void saveValidatedEditorLevel(
+            final String name, final String hint
+    ) {
+        final String filename = generateLevelFilename(name);
+        final Path filepath = MY_LEVELS_FOLDER.resolve(filename);
+        final Level level = Level.fromEditorValidated(name, hint, filepath);
+
+        writeLevel(level, true);
+
+        Campaign myLevels = readMyLevels();
+        myLevels.addLevel(level, filename, true);
+
+        writeCampaign(myLevels, false);
+    }
+
+    private static String generateCampaignFolderName(final String name) {
+        return generateFilename(name, false);
+    }
+
+    private static String generateLevelFilename(final String name) {
+        return generateFilename(name, true);
+    }
+
+    private static String generateFilename(final String name, final boolean isLevelFile) {
+        final String NAME_COMPONENT_SEPARATOR = "-";
+        final StringBuilder sb = new StringBuilder();
+
+        for (char c : name.toCharArray()) {
+            if ((c >= 'a' && c <= 'z') || (c >= '0' && c <= '9'))
+                sb.append(c);
+            else if (c >= 'A' && c <= 'Z')
+                sb.append(String.valueOf(c).toLowerCase());
+            else if (c == ' ' || c == '-')
+                sb.append('-');
+        }
+
+        final LocalDateTime now = LocalDateTime.now();
+
+        sb.append(" from ").append(now.getYear()).append(NAME_COMPONENT_SEPARATOR)
+                .append(now.getMonthValue()).append(NAME_COMPONENT_SEPARATOR)
+                .append(now.getDayOfMonth()).append(" at ").append(now.getHour())
+                .append(NAME_COMPONENT_SEPARATOR).append(now.getMinute())
+                .append(NAME_COMPONENT_SEPARATOR).append(now.getSecond());
+
+        if (isLevelFile)
+            sb.append(FILENAME_EXTENSION_START).append(LEVEL_FILE_SUFFIX);
+
+        return sb.toString();
+    }
+
+    // DELETE
 
     public static void deleteLevelFile(final Level level) {
         JBJGLFileIO.deleteFile(level.getFilepath());

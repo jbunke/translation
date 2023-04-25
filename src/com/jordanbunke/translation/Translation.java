@@ -5,6 +5,7 @@ import com.jordanbunke.jbjgl.debug.JBJGLGameDebugger;
 import com.jordanbunke.jbjgl.game.JBJGLGame;
 import com.jordanbunke.jbjgl.game.JBJGLGameEngine;
 import com.jordanbunke.jbjgl.game.JBJGLGameManager;
+import com.jordanbunke.jbjgl.window.JBJGLBoilerplate;
 import com.jordanbunke.jbjgl.window.JBJGLWindow;
 import com.jordanbunke.translation.fonts.Fonts;
 import com.jordanbunke.translation.game_states.EditorGameState;
@@ -48,6 +49,8 @@ public class Translation {
     public static JBJGLGame game;
 
     public static void main(String[] args) {
+        JBJGLBoilerplate.run();
+
         Fonts.setGameFontToClassic();
         SettingsIO.read();
         launch(processArgs(args));
