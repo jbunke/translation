@@ -582,7 +582,7 @@ public class Menus {
                         "", Set.of("", Level.EDITOR_LEVEL_NAME)),
                 setLevelHintButton = MenuHelper.generateTypedInputButton(x,
                         MenuHelper.heightCoord(0.6), width, "SET LEVEL HINT",
-                        "", Set.of(""));
+                        "", Set.of());
 
         final JBJGLMenuElementGrouping contents = JBJGLMenuElementGrouping.generateOf(
                 setLevelNameButton,
