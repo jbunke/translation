@@ -5,23 +5,26 @@ import com.jordanbunke.jbjgl.image.JBJGLImage;
 import com.jordanbunke.jbjgl.io.JBJGLFileIO;
 import com.jordanbunke.jbjgl.io.JBJGLImageIO;
 import com.jordanbunke.jbjgl.menus.JBJGLMenu;
-import com.jordanbunke.jbjgl.menus.menu_elements.*;
+import com.jordanbunke.jbjgl.menus.menu_elements.JBJGLAnimationMenuElement;
+import com.jordanbunke.jbjgl.menus.menu_elements.JBJGLMenuElement;
+import com.jordanbunke.jbjgl.menus.menu_elements.JBJGLMenuElementGrouping;
+import com.jordanbunke.jbjgl.menus.menu_elements.JBJGLTimedMenuElement;
 import com.jordanbunke.jbjgl.text.JBJGLText;
 import com.jordanbunke.translation.Translation;
 import com.jordanbunke.translation.editor.Editor;
 import com.jordanbunke.translation.gameplay.Camera;
 import com.jordanbunke.translation.gameplay.level.Level;
-import com.jordanbunke.translation.io.ControlScheme;
-import com.jordanbunke.translation.io.LevelIO;
-import com.jordanbunke.translation.io.ParserWriter;
-import com.jordanbunke.translation.io.TextIO;
+import com.jordanbunke.translation.io.*;
+import com.jordanbunke.translation.menus.custom_elements.TypedInputMenuElement;
 import com.jordanbunke.translation.settings.GameplaySettings;
 import com.jordanbunke.translation.settings.TechnicalSettings;
 import com.jordanbunke.translation.settings.debug.DebugSettings;
 import com.jordanbunke.translation.utility.Utility;
 
+import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Set;
 import java.util.concurrent.Callable;
 
 public class Menus {
@@ -55,8 +58,12 @@ public class Menus {
             final JBJGLMenuManager manager, final boolean isMainMenu, final Level level) {
         if (isMainMenu)
             manager.addMenu(MenuIDs.MAIN_MENU, generateMainMenu(), false);
-        else
+        else {
             manager.addMenu(MenuIDs.PAUSE_MENU, generatePauseMenu(level), false);
+
+            Translation.levelCompleteState.getMenuManager().addMenu(
+                    MenuIDs.LEVEL_COMPLETE, generateLevelCompleteMenu(level), true);
+        }
 
         manager.addMenu(MenuIDs.SETTINGS, generateSettingsMenu(isMainMenu), false);
         manager.addMenu(MenuIDs.VIDEO_SETTINGS, generateVideoSettingsMenu(), true);
@@ -80,18 +87,15 @@ public class Menus {
                 MenuHelper.generateListMenuOptions(
                         new String[] {
                                 "PLAY", "LEVEL EDITOR", "SETTINGS",
-                                "WIKI", "INFORMATION", "QUIT"
+                                "GAME MECHANICS", "INFORMATION", "QUIT GAME"
                         },
                         new Runnable[] {
-                                () -> MenuHelper.linkMenu(MenuIDs.CAMPAIGNS_MENU,
-                                        generateCampaignsMenu()),
-                                () -> Translation.manager.setActiveStateIndex(Translation.EDITOR_INDEX), // TODO - editor
-                                () -> MenuHelper.linkMenu(MenuIDs.SETTINGS,
-                                        generateSettingsMenu(true)),
-                                () -> MenuHelper.linkMenu(MenuIDs.WIKI, generateWikiMenu()),
+                                () -> MenuHelper.linkMenu(MenuIDs.PLAY_MENU, generatePlayMenu()),
+                                () -> Translation.manager.setActiveStateIndex(Translation.EDITOR_INDEX),
+                                () -> MenuHelper.linkMenu(MenuIDs.SETTINGS, generateSettingsMenu(true)),
+                                () -> MenuHelper.linkMenu(MenuIDs.GAME_MECHANICS, generateGameMechanicsMenu()),
                                 () -> MenuHelper.linkMenu(MenuIDs.ABOUT, generateAboutMenu()),
-                                () -> MenuHelper.linkMenu(MenuIDs.ARE_YOU_SURE_QUIT_GAME,
-                                        generateAreYouSureQuitGame())
+                                () -> MenuHelper.linkMenu(MenuIDs.ARE_YOU_SURE_QUIT_GAME, generateAreYouSureQuitGame())
                         }),
                 MenuHelper.generateDevelopmentInformation()
         );
@@ -99,31 +103,30 @@ public class Menus {
         return MenuHelper.generatePlainMenu(contents);
     }
 
-    private static JBJGLMenu generateCampaignsMenu() {
+    private static JBJGLMenu generatePlayMenu() {
         return MenuHelper.generateBasicMenu(
-                "Campaigns", MenuHelper.DOES_NOT_EXIST,
+                "Play...", MenuHelper.DOES_NOT_EXIST,
                 MenuHelper.generateListMenuOptions(
                         new String[] { "MAIN CAMPAIGNS", "TUTORIAL",
-                                "MY CAMPAIGNS", "IMPORTED CAMPAIGNS" },
+                                "MY CONTENT", "IMPORTED CAMPAIGNS" },
                         new Runnable[] {
-                                () -> MenuHelper.linkMenu(MenuIDs.CAMPAIGN_FOLDER,
-                                        MenuHelper.generateCampaignFolderMenu(
-                                                "MAIN CAMPAIGNS",
-                                                LevelIO.readCampaignsInFolder(LevelIO.MAIN_CAMPAIGNS_FOLDER),
-                                                MenuIDs.CAMPAIGNS_MENU, 0)),
-                                () -> {
-                                    Translation.campaign =
-                                            LevelIO.readCampaign(LevelIO.TUTORIAL_CAMPAIGN_FOLDER);
-                                    MenuHelper.linkMenu(
-                                            MenuIDs.CAMPAIGN_LEVELS,
-                                            MenuHelper.generateMenuForCampaign(
-                                                    Translation.campaign, MenuIDs.CAMPAIGNS_MENU
-                                            ));
-                                },
-                                // TODO - implement & link my campaigns, imported campaigns
-                                null,
-                                null
+                                () -> MenuHelper.linkMenu(MenuIDs.CAMPAIGN_FOLDER, MenuHelper.generateMainCampaignsFolderMenu()),
+                                () -> MenuHelper.linkMenu(MenuIDs.CAMPAIGN_LEVELS, MenuHelper.generateMenuForTutorial()),
+                                () -> MenuHelper.linkMenu(MenuIDs.MY_CONTENT_MENU, generateMyContentMenu()),
+                                () -> MenuHelper.linkMenu(MenuIDs.CAMPAIGN_FOLDER, MenuHelper.generateImportedCampaignsFolderMenu())
                         }), MenuIDs.MAIN_MENU);
+    }
+
+    private static JBJGLMenu generateMyContentMenu() {
+        return MenuHelper.generateBasicMenu(
+                "My Content", MenuHelper.DOES_NOT_EXIST,
+                MenuHelper.generateListMenuOptions(
+                        new String[] { "MY LEVELS", "MY CAMPAIGNS" },
+                        new Runnable[] {
+                                () -> MenuHelper.linkMenu(MenuIDs.CAMPAIGN_LEVELS, MenuHelper.generateMenuForMyLevels()),
+                                () -> MenuHelper.linkMenu(MenuIDs.CAMPAIGN_FOLDER, MenuHelper.generateMyCampaignsFolderMenu())
+                        }
+                ), MenuIDs.PLAY_MENU);
     }
 
     private static JBJGLMenu generateSettingsMenu(final boolean isMainMenu) {
@@ -137,7 +140,7 @@ public class Menus {
                         () -> MenuHelper.linkMenu(MenuIDs.GAMEPLAY_SETTINGS, generateGameplaySettingsMenu()),
                         () -> MenuHelper.linkMenu(MenuIDs.CONTROLS_SETTINGS, generateControlsSettingsMenu()),
                         () -> MenuHelper.linkMenu(MenuIDs.VIDEO_SETTINGS, generateVideoSettingsMenu()),
-                        null,
+                        () -> MenuHelper.linkMenu(MenuIDs.AUDIO_SETTINGS, generateAudioSettingsMenu()),
                         () -> MenuHelper.linkMenu(MenuIDs.TECHNICAL_SETTINGS, generateTechnicalSettingsMenu())
                 });
 
@@ -197,11 +200,16 @@ public class Menus {
     }
 
     private static JBJGLMenu generateControlsSettingsMenu() {
+        final JBJGLMenuElementGrouping controlsButtons =
+                MenuHelper.generateControlsButtons();
+
         final JBJGLMenuElementGrouping contents = JBJGLMenuElementGrouping.generateOf(
                 MenuHelper.generateListMenuOptions(
                         new String[] { "RESET" },
-                        new Runnable[] { ControlScheme::reset }),
-                MenuHelper.generateControlsButtons(),
+                        new Runnable[] {
+                                () -> ControlScheme.reset(controlsButtons.getMenuElements())
+                        }),
+                controlsButtons,
                 MenuHelper.generateMenuTextBlurb(
                         "* - level editor",
                         JBJGLText.Orientation.CENTER,
@@ -277,20 +285,20 @@ public class Menus {
                 contents, MenuIDs.SETTINGS);
     }
 
-    private static JBJGLMenu generateWikiMenu() {
+    private static JBJGLMenu generateGameMechanicsMenu() {
         final JBJGLMenuElementGrouping contents = MenuHelper.generateListMenuOptions(
                 new String[] { "SENTRIES", "PLATFORMS", "MOVEMENT" },
                 new Runnable[] {
-                        () -> MenuHelper.linkMenu(MenuIDs.SENTRIES_WIKI,
+                        () -> MenuHelper.linkMenu(MenuIDs.SENTRIES_GM,
                                 generateSentriesWikiPage()),
-                        () -> MenuHelper.linkMenu(MenuIDs.PLATFORMS_WIKI,
+                        () -> MenuHelper.linkMenu(MenuIDs.PLATFORMS_GM,
                                 generatePlatformWikiPage()),
-                        () -> MenuHelper.linkMenu(MenuIDs.MOVEMENT_RULES_WIKI,
+                        () -> MenuHelper.linkMenu(MenuIDs.MOVEMENT_RULES_GM,
                                 generateMovementRulesWikiPage())
                 }, 1.0);
 
         return MenuHelper.generateBasicMenu(
-                "Wiki", "BRIEF DESCRIPTIONS OF THE GAME'S SYSTEMS",
+                "Game Mechanics", "BRIEF DESCRIPTIONS OF THE GAME'S SYSTEMS",
                 contents, MenuIDs.MAIN_MENU);
     }
 
@@ -299,7 +307,7 @@ public class Menus {
 
         return MenuHelper.generateBasicMenu(
                 "Sentries", MenuHelper.DOES_NOT_EXIST,
-                contents, MenuIDs.WIKI);
+                contents, MenuIDs.GAME_MECHANICS);
     }
 
     private static JBJGLMenu generatePlatformWikiPage() {
@@ -316,23 +324,23 @@ public class Menus {
                         MenuHelper.heightCoord(0.6), 2));
 
         return MenuHelper.generateBasicMenu("Platforms", MenuHelper.DOES_NOT_EXIST,
-                contents, MenuIDs.WIKI);
+                contents, MenuIDs.GAME_MECHANICS);
     }
 
     private static JBJGLMenu generateMovementRulesWikiPage() {
         final JBJGLMenuElementGrouping contents = MenuHelper.generateListMenuOptions(
                 new String[] { "JUMP & DIVE", "TELEPORTATION", "SAVE & LOAD" },
                 new Runnable[] {
-                        () -> MenuHelper.linkMenu(MenuIDs.JUMP_DROP_MOVEMENT_WIKI,
+                        () -> MenuHelper.linkMenu(MenuIDs.JUMP_DROP_MOVEMENT_GM,
                                 generateJumpDiveWikiPage()),
-                        () -> MenuHelper.linkMenu(MenuIDs.TELEPORTATION_MOVEMENT_WIKI,
+                        () -> MenuHelper.linkMenu(MenuIDs.TELEPORTATION_MOVEMENT_GM,
                                 generateTeleportationWikiPage()),
-                        () -> MenuHelper.linkMenu(MenuIDs.SAVE_LOAD_MOVEMENT_WIKI,
+                        () -> MenuHelper.linkMenu(MenuIDs.SAVE_LOAD_MOVEMENT_GM,
                                 generateSaveLoadWikiPage())
                 });
 
         return MenuHelper.generateBasicMenu("Player Movement", MenuHelper.DOES_NOT_EXIST,
-                contents, MenuIDs.WIKI);
+                contents, MenuIDs.GAME_MECHANICS);
     }
 
     private static JBJGLMenu generateJumpDiveWikiPage() {
@@ -415,7 +423,7 @@ public class Menus {
                         JBJGLText.Orientation.CENTER,
                         JBJGLMenuElement.Anchor.CENTRAL,
                         MenuHelper.widthCoord(0.5), MenuHelper.heightCoord(0.6),
-                        TechnicalSettings.getPixelSize() / 4));
+                        TechnicalSettings.getPixelSize() / 4.));
 
         return MenuHelper.generateBasicMenu("Background", MenuHelper.DOES_NOT_EXIST,
                 contents, MenuIDs.ABOUT);
@@ -436,24 +444,33 @@ public class Menus {
 
         for (int i = 0; i < NUM_IMAGES; i++) {
             final String filename = baseFilename + (i + FILENAME_INDEX_OFFSET) + ".png";
-            devImages[i] =
-                    JBJGLImageIO.readImage(devImageFolder.resolve(filename));
-
+            devImages[i] = JBJGLImageIO.readImage(devImageFolder.resolve(filename));
         }
 
         final JBJGLMenuElementGrouping contents = JBJGLMenuElementGrouping.generateOf(
                 JBJGLAnimationMenuElement.generate(
                         new int[] {
                                 MenuHelper.widthCoord(0.5),
-                                MenuHelper.heightCoord(0.30)
+                                MenuHelper.heightCoord(0.23)
                         }, new int[] { DIM_X, DIM_Y }, JBJGLMenuElement.Anchor.CENTRAL,
                         5, devImages
                 ),
                 MenuHelper.generateMenuTextBlurb(devText,
                         JBJGLText.Orientation.CENTER,
                         MenuHelper.widthCoord(0.5),
-                        MenuHelper.heightCoord(0.5),
-                        TechnicalSettings.getPixelSize() / 4));
+                        MenuHelper.heightCoord(0.37),
+                        TechnicalSettings.getPixelSize() / 4.),
+                MenuHelper.generateListMenuOptions(
+                        new String[] { "PUBLISHED GAMES", "GITHUB", "WRITING" },
+                        new Runnable[] {
+                                () -> BrowserIO.openLink(URI.create(Translation.MY_GAMES_LINK)),
+                                () -> BrowserIO.openLink(URI.create(Translation.MY_GITHUB_LINK)),
+                                null
+                        },
+                        MenuHelper.widthCoord(0.5),
+                        MenuHelper.heightCoord(0.4),
+                        JBJGLMenuElement.Anchor.CENTRAL_TOP)
+        );
 
         return MenuHelper.generateBasicMenu("The Developer", MenuHelper.DOES_NOT_EXIST,
                 contents, MenuIDs.ABOUT);
@@ -465,12 +482,17 @@ public class Menus {
                 new String[] { "BACK TO EDITOR", "TEST LEVEL", "RESET", "QUIT TO MENU" },
                 new Runnable[] {
                         () -> Translation.manager.setActiveStateIndex(Translation.EDITOR_INDEX),
-                        null, // TODO
+                        () -> {
+                            final Level level = Level.fromEditor();
+                            Translation.setLevel(level);
+                            level.launchLevel();
+                            Translation.manager.setActiveStateIndex(Translation.GAMEPLAY_INDEX);
+                        },
                         () -> MenuHelper.linkMenu(MenuIDs.ARE_YOU_SURE_EDITOR_RESET,
                                 generateAreYouSureResetEditor()),
                         () -> MenuHelper.linkMenu(MenuIDs.ARE_YOU_SURE_EDITOR_QUIT_TO_MENU,
                                 generateAreYouSureQuitToMainMenu(MenuIDs.EDITOR_MENU))
-                }, 1.0);
+                });
 
         return MenuHelper.generateBasicMenu("Level Editor",
                 MenuHelper.DOES_NOT_EXIST, contents);
@@ -478,14 +500,23 @@ public class Menus {
 
     // GAMEPLAY SECTION
     private static JBJGLMenu generatePauseMenu(final Level level) {
+        final boolean isEditorLevel = level.isEditorLevel();
+        final String aysButtonHeading = isEditorLevel
+                ? "BACK TO EDITOR"
+                : "QUIT TO MENU";
+        final Runnable aysBehaviour = isEditorLevel
+                ? () -> MenuHelper.linkMenu(MenuIDs.ARE_YOU_SURE_PAUSE_RETURN_TO_EDITOR,
+                    generateAreYouSureBackToEditor(MenuIDs.PAUSE_MENU))
+                : () -> MenuHelper.linkMenu(MenuIDs.ARE_YOU_SURE_PAUSE_QUIT_TO_MENU,
+                    generateAreYouSureQuitToMainMenu(MenuIDs.PAUSE_MENU));
+
         final JBJGLMenuElementGrouping contents = MenuHelper.generateListMenuOptions(
-                new String[] { "RESUME", "SETTINGS", "QUIT TO MENU" },
+                new String[] { "RESUME", "SETTINGS", aysButtonHeading },
                 new Runnable[] {
                         () -> Translation.manager.setActiveStateIndex(Translation.GAMEPLAY_INDEX),
                         () -> MenuHelper.linkMenu(MenuIDs.SETTINGS,
                                 generateSettingsMenu(false)),
-                        () -> MenuHelper.linkMenu(MenuIDs.ARE_YOU_SURE_PAUSE_QUIT_TO_MENU,
-                                generateAreYouSureQuitToMainMenu(MenuIDs.PAUSE_MENU))
+                        aysBehaviour
                 }, 1.0);
 
         return MenuHelper.generateBasicMenu(level.getName(),
@@ -493,45 +524,96 @@ public class Menus {
     }
 
     private static JBJGLMenu generateLevelCompleteMenu(final Level level) {
-        final boolean hasNextLevel = Translation.campaign.hasNextLevel();
-        final String[] buttonLabels = hasNextLevel 
-                ? new String[] { "STATS", "NEXT LEVEL", "REPLAY", "BACK TO MENU" }
-                : new String[] { "STATS", "REPLAY", "BACK TO MENU" };
+        final boolean isEditorLevel = level.isEditorLevel();
+        final String aysButtonHeading = isEditorLevel
+                ? "BACK TO EDITOR"
+                : "BACK TO MENU";
+        final Runnable aysBehaviour = isEditorLevel
+                ? () -> MenuHelper.linkMenu(MenuIDs.ARE_YOU_SURE_PAUSE_RETURN_TO_EDITOR,
+                generateAreYouSureBackToEditor(MenuIDs.LEVEL_COMPLETE))
+                : () -> MenuHelper.linkMenu(MenuIDs.ARE_YOU_SURE_PAUSE_QUIT_TO_MENU,
+                generateAreYouSureQuitToMainMenu(MenuIDs.LEVEL_COMPLETE));
 
-        final Runnable statsBehaviour =
-                () -> MenuHelper.linkMenu(MenuIDs.STATS_LEVEL_COMPLETE,
-                        generateLevelCompleteStatsPage(level));
+        final boolean hasNextLevel = !isEditorLevel && Translation.campaign.hasNextLevel();
+        final String[] buttonLabels = hasNextLevel 
+                ? new String[] { "STATS", "NEXT LEVEL", "REPLAY", aysButtonHeading }
+                : new String[] { isEditorLevel ? "SAVE LEVEL" : "STATS", "REPLAY", aysButtonHeading };
+
+        final Runnable statsBehaviour = () -> MenuHelper.linkMenu(MenuIDs.STATS_LEVEL_COMPLETE,
+                generateLevelCompleteStatsPage(level));
+        final Runnable saveEditorLevelBehaviour = () -> MenuHelper.linkMenu(MenuIDs.SAVE_EDITOR_LEVEL,
+                generateSaveEditorLevelMenu());
         final Runnable nextLevelBehaviour = () -> {
             Translation.campaign.setToNextLevel();
             Translation.campaign.getLevel().getStats().reset();
             Translation.campaign.getLevel().launchLevel();
-            Translation.manager
-                    .setActiveStateIndex(Translation.GAMEPLAY_INDEX);
+            Translation.manager.setActiveStateIndex(Translation.GAMEPLAY_INDEX);
         };
         final Runnable replayBehaviour = () -> {
             level.getStats().reset();
             level.launchLevel();
-            Translation.manager
-                    .setActiveStateIndex(Translation.GAMEPLAY_INDEX);
-        };
-        final Runnable backToMenuBehaviour = () -> {
-            Translation.manager.setActiveStateIndex(Translation.MENU_INDEX);
-            MenuHelper.linkMenu(MenuIDs.MAIN_MENU);
+            Translation.manager.setActiveStateIndex(Translation.GAMEPLAY_INDEX);
         };
 
         final Runnable[] buttonBehaviours = hasNextLevel
-                        ? new Runnable[] {
-                                statsBehaviour, nextLevelBehaviour,
-                        replayBehaviour, backToMenuBehaviour}
-                        : new Runnable[] {
-                                statsBehaviour, replayBehaviour,
-                        backToMenuBehaviour};
+                ? new Runnable[] { statsBehaviour, nextLevelBehaviour, replayBehaviour, aysBehaviour }
+                : new Runnable[] {
+                isEditorLevel
+                        ? saveEditorLevelBehaviour
+                        : statsBehaviour,
+                replayBehaviour, aysBehaviour
+        };
 
         final JBJGLMenuElementGrouping contents = MenuHelper.generateListMenuOptions(
-                buttonLabels, buttonBehaviours, 1.0);
+                buttonLabels, buttonBehaviours, isEditorLevel ? 0. : 1.);
 
-        return MenuHelper.generateBasicMenu("Level Complete!",
-                level.getName().toUpperCase(), contents);
+        return MenuHelper.generateBasicMenu(
+                "Level " + (isEditorLevel ? "Verified" : "Complete") + "!",
+                isEditorLevel ? " " : level.getName().toUpperCase(),
+                contents);
+    }
+
+    private static JBJGLMenu generateSaveEditorLevelMenu() {
+        final int x = MenuHelper.widthCoord(0.5), width = MenuHelper.widthCoord(0.8);
+
+        final TypedInputMenuElement setLevelNameButton =
+                MenuHelper.generateTypedInputButton(x,
+                        MenuHelper.heightCoord(0.4), width, "SET LEVEL NAME",
+                        "", Set.of("", Level.EDITOR_LEVEL_NAME)),
+                setLevelHintButton = MenuHelper.generateTypedInputButton(x,
+                        MenuHelper.heightCoord(0.6), width, "SET LEVEL HINT",
+                        "", Set.of(""));
+
+        final JBJGLMenuElementGrouping contents = JBJGLMenuElementGrouping.generateOf(
+                setLevelNameButton,
+                setLevelHintButton,
+                MenuHelper.generateConditionalButton("SAVE LEVEL",
+                        MenuHelper.widthCoord(0.5), MenuHelper.heightCoord(0.8),
+                        MenuHelper.widthCoord(0.3), JBJGLMenuElement.Anchor.CENTRAL_TOP,
+                        () -> {
+                            final String name = setLevelNameButton.getInput();
+                            LevelIO.saveValidatedEditorLevel(name, setLevelHintButton.getInput());
+                            MenuHelper.linkMenu(MenuIDs.SAVED_EDITOR_LEVEL_CONFIRMATION,
+                                    generateSavedConfirmationMenu(name));
+                        },
+                        () -> setLevelNameButton.inputIsValid() && setLevelHintButton.inputIsValid()
+                )
+        );
+
+        return MenuHelper.generateBasicMenu("Save Editor Level",
+                MenuHelper.DOES_NOT_EXIST, contents, MenuIDs.LEVEL_COMPLETE);
+    }
+
+    private static JBJGLMenu generateSavedConfirmationMenu(final String name) {
+        final JBJGLMenuElementGrouping contents = MenuHelper.generateListMenuOptions(
+                new String[] { "BACK TO EDITOR", "MAIN MENU" },
+                new Runnable[] {
+                        () -> Translation.manager.setActiveStateIndex(Translation.EDITOR_INDEX),
+                        () -> MenuHelper.linkMenu(MenuIDs.MAIN_MENU, generateMainMenu())
+                },
+                1.);
+
+        return MenuHelper.generateBasicMenu("Level Saved:", name, contents);
     }
 
     private static JBJGLMenu generateLevelCompleteStatsPage(final Level level) {
@@ -599,14 +681,14 @@ public class Menus {
     }
 
     private static JBJGLMenu generateAreYouSureQuitGame() {
-        return MenuHelper.generateAreYouSureMenu(
+        return MenuHelper.generateAreYouSureMenu(false,
                 "you want to quit the game?",
                 () -> MenuHelper.linkMenu(MenuIDs.MAIN_MENU),
                 Translation::quitGame);
     }
 
     private static JBJGLMenu generateAreYouSureQuitToMainMenu(final String noMenuID) {
-        return MenuHelper.generateAreYouSureMenu(
+        return MenuHelper.generateAreYouSureMenu(false,
                 "you want to quit to the main menu?",
                 () -> MenuHelper.linkMenu(noMenuID),
                 () -> {
@@ -615,9 +697,18 @@ public class Menus {
                 });
     }
 
+    private static JBJGLMenu generateAreYouSureBackToEditor(final String noMenuID) {
+        final String consequence = noMenuID.equals(MenuIDs.PAUSE_MENU) ? "from scratch" : "again";
+
+        return MenuHelper.generateAreYouSureMenu(true,
+                "Level will have to be verified " + consequence + "...",
+                () -> MenuHelper.linkMenu(noMenuID),
+                () -> Translation.manager.setActiveStateIndex(Translation.EDITOR_INDEX));
+    }
+
     private static JBJGLMenu generateAreYouSureResetEditor() {
-        return MenuHelper.generateAreYouSureMenu(
-                "you want to reset the level editor?",
+        return MenuHelper.generateAreYouSureMenu(true,
+                "All changes will be lost...",
                 () -> MenuHelper.linkMenu(MenuIDs.EDITOR_MENU),
                 () -> {
                     Editor.reset();

@@ -18,17 +18,24 @@ import com.jordanbunke.translation.gameplay.image.ImageAssets;
 import com.jordanbunke.translation.gameplay.level.Level;
 import com.jordanbunke.translation.gameplay.level.LevelStats;
 import com.jordanbunke.translation.io.ControlScheme;
+import com.jordanbunke.translation.io.LevelIO;
 import com.jordanbunke.translation.io.ParserWriter;
 import com.jordanbunke.translation.io.PatchNotes;
+import com.jordanbunke.translation.menus.custom_elements.ConditionalMenuElement;
 import com.jordanbunke.translation.menus.custom_elements.SetInputMenuElement;
+import com.jordanbunke.translation.menus.custom_elements.TypedInputMenuElement;
+import com.jordanbunke.translation.menus.custom_elements.VerticalScrollableMenuElement;
 import com.jordanbunke.translation.settings.TechnicalSettings;
 import com.jordanbunke.translation.colors.TLColors;
 import com.jordanbunke.translation.utility.Utility;
 
 import java.awt.*;
+import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -36,17 +43,43 @@ import java.util.function.Function;
 public class MenuHelper {
 
     // Positioning
-    private static final int LIST_MENU_INITIAL_Y = 140;
-    private static final int MENU_TITLE_Y = 0;
-    private static final int MENU_SUBTITLE_Y = LIST_MENU_INITIAL_Y;
-    private static final int MARGIN = 20;
+    private static final int
+            LIST_MENU_INITIAL_Y = 140,
+            MENU_TITLE_Y = 0,
+            MENU_SUBTITLE_Y = LIST_MENU_INITIAL_Y,
+            MARGIN = 20;
 
     public static final String DOES_NOT_EXIST = "!does-not-exist!";
 
+    private enum Context {
+        MY_LEVELS(true),
+        MY_CAMPAIGNS(true),
+        IMPORTED_CAMPAIGNS(false),
+        STANDARD(false);
+
+        final boolean levelsCanBeDeleted;
+
+        Context(final boolean levelsCanBeDeleted) {
+            this.levelsCanBeDeleted = levelsCanBeDeleted;
+        }
+
+        String getDeleteHeading() {
+            return switch (this) {
+                case MY_CAMPAIGNS -> "REMOVE";
+                case MY_LEVELS -> "DELETE";
+                default -> "";
+            };
+        }
+    }
+
     // MENU LINKING
 
+    public static void linkMenu(final String menuID, final JBJGLMenu menu, final boolean setActive) {
+        getMenuManager().addMenu(menuID, menu, setActive);
+    }
+
     public static void linkMenu(final String menuID, final JBJGLMenu menu) {
-        getMenuManager().addMenu(menuID, menu, true);
+        linkMenu(menuID, menu, true);
     }
 
     public static void linkMenu(final String menuID) {
@@ -105,33 +138,8 @@ public class MenuHelper {
                 contents);
     }
 
-    public static JBJGLMenu generatePageDoesNotExistYet() {
-        final int middle = widthCoord(0.5);
-        final int buttonWidth = widthCoord(1/3.);
-        final int promptY = heightCoord(1/3.);
-        final int buttonsY = heightCoord(3/5.);
-
-        final JBJGLMenuElementGrouping contents = JBJGLMenuElementGrouping.generateOf(
-                JBJGLTextMenuElement.generate(
-                        new int[] { middle, promptY },
-                        JBJGLMenuElement.Anchor.CENTRAL_TOP,
-                        JBJGLTextBuilder.initialize(
-                                        2., JBJGLText.Orientation.CENTER,
-                                        TLColors.MENU_TEXT(), Fonts.GAME_ITALICS_SPACED()
-                                ).addText("UH-OH!").addLineBreak()
-                                .addText("THIS PAGE DOES NOT EXIST YET.").build()),
-                determineTextButton(
-                        "MAIN MENU", new int[] { middle, buttonsY },
-                        JBJGLMenuElement.Anchor.CENTRAL_TOP, buttonWidth,
-                        () -> {
-                            Translation.manager.setActiveStateIndex(Translation.MENU_INDEX);
-                            MenuHelper.linkMenu(MenuIDs.MAIN_MENU);
-                        }));
-
-        return generatePlainMenu(contents);
-    }
-
     public static JBJGLMenu generateAreYouSureMenu(
+            final boolean initialQuestionMark,
             final String decisionDescription,
             final Runnable noBehaviour,
             final Runnable yesBehaviour
@@ -142,6 +150,8 @@ public class MenuHelper {
         final int promptY = heightCoord(1/3.);
         final int buttonsY = heightCoord(3/5.);
 
+        final String firstLine = "ARE YOU SURE" + (initialQuestionMark ? "?" : "");
+
         final JBJGLMenuElementGrouping contents = JBJGLMenuElementGrouping.generateOf(
                 JBJGLTextMenuElement.generate(
                         new int[] { widthCoord(0.5), promptY },
@@ -149,7 +159,7 @@ public class MenuHelper {
                         JBJGLTextBuilder.initialize(
                                         2., JBJGLText.Orientation.CENTER,
                                         TLColors.MENU_TEXT(), Fonts.GAME_ITALICS_SPACED()
-                                ).addText("ARE YOU SURE").addLineBreak()
+                                ).addText(firstLine).addLineBreak()
                                 .addText(decisionDescription.toUpperCase()).build()),
                 determineTextButton(
                         "NO", new int[] { leftX, buttonsY },
@@ -164,23 +174,27 @@ public class MenuHelper {
     }
 
     public static JBJGLMenu generateLevelOverview(
-            final Level level, final int index, final Campaign campaign
+            final Level level, final int index,
+            final Campaign campaign, final Context context
     ) {
+        final String PLAY_HEADING = "PLAY", DELETE_HEADING = context.getDeleteHeading();
+        final Runnable playBehaviour = () -> {
+            Translation.campaign.setLevel(index);
+            Translation.campaign.getLevel().getStats().reset();
+            Translation.campaign.getLevel().launchLevel();
+            Translation.manager.setActiveStateIndex(Translation.GAMEPLAY_INDEX);
+        }, deleteBehaviour = () -> linkMenu(MenuIDs.ARE_YOU_SURE_DELETE_LEVEL,
+                generateAreYouSureDeleteLevelMenu(campaign, level, context));
+
         final JBJGLMenuElementGrouping contents = JBJGLMenuElementGrouping.generateOf(
-                generateListMenuOptions(
-                        new String[] { "PLAY" },
-                        new Runnable[] {
-                                () -> {
-                                    Translation.campaign.setLevel(index);
-                                    Translation.campaign.getLevel().getStats().reset();
-                                    Translation.campaign.getLevel().launchLevel();
-                                    Translation.manager.setActiveStateIndex(Translation.GAMEPLAY_INDEX);
-                                }
-                        },
-                        widthCoord(0.5),
-                        heightCoord(1.0) -
-                                (LIST_MENU_INITIAL_Y + (int)(1.5 * listMenuIncrementY())),
-                        JBJGLMenuElement.Anchor.CENTRAL_TOP),
+                generateHorizontalListMenuOptions(
+                        context.levelsCanBeDeleted
+                                ? new String[] { PLAY_HEADING, DELETE_HEADING }
+                                : new String[] { PLAY_HEADING },
+                        context.levelsCanBeDeleted
+                                ? new Runnable[] { playBehaviour, deleteBehaviour }
+                                : new Runnable[] { playBehaviour }, heightCoord(0.85),
+                        widthCoord(context.levelsCanBeDeleted ? 0.3 : 0.5)),
                 JBJGLTextMenuElement.generate(
                         new int[] {
                                 widthCoord(0.5),
@@ -191,10 +205,51 @@ public class MenuHelper {
                                         (level.isDeterministic() ? "DETERMINISTIC" : "NON-DETERMINISTIC")
                         ).build()),
                 generateLevelKeyInfo(level),
-                generatePrevNextLevelButtons(index, campaign));
+                generatePrevNextLevelButtons(index, campaign, context));
 
         return generateBasicMenu(level.getName(), level.getHint(),
                 contents, MenuIDs.CAMPAIGN_LEVELS);
+    }
+
+    private static JBJGLMenu generateAreYouSureDeleteCampaignMenu(
+            final Campaign campaign, final Context context
+    ) {
+        return generateAreYouSureMenu(false,
+                "you want to delete this campaign?",
+                () -> linkMenu(MenuIDs.CAMPAIGN_LEVELS),
+                () -> {
+                    LevelIO.deleteCampaign(campaign,
+                            context == Context.MY_CAMPAIGNS
+                                    ? LevelIO.MY_CAMPAIGNS_FOLDER
+                                    : LevelIO.IMPORTED_CAMPAIGNS_FOLDER);
+
+                    linkMenu(MenuIDs.CAMPAIGN_FOLDER,
+                            context == Context.MY_CAMPAIGNS
+                                    ? generateMyCampaignsFolderMenu()
+                                    : generateImportedCampaignsFolderMenu());
+                });
+    }
+
+    private static JBJGLMenu generateAreYouSureDeleteLevelMenu(
+            final Campaign campaign, final Level level, final Context context
+    ) {
+        final int LEVEL_NAME_TOO_LONG = 23;
+
+        return generateAreYouSureMenu(false, "you want to " +
+                        context.getDeleteHeading().toLowerCase() +  " \"" +
+                        Utility.cutOffIfLongerThan(level.getName(), LEVEL_NAME_TOO_LONG) + "\"?",
+                () -> linkMenu(MenuIDs.LEVEL_OVERVIEW),
+                () -> {
+                    campaign.removeLevel(level);
+                    LevelIO.writeCampaign(campaign, false);
+
+                    LevelIO.deleteLevelFile(level);
+
+                    linkMenu(MenuIDs.CAMPAIGN_LEVELS,
+                            generateMenuForCampaign(campaign, context == Context.MY_LEVELS
+                                    ? MenuIDs.MY_CONTENT_MENU
+                                    : MenuIDs.CAMPAIGN_FOLDER, context));
+                });
     }
 
     public static JBJGLMenu generatePlayerMovementTypeMenu(
@@ -205,10 +260,11 @@ public class MenuHelper {
                         generateMenuTextBlurb(text, JBJGLText.Orientation.CENTER,
                                 JBJGLMenuElement.Anchor.CENTRAL,
                                 widthCoord(0.5), heightCoord(0.6), 2)),
-                MenuIDs.MOVEMENT_RULES_WIKI);
+                MenuIDs.MOVEMENT_RULES_GM);
     }
 
     private static JBJGLMenu generateSentryRoleWikiPage(final Sentry.Role role) {
+        final double METADATA_HEIGHT_FRACTION = 0.35;
         final int pixel = TechnicalSettings.getPixelSize();
 
         final Path sentryDescriptionFilepath = ParserWriter.RESOURCE_ROOT.resolve(
@@ -221,14 +277,14 @@ public class MenuHelper {
                 JBJGLStaticMenuElement.generate(
                         new int[] {
                                 widthCoord(0.5),
-                                heightCoord(0.5)
+                                heightCoord(METADATA_HEIGHT_FRACTION)
                         }, JBJGLMenuElement.Anchor.CENTRAL_TOP,
                         ImageAssets.drawSentry(role)),
                 // metadata
                 JBJGLTextMenuElement.generate(
                         new int[] {
                                 widthCoord(0.48),
-                                heightCoord(0.5)
+                                heightCoord(METADATA_HEIGHT_FRACTION) - pixel
                         }, JBJGLMenuElement.Anchor.RIGHT_TOP,
                         generateInitialMenuTextBuilder().addText(
                                 role.isSightDependent()
@@ -237,7 +293,7 @@ public class MenuHelper {
                 JBJGLTextMenuElement.generate(
                         new int[] {
                                 widthCoord(0.52) + pixel,
-                                heightCoord(0.5)
+                                heightCoord(METADATA_HEIGHT_FRACTION) - pixel
                         }, JBJGLMenuElement.Anchor.LEFT_TOP,
                         generateInitialMenuTextBuilder().addText(
                                 role.isDeterministic()
@@ -245,13 +301,13 @@ public class MenuHelper {
                                         : "NON-DETERMINISTIC BEHAVIOUR"
                         ).build()),
                 // description
-                generateMenuTextBlurb(
-                        sentryDescription, JBJGLText.Orientation.CENTER,
-                        widthCoord(0.5), heightCoord(0.57),
-                        2));
+                generateMenuTextBlurb(sentryDescription,
+                        JBJGLText.Orientation.CENTER,
+                        JBJGLMenuElement.Anchor.CENTRAL,
+                        widthCoord(0.5), heightCoord(0.68), 2));
 
         return generateBasicMenu(role.name(),
-                "SENTRY TYPE", contents, MenuIDs.SENTRIES_WIKI);
+                "SENTRY TYPE", contents, MenuIDs.SENTRIES_GM);
     }
 
     public static JBJGLMenu generatePatchNotesPage(
@@ -264,31 +320,140 @@ public class MenuHelper {
                 patchNotes[page].getVersion(), contents, backMenuID);
     }
 
-    public static JBJGLMenu generateCampaignFolderMenu(
-            final String title, final Campaign[] campaigns,
-            final String backMenuID, final int page
-    ) {
-        final JBJGLMenuElementGrouping contents =
-                generateCampaignsOnPage(title, campaigns, backMenuID, page);
+    private static JBJGLMenu generateNewCampaignMenu() {
+        final TypedInputMenuElement setCampaignNameButton =
+                generateTypedInputButton(widthCoord(0.5), heightCoord(0.5),
+                        widthCoord(0.8), "SET CAMPAIGN NAME", "",
+                        Set.of("", "My Levels"));
 
-        return generateBasicMenu(title,
-                "PAGE " + (page + 1), contents, backMenuID);
+        final Runnable createCampaignButtonBehaviour = () -> {
+            final Campaign campaign = LevelIO.createAndSaveNewCampaign(
+                    setCampaignNameButton.getInput());
+
+            linkMenu(MenuIDs.CAMPAIGN_FOLDER, generateMyCampaignsFolderMenu(), false);
+            linkMenu(MenuIDs.CAMPAIGN_LEVELS, generateMenuForCampaign(campaign,
+                            MenuIDs.CAMPAIGN_FOLDER, Context.MY_CAMPAIGNS));
+        };
+
+        final JBJGLMenuElementGrouping contents = JBJGLMenuElementGrouping.generateOf(
+                setCampaignNameButton, generateConditionalButton("CREATE CAMPAIGN",
+                        widthCoord(0.5), heightCoord(0.8),
+                        widthCoord(0.3), JBJGLMenuElement.Anchor.CENTRAL_TOP,
+                        createCampaignButtonBehaviour, setCampaignNameButton::inputIsValid));
+
+        return generateBasicMenu("Create a New Campaign", DOES_NOT_EXIST,
+                contents, MenuIDs.CAMPAIGN_FOLDER);
     }
 
-    public static JBJGLMenu generateMenuForCampaign(
-            final Campaign campaign, final String backMenuID
-    ) {
-        return generateMenuForCampaign(campaign, backMenuID, 0);
+    public static JBJGLMenu generateMyCampaignsFolderMenu() {
+        return generateCampaignFolderMenu("My Campaigns", LevelIO.MY_CAMPAIGNS_FOLDER,
+                MenuIDs.MY_CONTENT_MENU, Context.MY_CAMPAIGNS);
     }
 
-    public static JBJGLMenu generateMenuForCampaign(
-            final Campaign campaign, final String backMenuID, final int page
-    ) {
-        final JBJGLMenuElementGrouping contents =
-                MenuHelper.generateLevelsOnPage(campaign, backMenuID, page);
+    public static JBJGLMenu generateImportedCampaignsFolderMenu() {
+        return generateCampaignFolderMenu("Imported Campaigns",
+                LevelIO.IMPORTED_CAMPAIGNS_FOLDER, MenuIDs.PLAY_MENU, Context.IMPORTED_CAMPAIGNS);
+    }
 
-        return MenuHelper.generateBasicMenu(campaign.getName(),
-                "PAGE " + (page + 1), contents, backMenuID);
+    public static JBJGLMenu generateMainCampaignsFolderMenu() {
+        return generateCampaignFolderMenu("Main Campaigns",
+                LevelIO.MAIN_CAMPAIGNS_FOLDER, MenuIDs.PLAY_MENU, Context.STANDARD);
+    }
+
+    private static JBJGLMenu generateCampaignFolderMenu(
+            final String title, final Path folder,
+            final String backMenuID, final Context context
+    ) {
+        final Campaign[] campaigns = LevelIO.readCampaignsInFolder(folder);
+
+        final Runnable newButtonBehaviour = () -> linkMenu(MenuIDs.NEW_CAMPAIGN, generateNewCampaignMenu());
+        final Runnable importButtonBehaviour = () -> {
+            final Optional<File> toImport = JBJGLFileIO.openFileFromSystem(
+                    new String[] { "[ Select any level file in the desired campaign folder ]" },
+                    new String[][] { new String[] { LevelIO.LEVEL_FILE_SUFFIX } });
+
+            if (toImport.isEmpty()) return;
+
+            final Path importFromFolder = toImport.get().toPath().getParent();
+            final Campaign importedCampaign = LevelIO.readCampaign(importFromFolder);
+
+            LevelIO.saveImportedCampaign(importedCampaign);
+
+            linkMenu(MenuIDs.CAMPAIGN_FOLDER, generateImportedCampaignsFolderMenu());
+        };
+
+        final JBJGLMenuElement additional = switch (context) {
+            case IMPORTED_CAMPAIGNS -> generateTopRightButton("IMPORT +",
+                    widthCoord(0.175), importButtonBehaviour);
+            case MY_CAMPAIGNS -> generateTopRightButton("NEW +",
+                    widthCoord(0.125), newButtonBehaviour);
+            default -> JBJGLPlaceholderMenuElement.generate();
+        };
+
+        final JBJGLMenuElementGrouping contents =
+                JBJGLMenuElementGrouping.generateOf(
+                        generateCampaignsOnPage(campaigns, context), additional);
+
+        return generateBasicMenu(title, DOES_NOT_EXIST, contents, backMenuID);
+    }
+
+    public static JBJGLMenu generateMenuForMyLevels() {
+        return generateMenuForCampaign(LevelIO.readMyLevels(),
+                MenuIDs.MY_CONTENT_MENU, Context.MY_LEVELS);
+    }
+
+    public static JBJGLMenu generateMenuForTutorial() {
+        return generateMenuForCampaign(LevelIO.readCampaign(LevelIO.TUTORIAL_CAMPAIGN_FOLDER),
+                MenuIDs.PLAY_MENU, Context.STANDARD);
+    }
+
+    private static JBJGLMenu generateMenuForCampaign(
+            final Campaign campaign, final String backMenuID, final Context context
+    ) {
+        Translation.campaign = campaign;
+
+        final int belowButtonY = heightCoord(0.85);
+
+        final Runnable addLevelBehaviour = LevelIO.readMyLevels().getLevelCount() > 0 ?
+                () -> linkMenu(MenuIDs.LEVEL_SELECT, generateLevelSelectMenu(campaign, context))
+                : null;
+        final Runnable deleteBehaviour = () ->
+                linkMenu(MenuIDs.ARE_YOU_SURE_DELETE_CAMPAIGN,
+                        generateAreYouSureDeleteCampaignMenu(campaign, context));
+        final Runnable newLevelBehaviour = () -> Translation.manager.setActiveStateIndex(Translation.EDITOR_INDEX);
+
+        final JBJGLMenuElement additional = switch (context) {
+            case MY_CAMPAIGNS -> generateHorizontalListMenuOptions(
+                    new String[] { "ADD LEVEL", "DELETE" },
+                    new Runnable[] { addLevelBehaviour, deleteBehaviour },
+                    belowButtonY, widthCoord(0.3));
+            case IMPORTED_CAMPAIGNS -> generateHorizontalListMenuOptions(
+                    new String[] { "DELETE" }, new Runnable[] { deleteBehaviour },
+                    belowButtonY, widthCoord(0.5));
+            case MY_LEVELS -> generateTopRightButton("NEW +",
+                    widthCoord(0.125), newLevelBehaviour);
+            default -> JBJGLPlaceholderMenuElement.generate();
+        };
+
+        final JBJGLMenuElementGrouping contents = JBJGLMenuElementGrouping.generateOf(
+                generateLevelsOnPage(campaign, context), additional);
+
+        final String
+                subtitleA = (context == Context.MY_LEVELS ? "" : campaign.getLevelsBeaten() + " / ") + campaign.getLevelCount(),
+                subtitleB = " level" + (campaign.getLevelCount() == 1 ? " " : "s "),
+                subtitleC = context == Context.MY_LEVELS ? "created" : "beaten";
+
+        return generateBasicMenu(campaign.getName(),
+                subtitleA + subtitleB + subtitleC, contents, backMenuID);
+    }
+
+    private static JBJGLMenu generateLevelSelectMenu(
+            final Campaign campaign, final Context context
+    ) {
+        final JBJGLMenuElementGrouping contents = generateMyLevelsToSelectFrom(campaign, context);
+
+        return generateBasicMenu("Level Select", "Select a level to add to \"" +
+                campaign.getName() + "\"...", contents, MenuIDs.CAMPAIGN_LEVELS);
     }
 
     public static JBJGLMenu generateSplashScreen(
@@ -348,33 +513,21 @@ public class MenuHelper {
     ) {
         final int pixel = TechnicalSettings.getPixelSize();
 
-        // TODO - optimize
         return JBJGLMenuElementGrouping.generateOf(
-                JBJGLTextMenuElement.generate(
-                        new int[] { x, y },
-                        anchor,
-                        JBJGLText.createOf(
+                JBJGLTextMenuElement.generate(new int[] { x, y },
+                        anchor, JBJGLText.createOf(
                                 pixel, JBJGLText.Orientation.CENTER,
                                 JBJGLTextComponent.add(
                                         Translation.TITLE.toUpperCase(),
                                         Fonts.VIGILANT_ITALICS(),
-                                        TLColors.BLACK()
-                                )
-                        )
-                ),
-                JBJGLTextMenuElement.generate(
-                        new int[] { x - (pixel * 2), y },
-                        anchor,
-                        JBJGLText.createOf(
+                                        TLColors.BLACK()))),
+                JBJGLTextMenuElement.generate(new int[] { x - (pixel * 2), y },
+                        anchor, JBJGLText.createOf(
                                 pixel, JBJGLText.Orientation.CENTER,
                                 JBJGLTextComponent.add(
                                         Translation.TITLE.toUpperCase(),
                                         Fonts.VIGILANT_ITALICS(),
-                                        TLColors.TITLE_RED()
-                                )
-                        )
-                )
-        );
+                                        TLColors.TITLE_RED()))));
     }
 
     public static JBJGLTextMenuElement generateDevelopmentInformation() {
@@ -385,7 +538,7 @@ public class MenuHelper {
                 new int[] { pixel, height }, JBJGLMenuElement.Anchor.LEFT_BOTTOM,
                 generateInitialMenuTextBuilder()
                         .addText("version " + Translation.VERSION).addLineBreak()
-                        .addText("Jordan Bunke, 2022").build());
+                        .addText("Jordan Bunke, 2022-2023").build());
     }
 
     public static JBJGLTextMenuElement generateMenuTextBlurb(
@@ -459,6 +612,34 @@ public class MenuHelper {
         return JBJGLMenuElementGrouping.generate(menuElements);
     }
 
+    public static JBJGLMenuElementGrouping generateHorizontalListMenuOptions(
+            final String[] headings, final Runnable[] behaviours,
+            final int y, final int widthPerButton
+    ) {
+        final int BUTTON_X_MARGIN = MARGIN;
+
+        final int amount = headings.length;
+        final JBJGLMenuElement[] menuElements = new JBJGLMenuElement[amount];
+
+        final int centerElement = amount / 2,
+                centerElementX = widthCoord(0.5) + (amount % 2 == 0
+                // even
+                ? (BUTTON_X_MARGIN + widthPerButton) / 2
+                // odd
+                : 0);
+
+        for (int i = 0; i < amount; i++) {
+            final int x = centerElementX - ((centerElement - i) * (widthPerButton + BUTTON_X_MARGIN));
+
+            final JBJGLMenuElement button = determineTextButton(
+                    headings[i], new int[] { x, y }, JBJGLMenuElement.Anchor.CENTRAL,
+                    TechnicalSettings.pixelLockNumber(widthPerButton), behaviours[i]);
+            menuElements[i] = button;
+        }
+
+        return JBJGLMenuElementGrouping.generate(menuElements);
+    }
+
     public static JBJGLMenuElementGrouping generateListMenuOptions(
             final String[] headings, final Runnable[] behaviours,
             final int x, final int offsetY, final JBJGLMenuElement.Anchor anchor
@@ -504,10 +685,7 @@ public class MenuHelper {
     }
 
     public static JBJGLMenuElementGrouping generateSentryButtons() {
-        final int width = TechnicalSettings.getWidth(),
-                height = TechnicalSettings.getHeight();
-
-        final int COLUMNS = 4, INITIAL_Y = heightCoord(0.45);
+        final int COLUMNS = 4, INITIAL_Y = LIST_MENU_INITIAL_Y + (listMenuIncrementY() / 2);
         final Sentry.Role[] roles = Sentry.Role.values();
         final JBJGLClickableMenuElement[] menuElements = new JBJGLClickableMenuElement[roles.length];
 
@@ -515,15 +693,12 @@ public class MenuHelper {
             final int column = i % COLUMNS;
             final int row = i / COLUMNS;
             final int x = widthCoord((column + 1) / (double)(COLUMNS + 1)),
-                    y = INITIAL_Y + (row * menuTextIncrementY());
+                    y = INITIAL_Y + (row * listMenuIncrementY());
             menuElements[i] = generateSentryButton(x, y, roles[i],
-                    widthCoord(1/(COLUMNS + 1.3)));
+                    widthCoord(1 / (COLUMNS + 1.3)));
         }
 
         return JBJGLMenuElementGrouping.generateOf(
-                MenuHelper.generateMenuTextBlurb(
-                        "", JBJGLText.Orientation.CENTER,
-                        width / 2, height / 3, 1),
                 JBJGLMenuElementGrouping.generate(menuElements));
     }
 
@@ -536,7 +711,7 @@ public class MenuHelper {
                 "MOVE LEFT", "MOVE RIGHT", "JUMP", "DROP",
                 "TELEPORT", "SAVE / * CREATE PLATFORM", "LOAD / * DELETE PLATFORM",
                 "CAMERA LEFT", "CAMERA RIGHT", "CAMERA UP", "CAMERA DOWN",
-                "TOGGLE ZOOM", "TOGGLE FOLLOW MODE / * EDIT MODE", "PAUSE", "* SNAP TO GRID"
+                "TOGGLE ZOOM", "TOGGLE FOLLOW (* EDIT) MODE", "PAUSE", "* SNAP TO GRID"
         };
         final java.util.List<Consumer<JBJGLKey>> setFunctions = List.of(
                 key -> {
@@ -627,9 +802,7 @@ public class MenuHelper {
             );
         }
 
-        return JBJGLMenuElementGrouping.generate(
-                menuElements
-        );
+        return JBJGLMenuElementGrouping.generate(menuElements);
     }
 
     public static JBJGLMenuElementGrouping generateLevelStatsText(final LevelStats levelStats) {
@@ -674,140 +847,128 @@ public class MenuHelper {
         // generate previous and next buttons, if they exist
         populatePreviousAndNext("NEXT", "PREVIOUS", content,
                 hasPreviousPage, hasNextPage, BUTTON_WIDTH,
-                () -> MenuHelper.linkMenu(MenuIDs.PATCH_NOTES,
-                        generatePatchNotesPage(patchNotes, backMenuID, page - 1)),
-                () -> MenuHelper.linkMenu(
-                        MenuIDs.PATCH_NOTES,
-                        generatePatchNotesPage(patchNotes, backMenuID, page + 1)));
+                () -> linkMenu(MenuIDs.PATCH_NOTES, generatePatchNotesPage(patchNotes, backMenuID, page - 1)),
+                () -> linkMenu(MenuIDs.PATCH_NOTES, generatePatchNotesPage(patchNotes, backMenuID, page + 1)));
 
         return JBJGLMenuElementGrouping.generate(content);
     }
 
     private static JBJGLMenuElementGrouping generateCampaignsOnPage(
-            final String title, final Campaign[] campaigns,
-            final String backMenuID, final int page
+            final Campaign[] campaigns, final Context context
     ) {
-        final int INITIAL_Y = LIST_MENU_INITIAL_Y + (int)(2.5 * listMenuIncrementY());
-        final int BUTTON_WIDTH = widthCoord(1/5.3);
-        final int CAMPAIGNS_ON_PAGE = 3, campaignCount = campaigns.length;
-        final int campaignsOnThisPage = Math.min(
-                CAMPAIGNS_ON_PAGE, campaignCount - (CAMPAIGNS_ON_PAGE * page));
-        final int startingIndex = page * CAMPAIGNS_ON_PAGE;
+        final int CAMPAIGN_NAME_TOO_LONG = 50;
 
-        // calculate the menu element count and create content array
-        final boolean hasPreviousPage = page > 0;
-        final boolean hasNextPage = campaignCount > ((page + 1) * CAMPAIGNS_ON_PAGE);
+        final int campaignCount = campaigns.length;
 
-        final int menuElementsCount = campaignsOnThisPage +
-                calculatePreviousNextTotal(hasPreviousPage, hasNextPage);
+        if (campaignCount == 0) return JBJGLMenuElementGrouping.generateOf(
+                generateMenuTextBlurb(
+                        "This folder does not contain any campaigns.",
+                        JBJGLText.Orientation.CENTER, JBJGLMenuElement.Anchor.CENTRAL,
+                        widthCoord(0.5), heightCoord(0.5),
+                        TechnicalSettings.getPixelSize() / 2.));
 
-        final JBJGLMenuElement[] campaignButtons = new JBJGLMenuElement[menuElementsCount];
+        final String[] headings = new String[campaignCount];
+        final Runnable[] behaviours = new Runnable[campaignCount];
 
-        // generate buttons
-        for (int i = 0; i < campaignsOnThisPage; i++) {
-            final int x = widthCoord(0.5),
-                    y = INITIAL_Y + (i * listMenuIncrementY());
-            final Campaign campaign = campaigns[startingIndex + i];
-            campaignButtons[i] = generateCampaignButton(
-                    x, y, widthCoord(0.8), campaign);
+        for (int i = 0; i < campaignCount; i++) {
+            final Campaign campaign = campaigns[i];
+
+            final Runnable behaviour = () -> linkMenu(MenuIDs.CAMPAIGN_LEVELS,
+                    generateMenuForCampaign(campaign, MenuIDs.CAMPAIGN_FOLDER, context));
+
+            headings[i] = Utility.cutOffIfLongerThan(campaign.getName(), CAMPAIGN_NAME_TOO_LONG).toUpperCase();
+            behaviours[i] = behaviour;
         }
 
-        // generate previous and next buttons, if they exist
-        populatePreviousAndNext(campaignButtons,
-                hasPreviousPage, hasNextPage, BUTTON_WIDTH,
-                () -> MenuHelper.linkMenu(MenuIDs.CAMPAIGN_FOLDER,
-                        generateCampaignFolderMenu(
-                                title, campaigns, backMenuID, page - 1)),
-                () -> MenuHelper.linkMenu(
-                        MenuIDs.CAMPAIGN_FOLDER,
-                        generateCampaignFolderMenu(
-                                title, campaigns, backMenuID, page + 1)));
-
-        return JBJGLMenuElementGrouping.generate(campaignButtons);
+        return JBJGLMenuElementGrouping.generateOf(
+                VerticalScrollableMenuElement.generate(headings, behaviours,
+                        widthCoord(0.5), heightCoord(0.25),
+                        widthCoord(0.7), heightCoord(0.6)));
     }
 
     public static JBJGLMenuElementGrouping generateLevelsOnPage(
-            final Campaign campaign, final String backMenuID, final int page
+            final Campaign campaign, final Context context
     ) {
-        final int COLUMNS = 4, INITIAL_Y = heightCoord(0.45);
-        final int BUTTON_WIDTH = widthCoord(1/(COLUMNS + 1.3));
-        final int LEVELS_ON_PAGE = 16, levelCount = campaign.getLevelCount();
-        final int levelsOnThisPage = Math.min(
-                LEVELS_ON_PAGE, levelCount - (LEVELS_ON_PAGE * page));
-        final int startingIndex = page * LEVELS_ON_PAGE;
+        final int LEVEL_NAME_TOO_LONG = 50;
+        final int levelCount = campaign.getLevelCount();
 
-        final boolean hasPreviousPage = page > 0;
-        final boolean hasNextPage = levelCount > ((page + 1) * LEVELS_ON_PAGE);
+        if (levelCount == 0) return JBJGLMenuElementGrouping.generateOf(
+                generateMenuTextBlurb(
+                        "This campaign does not contain any levels.",
+                        JBJGLText.Orientation.CENTER, JBJGLMenuElement.Anchor.CENTRAL,
+                        widthCoord(0.5), heightCoord(0.5),
+                        TechnicalSettings.getPixelSize() / 2.));
 
-        final int menuElementsCount = levelsOnThisPage +
-                calculatePreviousNextTotal(hasPreviousPage, hasNextPage);
+        final String[] headings = new String[levelCount];
+        final Runnable[] behaviours = new Runnable[levelCount];
 
-        final JBJGLMenuElement[] levelButtons = new JBJGLMenuElement[menuElementsCount];
+        for (int i = 0; i < levelCount; i++) {
+            final int index = i;
+            final Level level = campaign.getLevelAt(i);
+            final boolean isUnlocked = campaign.isUnlocked(i);
+            final Runnable behaviour = isUnlocked
+                    ? () -> linkMenu(MenuIDs.LEVEL_OVERVIEW,
+                        generateLevelOverview(level, index, campaign, context))
+                    : null;
 
-        for (int i = 0; i < levelsOnThisPage; i++) {
-            final int column = i % COLUMNS;
-            final int row = i / COLUMNS;
-            final int x = widthCoord((column + 1) / (double)(COLUMNS + 1)),
-                    y = INITIAL_Y + (row * listMenuIncrementY());
-            final Level level = campaign.getLevelAt(startingIndex + i);
-            levelButtons[i] = generateLevelButton(
-                    x, y, BUTTON_WIDTH, campaign, level, startingIndex + i);
+            headings[i] = Utility.cutOffIfLongerThan(level.getName(),
+                    LEVEL_NAME_TOO_LONG).toUpperCase();
+            behaviours[i] = behaviour;
         }
 
-        populatePreviousAndNext(
-                levelButtons, hasPreviousPage, hasNextPage,
-                BUTTON_WIDTH,
-                () -> MenuHelper.linkMenu(MenuIDs.CAMPAIGN_LEVELS,
-                        generateMenuForCampaign(
-                                Translation.campaign, backMenuID, page - 1)),
-                () -> MenuHelper.linkMenu(MenuIDs.CAMPAIGN_LEVELS,
-                        generateMenuForCampaign(
-                                Translation.campaign, backMenuID, page + 1)));
+        final boolean hasBelowButtons = context == Context.MY_CAMPAIGNS ||
+                context == Context.IMPORTED_CAMPAIGNS;
 
-        return JBJGLMenuElementGrouping.generate(levelButtons);
+        return JBJGLMenuElementGrouping.generateOf(
+                VerticalScrollableMenuElement.generate(headings, behaviours,
+                        widthCoord(0.5), heightCoord(0.3), widthCoord(0.7),
+                        heightCoord(hasBelowButtons ? 0.4 : 0.5)));
     }
 
-    // HIDDEN
+    private static JBJGLMenuElementGrouping generateMyLevelsToSelectFrom(
+            final Campaign destinationCampaign, final Context context
+    ) {
+        final Campaign campaign = LevelIO.readMyLevels();
 
-    // MENUS
+        final int LEVEL_NAME_TOO_LONG = 50;
+        final int levelCount = campaign.getLevelCount();
 
+        if (levelCount == 0) return JBJGLMenuElementGrouping.generateOf(
+                generateMenuTextBlurb(
+                        "This campaign does not contain any levels.",
+                        JBJGLText.Orientation.CENTER, JBJGLMenuElement.Anchor.CENTRAL,
+                        widthCoord(0.5), heightCoord(0.5),
+                        TechnicalSettings.getPixelSize() / 2.));
 
+        final String[] headings = new String[levelCount];
+        final Runnable[] behaviours = new Runnable[levelCount];
+
+        for (int i = 0; i < levelCount; i++) {
+            final Level level = campaign.getLevelAt(i);
+            final Runnable behaviour = () -> {
+                destinationCampaign.addLevel(level,
+                        LevelIO.generateLevelFilename(level.getName()), true);
+                destinationCampaign.updateLevelFilenames();
+
+                LevelIO.writeCampaign(destinationCampaign, false);
+                LevelIO.writeLevel(level, true);
+
+                linkMenu(MenuIDs.CAMPAIGN_LEVELS,
+                        generateMenuForCampaign(destinationCampaign, MenuIDs.CAMPAIGN_FOLDER, context));
+            };
+
+            headings[i] = Utility.cutOffIfLongerThan(level.getName(),
+                    LEVEL_NAME_TOO_LONG).toUpperCase();
+            behaviours[i] = behaviour;
+        }
+
+        return JBJGLMenuElementGrouping.generateOf(
+                VerticalScrollableMenuElement.generate(headings, behaviours,
+                        widthCoord(0.5), heightCoord(0.3), widthCoord(0.7),
+                        heightCoord(0.5)));
+    }
 
     // ELEMENT GENERATORS
-
-    // level 0
-
-    private static JBJGLMenuElement generateCampaignButton(
-            final int x, final int y, final int buttonWidth,
-            final Campaign campaign
-    ) {
-        final Runnable behaviour = () -> {
-            Translation.campaign = campaign;
-            MenuHelper.linkMenu(MenuIDs.CAMPAIGN_LEVELS,
-                    generateMenuForCampaign(campaign, MenuIDs.CAMPAIGN_FOLDER));
-        };
-
-        return determineTextButton(
-                Utility.cutOffIfLongerThan(campaign.getName().toUpperCase(), 40),
-                new int[] { x, y }, JBJGLMenuElement.Anchor.CENTRAL_TOP,
-                buttonWidth, behaviour);
-    }
-
-    private static JBJGLMenuElement generateLevelButton(
-            final int x, final int y, final int buttonWidth,
-            final Campaign campaign, final Level level, final int index
-    ) {
-        final boolean isUnlocked = campaign.isUnlocked(index);
-        final Runnable behaviour = isUnlocked
-                ? () -> MenuHelper.linkMenu(MenuIDs.LEVEL_OVERVIEW,
-                generateLevelOverview(level, index, campaign))
-                : null;
-
-        return determineTextButton(
-                Utility.cutOffIfLongerThan(level.getName().toUpperCase(), 10),
-                new int[] { x, y }, JBJGLMenuElement.Anchor.CENTRAL_TOP,
-                buttonWidth, behaviour);
-    }
 
     // level 1
 
@@ -819,8 +980,16 @@ public class MenuHelper {
                 () -> linkMenu(backMenuID));
     }
 
+    private static JBJGLMenuElement generateTopRightButton(
+            final String prompt, final int width, final Runnable behaviour
+    ) {
+        return determineTextButton(prompt, new int[] { widthCoord(1.0) - MARGIN, MARGIN },
+                JBJGLMenuElement.Anchor.RIGHT_TOP, width, behaviour);
+    }
+
     private static JBJGLMenuElementGrouping generatePrevNextLevelButtons(
-            final int index, final Campaign campaign
+            final int index, final Campaign campaign,
+            final Context context
     ) {
         final int BUTTON_WIDTH = widthCoord(1/5.3);
 
@@ -832,12 +1001,12 @@ public class MenuHelper {
 
         populatePreviousAndNext(prevNextButtons,
                 hasPreviousPage, hasNextPage, BUTTON_WIDTH,
-                () -> MenuHelper.linkMenu(MenuIDs.LEVEL_OVERVIEW,
-                        generateLevelOverview(
-                                campaign.getLevelAt(index - 1), index - 1, campaign)),
-                () -> MenuHelper.linkMenu(MenuIDs.LEVEL_OVERVIEW,
-                        generateLevelOverview(
-                                campaign.getLevelAt(index + 1), index + 1, campaign)));
+                () -> linkMenu(MenuIDs.LEVEL_OVERVIEW,
+                        generateLevelOverview(campaign.getLevelAt(index - 1),
+                                index - 1, campaign, context)),
+                () -> linkMenu(MenuIDs.LEVEL_OVERVIEW,
+                        generateLevelOverview(campaign.getLevelAt(index + 1),
+                                index + 1, campaign, context)));
 
         return JBJGLMenuElementGrouping.generate(prevNextButtons);
     }
@@ -883,7 +1052,7 @@ public class MenuHelper {
             final int x, final int y, final Sentry.Role role, final int buttonWidth
     ) {
         final JBJGLImage nonHighlightedButton =
-                drawNonHighlightedTextButton(buttonWidth, " ", 1);
+                drawNonHighlightedTextButton(buttonWidth, " ");
         final int width = nonHighlightedButton.getWidth(), height = nonHighlightedButton.getHeight();
         final JBJGLImage square = ImageAssets.drawSentry(role);
         final int squareX = (buttonWidth / 2) - (square.getWidth() / 2),
@@ -892,16 +1061,47 @@ public class MenuHelper {
         final Graphics nhbg = nonHighlightedButton.getGraphics();
         nhbg.drawImage(square, squareX, squareY, null);
 
-        final JBJGLImage highlightedButton = drawHighlightedTextButton(
-                buttonWidth, role.name(),
-                1, role.getColor(TLColors.OPAQUE()));
+        final JBJGLImage highlightedButton =
+                drawHighlightedTextButton(buttonWidth, role.name(),
+                TechnicalSettings.getPixelSize() / 2.,
+                        role.getColor(TLColors.OPAQUE()));
 
         return JBJGLClickableMenuElement.generate(
                 new int[] { x, y }, new int[] { width, height },
                 JBJGLMenuElement.Anchor.CENTRAL_TOP,
                 nonHighlightedButton, highlightedButton,
-                () -> linkMenu(MenuIDs.SENTRY_ROLE_WIKI,
+                () -> linkMenu(MenuIDs.SENTRY_ROLE_GM,
                         generateSentryRoleWikiPage(role)));
+    }
+
+    public static ConditionalMenuElement generateConditionalButton(
+            final String label, final int x, final int y, final int width,
+            final JBJGLMenuElement.Anchor anchor,
+            final Runnable behaviour, final Callable<Boolean> condition
+    ) {
+        final JBJGLMenuElement trueElement = determineTextButton(label,
+                new int[] { x, y }, anchor, width, behaviour);
+        final JBJGLMenuElement falseElement = determineTextButton(label,
+                new int[] { x, y }, anchor, width, null);
+
+        return ConditionalMenuElement.generate(falseElement, trueElement, condition);
+    }
+
+    public static TypedInputMenuElement generateTypedInputButton(
+            final int x, final int y, final int width,
+            final String setPrompt, final String defaultInput,
+            final Set<String> invalidInputs
+    ) {
+        final Function<String, JBJGLImage> hGeneratorFunction = s -> drawHighlightedTextButton(width, s);
+        final Function<String, JBJGLImage> nhGeneratorFunction = s -> drawNonHighlightedTextButton(width, s);
+
+        final JBJGLImage highlightedImage = hGeneratorFunction.apply(setPrompt);
+        final int height = highlightedImage.getHeight();
+
+        return TypedInputMenuElement.generate(
+                new int[] { x, y }, new int[] { width, height },
+                JBJGLMenuElement.Anchor.CENTRAL, hGeneratorFunction, nhGeneratorFunction,
+                highlightedImage, defaultInput, invalidInputs);
     }
 
     private static SetInputMenuElement generateControlButton(
@@ -1098,7 +1298,7 @@ public class MenuHelper {
                 behaviours, updateIndexLogic);
     }
 
-    private static JBJGLMenuElement determineTextButton(
+    public static JBJGLMenuElement determineTextButton(
             final String heading, final int[] position,
             final JBJGLMenuElement.Anchor anchor, final int buttonWidth,
             final Runnable behaviour
@@ -1264,17 +1464,24 @@ public class MenuHelper {
         ).addText(label).build().draw();
 
         final int height = text.getHeight();
-        final int trueWidth = Math.max(
-                width,
-                text.getWidth() + Math.max(pixel * 4, (int)(textSize * pixel * 2))
-        );
-        final int x = (trueWidth - text.getWidth()) / 2;
 
-        JBJGLImage nonHighlightedButton =
-                JBJGLImage.create(trueWidth, height);
+        double adjustableTextSize = textSize;
+
+        while (text.getWidth() + Math.max(pixel * 4, (int)(textSize * pixel * 2)) > width) {
+            adjustableTextSize -= 0.1;
+            text = JBJGLTextBuilder.initialize(
+                    adjustableTextSize, JBJGLText.Orientation.CENTER,
+                    color, Fonts.GAME_STANDARD()
+            ).addText(label).build().draw();
+        }
+
+        final int x = (width - text.getWidth()) / 2, y = (int)(textSize * 2) +
+                (int)(0.5 * (height - text.getHeight()));
+
+        JBJGLImage nonHighlightedButton = JBJGLImage.create(width, height);
         drawButtonPixelBorder(nonHighlightedButton, color);
         Graphics nhbg = nonHighlightedButton.getGraphics();
-        nhbg.drawImage(text, x, (int)(textSize * 2), null);
+        nhbg.drawImage(text, x, y, null);
 
         return nonHighlightedButton;
     }
@@ -1301,7 +1508,7 @@ public class MenuHelper {
 
     // MATHS HELPERS
 
-    private static int listMenuIncrementY() {
+    public static int listMenuIncrementY() {
         return TechnicalSettings.getHeight() / 8;
     }
 

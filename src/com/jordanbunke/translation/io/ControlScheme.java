@@ -2,6 +2,8 @@ package com.jordanbunke.translation.io;
 
 import com.jordanbunke.jbjgl.events.JBJGLKey;
 import com.jordanbunke.jbjgl.events.JBJGLKeyEvent;
+import com.jordanbunke.jbjgl.menus.menu_elements.JBJGLMenuElement;
+import com.jordanbunke.translation.menus.custom_elements.SetInputMenuElement;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -117,11 +119,15 @@ public class ControlScheme {
         return true;
     }
 
-    public static void reset() {
+    public static void reset(final JBJGLMenuElement[] controlsButtons) {
         for (Action action : Action.values())
             controlScheme.inputMap.put(action, JBJGLKeyEvent.generate(
                     action.defaultKey(), action.keyEventType()
             ));
+
+        for (final JBJGLMenuElement controlsButton : controlsButtons)
+            if (controlsButton instanceof SetInputMenuElement s)
+                s.generateImages();
     }
 
     private static boolean containsKey(final JBJGLKey key, final Action reference) {

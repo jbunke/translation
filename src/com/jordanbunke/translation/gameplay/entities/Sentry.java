@@ -26,7 +26,7 @@ public class Sentry extends SentientSquare {
     public static final int LEFT = -1, RIGHT = 1;
 
     private static final int STANDARD_TICK_CYCLE = 200;
-    private static final int ANIMATION_CYCLE = STANDARD_TICK_CYCLE / 4;
+    public static final int ANIMATION_CYCLE = STANDARD_TICK_CYCLE / 4;
 
     public static final int SPAWN_CYCLE = STANDARD_TICK_CYCLE;
     public static final int REVIVAL_CYCLE = STANDARD_TICK_CYCLE * 2;
@@ -271,6 +271,23 @@ public class Sentry extends SentientSquare {
                 }
             }
         }
+
+        public Role next() {
+            return iterate(false);
+        }
+
+        public Role previous() {
+            return iterate(true);
+        }
+
+        private Role iterate(final boolean backwards) {
+            final int TOTAL = values().length;
+            final int index = (ordinal() + (backwards ? -1 : 1)) % TOTAL;
+
+            final int normalizedIndex = index < 0 ? index + TOTAL : index;
+
+            return values()[normalizedIndex];
+        }
     }
 
     private Role role;
@@ -468,54 +485,11 @@ public class Sentry extends SentientSquare {
         } else {
             switch (role) {
                 case SPAWNER, NECROMANCER, NOMAD -> {
-                    final double[] quarters = new double[] { 0.0, 0.25, 0.5, 0.75, 1.0 };
+                    final JBJGLImage halo = drawHaloEffect(camera.isZoomedIn(), counter, role, secondary);
 
-                    final int haloLength = sideLength + (2 * pixel);
-                    JBJGLImage halo = JBJGLImage.create(haloLength, haloLength);
-                    Graphics hg = halo.getGraphics();
-
-                    hg.setColor(secondary.getColor(TLColors.SHADOW()));
-
-                    final int counterMax = switch (role) {
-                        case NOMAD -> NOMADIC_CYCLE;
-                        case SPAWNER -> SPAWN_CYCLE;
-                        case NECROMANCER -> REVIVAL_CYCLE;
-                        default -> STANDARD_TICK_CYCLE;
-                    };
-                    final double fraction = counter / (double)counterMax;
-
-                    final int[] qLengths = new int[4];
-                    final int[][] dimensions = new int[4][];
-                    final int[][] coords = new int[4][];
-
-                    for (int i = 0; i < qLengths.length; i++) {
-                        qLengths[i] = fraction >= quarters[i + 1]
-                                ? haloLength
-                                : TechnicalSettings.pixelLockNumber(
-                                (int)(haloLength * ((fraction - quarters[i]) / (quarters[i + 1] - quarters[i])))
-                        );
-                        dimensions[i] = i % 2 == 0 // odd-even check
-                                ? new int[] { pixel, qLengths[i] }
-                                : new int[] { qLengths[i], pixel };
-                        coords[i] = switch (i) {
-                            case 0 -> new int[] { haloLength - pixel, 0 };
-                            case 1 -> new int[] { haloLength - qLengths[i], haloLength - pixel };
-                            case 2 -> new int[] { 0, haloLength - qLengths[i] };
-                            default -> new int[] { 0, 0 };
-                        };
-
-                        hg.fillRect(
-                                coords[i][RenderConstants.X],
-                                coords[i][RenderConstants.Y],
-                                dimensions[i][RenderConstants.X],
-                                dimensions[i][RenderConstants.Y]
-                        );
-                    }
-
-                    g.drawImage(
-                            halo, renderPosition[RenderConstants.X] - pixel,
-                            renderPosition[RenderConstants.Y] - pixel, null
-                    );
+                    g.drawImage(halo,
+                            renderPosition[RenderConstants.X] - pixel,
+                            renderPosition[RenderConstants.Y] - pixel, null);
 
                     if (role == Role.NECROMANCER && GameplaySettings.isShowingNecromancerTethers()
                             && children.size() > 0)
@@ -544,26 +518,11 @@ public class Sentry extends SentientSquare {
                             }
                 }
                 case MAGNET, ANCHOR, FEATHER -> {
-                    final double fraction = counter / (double)ANIMATION_CYCLE;
-                    final int maxSideLength = sideLength + (10 * pixel);
-                    final int frameSideLength = sideLength + (TechnicalSettings.pixelLockNumber(
-                            (int)Math.round((0.5 - Math.abs(0.5 - fraction)) *
-                                                    (maxSideLength - sideLength))
-                    ) * 2);
-                    final int drawAtXY = TechnicalSettings.pixelLockNumber(
-                            (maxSideLength - frameSideLength) / 2
-                    );
+                    final JBJGLImage effect = drawSpatialEffect(camera.isZoomedIn(), counter, role);
 
-                    JBJGLImage effect = JBJGLImage.create(maxSideLength, maxSideLength);
-                    Graphics eg = effect.getGraphics();
-                    eg.setColor(role.getColor(TLColors.SHADOW()));
-
-                    eg.fillRect(drawAtXY, drawAtXY, frameSideLength, frameSideLength);
-
-                    g.drawImage(
-                            effect, renderPosition[RenderConstants.X] - (5 * pixel),
-                            renderPosition[RenderConstants.Y] - (5 * pixel), null
-                    );
+                    g.drawImage(effect,
+                            renderPosition[RenderConstants.X] - (5 * pixel),
+                            renderPosition[RenderConstants.Y] - (5 * pixel), null);
                 }
             }
         }
@@ -572,24 +531,93 @@ public class Sentry extends SentientSquare {
     }
 
     public void renderSquare(Camera camera, Graphics g) {
-        final int zoomFactor = camera.isZoomedIn() ? 1 : 2;
         final int rawHalfLength = GameplayConstants.SQUARE_LENGTH() / 2;
-
-        final int sideLength = GameplayConstants.SQUARE_LENGTH() / zoomFactor;
-        final int pixel = TechnicalSettings.getPixelSize();
 
         final int[] renderPosition = camera.getRenderPosition(
                 getPosition()[RenderConstants.X] - rawHalfLength,
                 getPosition()[RenderConstants.Y] - rawHalfLength
         );
 
-        JBJGLImage square = JBJGLImage.create(sideLength, sideLength);
-        Graphics sg = square.getGraphics();
+        g.drawImage(drawSquare(camera.isZoomedIn(), isHighlighted(), role),
+                renderPosition[RenderConstants.X],
+                renderPosition[RenderConstants.Y], null);
+    }
 
-        sg.setColor(isHighlighted() ? TLColors.WHITE() : TLColors.BLACK());
+    public static JBJGLImage drawForEditorHUD(
+            final boolean selected, final Role role, final Role secondary,
+            final int counter
+    ) {
+        final int zoomFactor = selected ? 1 : 2;
+
+        final int sideLength = GameplayConstants.SQUARE_LENGTH() / zoomFactor;
+        final int pixel = TechnicalSettings.getPixelSize();
+
+        final int dimension = sideLength + (selected ? 10 * pixel : 0);
+
+        final JBJGLImage composition = JBJGLImage.create(dimension, dimension);
+        final Graphics g = composition.getGraphics();
+
+        // effects
+        if (selected) {
+            final JBJGLImage effect;
+            final int[] effectDrawPosition;
+
+            switch (role) {
+                // halo
+                case SPAWNER, NECROMANCER, NOMAD -> {
+                    effect = drawHaloEffect(true, counter, role, secondary);
+                    effectDrawPosition = new int[] {
+                            (composition.getWidth() - effect.getWidth()) / 2,
+                            (composition.getHeight() - effect.getHeight()) / 2
+                    };
+
+                    g.drawImage(effect,
+                            effectDrawPosition[RenderConstants.X],
+                            effectDrawPosition[RenderConstants.Y], null);
+                }
+
+                // spatial
+                case MAGNET, ANCHOR, FEATHER -> {
+                    effect = drawSpatialEffect(true, counter, role);
+                    effectDrawPosition = new int[] { 0, 0 };
+
+                    g.drawImage(effect,
+                            effectDrawPosition[RenderConstants.X],
+                            effectDrawPosition[RenderConstants.Y], null);
+                }
+            }
+        }
+
+        // square
+        final JBJGLImage square = drawSquare(selected, false, role);
+        final int[] drawPosition = new int[] {
+                (composition.getWidth() - square.getWidth()) / 2,
+                (composition.getHeight() - square.getHeight()) / 2
+        };
+
+        g.drawImage(square, drawPosition[RenderConstants.X],
+                drawPosition[RenderConstants.Y], null);
+
+        g.dispose();
+
+        return composition;
+    }
+
+    private static JBJGLImage drawSquare(
+            final boolean isZoomedIn, final boolean isHighlighted,
+            final Role role
+    ) {
+        final int zoomFactor = isZoomedIn ? 1 : 2;
+        final int sideLength = GameplayConstants.SQUARE_LENGTH() / zoomFactor;
+        final int pixel = TechnicalSettings.getPixelSize();
+
+        final JBJGLImage square = JBJGLImage.create(sideLength, sideLength);
+        final Graphics sg = square.getGraphics();
+
+        sg.setColor(isHighlighted ? TLColors.WHITE() : TLColors.BLACK());
         sg.fillRect(0, 0, sideLength, sideLength);
 
-        Color centerColor = role.getColor(TLColors.OPAQUE());
+        final Color centerColor = role.getColor(TLColors.OPAQUE());
 
         sg.setColor(centerColor);
         sg.fillRect(
@@ -597,9 +625,94 @@ public class Sentry extends SentientSquare {
                 sideLength - (2 * pixel), sideLength - (2 * pixel)
         );
 
-        g.drawImage(
-                square, renderPosition[RenderConstants.X],
-                renderPosition[RenderConstants.Y], null
+        sg.dispose();
+
+        return square;
+    }
+
+    private static JBJGLImage drawSpatialEffect(
+            final boolean isZoomedIn, final int counter,
+            final Role role
+    ) {
+        final int zoomFactor = isZoomedIn ? 1 : 2;
+        final int sideLength = GameplayConstants.SQUARE_LENGTH() / zoomFactor;
+        final int pixel = TechnicalSettings.getPixelSize();
+
+        final double fraction = counter / (double)ANIMATION_CYCLE;
+        final int maxSideLength = sideLength + (10 * pixel);
+        final int frameSideLength = sideLength + (TechnicalSettings.pixelLockNumber(
+                (int)Math.round((0.5 - Math.abs(0.5 - fraction)) *
+                        (maxSideLength - sideLength))
+        ) * 2);
+        final int drawAtXY = TechnicalSettings.pixelLockNumber(
+                (maxSideLength - frameSideLength) / 2
         );
+
+        final JBJGLImage effect = JBJGLImage.create(maxSideLength, maxSideLength);
+        final Graphics eg = effect.getGraphics();
+        eg.setColor(role.getColor(TLColors.SHADOW()));
+
+        eg.fillRect(drawAtXY, drawAtXY, frameSideLength, frameSideLength);
+
+        eg.dispose();
+
+        return effect;
+    }
+
+    private static JBJGLImage drawHaloEffect(
+            final boolean isZoomedIn, final int counter,
+            final Role role, final Role secondary
+    ) {
+        final double[] QUARTERS = new double[] { 0.0, 0.25, 0.5, 0.75, 1.0 };
+
+        final int zoomFactor = isZoomedIn ? 1 : 2;
+        final int sideLength = GameplayConstants.SQUARE_LENGTH() / zoomFactor;
+        final int pixel = TechnicalSettings.getPixelSize();
+
+        final int haloLength = sideLength + (2 * pixel);
+        final JBJGLImage halo = JBJGLImage.create(haloLength, haloLength);
+        final Graphics hg = halo.getGraphics();
+
+        hg.setColor(secondary.getColor(TLColors.SHADOW()));
+
+        final int counterMax = switch (role) {
+            case NOMAD -> NOMADIC_CYCLE;
+            case SPAWNER -> SPAWN_CYCLE;
+            case NECROMANCER -> REVIVAL_CYCLE;
+            default -> STANDARD_TICK_CYCLE;
+        };
+        final double fraction = counter / (double)counterMax;
+
+        final int[] qLengths = new int[4];
+        final int[][] dimensions = new int[4][];
+        final int[][] coords = new int[4][];
+
+        for (int i = 0; i < qLengths.length; i++) {
+            qLengths[i] = fraction >= QUARTERS[i + 1]
+                    ? haloLength
+                    : TechnicalSettings.pixelLockNumber(
+                    (int)(haloLength * ((fraction - QUARTERS[i]) / (QUARTERS[i + 1] - QUARTERS[i])))
+            );
+            dimensions[i] = i % 2 == 0 // odd-even check
+                    ? new int[] { pixel, qLengths[i] }
+                    : new int[] { qLengths[i], pixel };
+            coords[i] = switch (i) {
+                case 0 -> new int[] { haloLength - pixel, 0 };
+                case 1 -> new int[] { haloLength - qLengths[i], haloLength - pixel };
+                case 2 -> new int[] { 0, haloLength - qLengths[i] };
+                default -> new int[] { 0, 0 };
+            };
+
+            hg.fillRect(
+                    coords[i][RenderConstants.X],
+                    coords[i][RenderConstants.Y],
+                    dimensions[i][RenderConstants.X],
+                    dimensions[i][RenderConstants.Y]
+            );
+        }
+
+        hg.dispose();
+
+        return halo;
     }
 }

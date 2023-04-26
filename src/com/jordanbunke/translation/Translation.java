@@ -5,6 +5,7 @@ import com.jordanbunke.jbjgl.debug.JBJGLGameDebugger;
 import com.jordanbunke.jbjgl.game.JBJGLGame;
 import com.jordanbunke.jbjgl.game.JBJGLGameEngine;
 import com.jordanbunke.jbjgl.game.JBJGLGameManager;
+import com.jordanbunke.jbjgl.window.JBJGLBoilerplate;
 import com.jordanbunke.jbjgl.window.JBJGLWindow;
 import com.jordanbunke.translation.fonts.Fonts;
 import com.jordanbunke.translation.game_states.EditorGameState;
@@ -23,14 +24,17 @@ import com.jordanbunke.translation.settings.debug.DebugRenderer;
 public class Translation {
     private static final int INDEX_SKIP_SPLASH_SCREEN = 0, INDEX_SHOW_BOUNDING_BOXES = 1, TOTAL_FLAGS = 2;
 
-    public static final String TITLE = "Translation";
-    public static final String VERSION = "0.2.0 (dev)";
+    public static final String TITLE = "Translation",
+            VERSION = "0.2.0 (dev)",
+            MY_GITHUB_LINK = "https://github.com/jbunke",
+            MY_GAMES_LINK = "https://flinkerflitzer.itch.io/";
 
     public static final int GAMEPLAY_INDEX = 0, PAUSE_INDEX = 1,
             LEVEL_COMPLETE_INDEX = 2, MENU_INDEX = 3, SPLASH_SCREEN_INDEX = 4,
-            EDITOR_INDEX = 5, NAME_LEVEL_INDEX = 6;
+            EDITOR_INDEX = 5;
 
     public static Campaign campaign;
+    private static Level currentLevel;
 
     public static GameplayGameState gameState;
     public static LevelMenuGameState pauseState;
@@ -45,6 +49,8 @@ public class Translation {
     public static JBJGLGame game;
 
     public static void main(String[] args) {
+        JBJGLBoilerplate.run();
+
         Fonts.setGameFontToClassic();
         SettingsIO.read();
         launch(processArgs(args));
@@ -73,12 +79,12 @@ public class Translation {
     public static void resize(final boolean fullscreen) {
         TechnicalSettings.setFullscreen(fullscreen);
         ImageAssets.updateAfterResize();
-        updateMenus();
+        updateMenusAfterResize();
         game.replaceWindow(generateWindow());
     }
 
-    private static void updateMenus() {
-        final Level level = campaign.getLevel();
+    private static void updateMenusAfterResize() {
+        final Level level = currentLevel == null ? campaign.getLevel() : currentLevel;
 
         if (manager.getActiveStateIndex() == PAUSE_INDEX)
             Menus.generateAfterResize(pauseState.getMenuManager(), false, level);
@@ -105,7 +111,6 @@ public class Translation {
         menuManager = Menus.generateMenuManager();
         splashScreenManager = Menus.generateSplashScreenManager();
         editorGameState = EditorGameState.create();
-        // TODO - name level state
 
         manager = JBJGLGameManager.createOf(
                 flags[INDEX_SKIP_SPLASH_SCREEN] ? MENU_INDEX : SPLASH_SCREEN_INDEX,
@@ -114,7 +119,7 @@ public class Translation {
                 levelCompleteState,
                 menuManager,
                 splashScreenManager,
-                editorGameState // TODO, nameLevelState
+                editorGameState
         );
 
         game = JBJGLGame.create(TITLE, manager,
@@ -147,6 +152,8 @@ public class Translation {
         gameState.setLevel(level);
         pauseState.setLevel(level);
         levelCompleteState.setLevel(level);
+
+        currentLevel = level;
     }
 
     public static void quitGame() {

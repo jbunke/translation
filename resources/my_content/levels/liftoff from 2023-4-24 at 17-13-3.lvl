@@ -1,0 +1,14 @@
+name:{Liftoff}
+hint:{Prioritize your targets in order}
+stats:{}
+platforms:{
+	(0,0,200);
+	(0,-360,100);
+	(-500,0,200);
+	(500,0,200);
+	(0,240,100)
+}
+sentries:{
+	(ANCHOR,1,-6);
+	(SPAWNER,FEATHER,4,8)
+}

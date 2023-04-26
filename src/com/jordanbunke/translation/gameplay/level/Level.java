@@ -4,6 +4,7 @@ import com.jordanbunke.jbjgl.debug.JBJGLGameDebugger;
 import com.jordanbunke.jbjgl.io.JBJGLListener;
 import com.jordanbunke.jbjgl.utility.RenderConstants;
 import com.jordanbunke.translation.Translation;
+import com.jordanbunke.translation.editor.Editor;
 import com.jordanbunke.translation.gameplay.Camera;
 import com.jordanbunke.translation.gameplay.entities.Animation;
 import com.jordanbunke.translation.gameplay.entities.Platform;
@@ -22,14 +23,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Level {
-    private static final int PLAYER_OUT_OF_BOUNDS_AT = 1000;
-    private static final int SENTRY_TOO_FAR_FROM_PLAYER = 6000;
-    private static final int TICKS_AFTER_COMPLETION = 50;
+    public static final String EDITOR_LEVEL_NAME = "TESTING EDITOR LEVEL";
+    private static final String EDITOR_LEVEL_HINT = "Editor levels must be completed to pass verification";
+    private static final int
+            PLAYER_OUT_OF_BOUNDS_AT = 1000,
+            SENTRY_TOO_FAR_FROM_PLAYER = 6000,
+            TICKS_AFTER_COMPLETION = 50;
 
-    private final Path filepath;
+    private Path filepath;
 
-    private final String name;
-    private final String hint;
+    private final String name, hint;
     private final LevelStats stats;
     private final PlatformSpec[] platformSpecs;
     private final SentrySpec[] sentrySpecs;
@@ -74,6 +77,21 @@ public class Level {
         return new Level(name, hint, LevelStats.createNew(), platformSpecs, sentrySpecs, null);
     }
 
+    public static Level fromEditor() {
+        return new Level(EDITOR_LEVEL_NAME, EDITOR_LEVEL_HINT,
+                LevelStats.createNew(),
+                Editor.definePlatformSpecsForLevel(),
+                Editor.defineSentrySpecsForLevel(), null);
+    }
+
+    public static Level fromEditorValidated(
+            final String name, final String hint, final Path filepath
+    ) {
+        return new Level(name, hint, LevelStats.createNew(),
+                Editor.definePlatformSpecsForLevel(),
+                Editor.defineSentrySpecsForLevel(), filepath);
+    }
+
     public static Level load(
             final String name, final String hint,
             final LevelStats levelStats,
@@ -81,6 +99,10 @@ public class Level {
             final Path filepath
     ) {
         return new Level(name, hint, levelStats, platformSpecs, sentrySpecs, filepath);
+    }
+
+    public void updateFilepathFromCampaign(final Path folder, final String levelFilename) {
+        filepath = folder.resolve(levelFilename);
     }
 
     public void saveLevel(final boolean reset) {
@@ -206,9 +228,11 @@ public class Level {
         stats.finalizeStats();
 
         // save level and campaign
-        Translation.campaign.updateBeaten();
-        LevelIO.writeCampaign(Translation.campaign, false);
-        saveLevel(false);
+        if (!isEditorLevel()) {
+            Translation.campaign.updateBeaten();
+            LevelIO.writeCampaign(Translation.campaign, false);
+            saveLevel(false);
+        }
 
         Translation.manager.setActiveStateIndex(Translation.LEVEL_COMPLETE_INDEX);
         MenuHelper.linkMenu(MenuIDs.LEVEL_COMPLETE);
@@ -258,6 +282,10 @@ public class Level {
     }
 
     // GETTERS
+
+    public boolean isEditorLevel() {
+        return name.equals(EDITOR_LEVEL_NAME);
+    }
 
     public Path getFilepath() {
         return filepath;

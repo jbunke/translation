@@ -21,6 +21,14 @@ public class Fonts {
             "font-vigilant", FontFamily.NOT_AVAILABLE, "font-vigilant-italics",
             2, 2, 0, true
     );
+    private static final FontFamily MY_HANDWRITING = FontFamily.fromPreLoaded(
+            "My Handwriting", Font.loadFromSource(FONT_FOLDER,
+                    "font-my-handwriting", false, 1.0, 0, true),
+            Font.loadFromSource(FONT_FOLDER, "font-my-handwriting-italics",
+                    false, 1.0, 0, true),
+            Font.loadFromSource(FONT_FOLDER, "font-my-handwriting-italics",
+                    false, 1.0, -8, true)
+    );
     private static final Font VIGILANT_ITALICS_SPACED = Font.loadFromSource(
             FONT_FOLDER, "font-vigilant-italics", true, 2
     );
@@ -45,6 +53,18 @@ public class Fonts {
         return GAME_ITALICS_SPACED;
     }
 
+    public static Font MY_HANDWRITING() {
+        return MY_HANDWRITING.getStandard();
+    }
+
+    public static Font MY_ITALICIZED_HANDWRITING() {
+        return MY_HANDWRITING.getItalics();
+    }
+
+    public static Font MY_SPACED_ITALICIZED_HANDWRITING() {
+        return MY_HANDWRITING.getBold();
+    }
+
     public static Font VIGILANT() {
         return VIGILANT.getStandard();
     }
@@ -67,6 +87,12 @@ public class Fonts {
 
     public static Font CLASSIC_ITALICS_SPACED() {
         return CLASSIC_ITALICS_SPACED;
+    }
+
+    public static void setGameFontToMyHandwriting() {
+        GAME_STANDARD = MY_HANDWRITING();
+        GAME_ITALICS = MY_ITALICIZED_HANDWRITING();
+        GAME_ITALICS_SPACED = MY_SPACED_ITALICIZED_HANDWRITING();
     }
 
     public static void setGameFontToVigilant() {

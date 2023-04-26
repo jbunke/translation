@@ -10,7 +10,6 @@ import com.jordanbunke.jbjgl.image.JBJGLImage;
 import com.jordanbunke.jbjgl.io.JBJGLListener;
 import com.jordanbunke.jbjgl.menus.menu_elements.JBJGLMenuElement;
 import com.jordanbunke.translation.Translation;
-import com.jordanbunke.translation.utility.Utility;
 
 import java.awt.*;
 import java.util.List;
@@ -18,11 +17,8 @@ import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 
 public class SetInputMenuElement extends JBJGLMenuElement {
-    private static final int UPDATE_FREQUENCY = 100;
-    private int updateCounter;
-
     private boolean setMode;
-    private boolean isHighlighted;
+    private boolean highlighted;
 
     private final Callable<JBJGLImage> nhGeneratorFunction;
     private final Callable<JBJGLImage> hGeneratorFunction;
@@ -51,10 +47,9 @@ public class SetInputMenuElement extends JBJGLMenuElement {
         this.highlightedSetImage = highlightedSetImage;
 
         setMode = false;
-        isHighlighted = false;
+        highlighted = false;
 
         this.setFunction = setFunction;
-        updateCounter = Utility.boundedRandom(0, UPDATE_FREQUENCY); // randomize to reduce lag from synced updates
 
         generateImages();
     }
@@ -73,36 +68,27 @@ public class SetInputMenuElement extends JBJGLMenuElement {
         );
     }
 
-    private void generateImages() {
+    public void generateImages() {
         try {
             nonHighlightedImage = nhGeneratorFunction.call();
             highlightedImage = hGeneratorFunction.call();
         } catch (Exception e) {
             Translation.debugger.getChannel(JBJGLGameDebugger.LOGIC_CHANNEL).printMessage(
-                    "Callable function threw excecption. Did not generate images for " +
-                            "SetInputMenuElement."
+                    "Callable function threw exception. Did not generate images for SetInputMenuElement."
             );
         }
     }
 
     @Override
     public void update() {
-        if (updateCounter == 0)
-            generateImages();
 
-        updateCounter++;
-        updateCounter %= UPDATE_FREQUENCY;
     }
 
     @Override
     public void render(final Graphics g, final JBJGLGameDebugger debugger) {
         final JBJGLImage renderImage = setMode
-                ? (isHighlighted
-                        ? highlightedSetImage
-                        : nonHighlightedSetImage)
-                : (isHighlighted
-                        ? highlightedImage
-                        : nonHighlightedImage);
+                ? (highlighted ? highlightedSetImage : nonHighlightedSetImage)
+                : (highlighted ? highlightedImage : nonHighlightedImage);
         draw(renderImage, g);
 
         // Debug
@@ -116,18 +102,26 @@ public class SetInputMenuElement extends JBJGLMenuElement {
     }
 
     private void processClick(final JBJGLListener listener) {
-        isHighlighted = mouseIsWithinBounds(listener.getMousePosition());
+        highlighted = mouseIsWithinBounds(listener.getMousePosition());
 
-        if (isHighlighted) {
+        if (highlighted) {
             final List<JBJGLEvent> unprocessed = listener.getUnprocessedEvents();
+
             for (JBJGLEvent e : unprocessed)
                 if (e instanceof JBJGLMouseEvent mouseEvent &&
                         mouseEvent.matchesAction(JBJGLMouseEvent.Action.CLICK)) {
                     mouseEvent.markAsProcessed();
 
                     setMode = !setMode;
-                    isHighlighted = false;
+                    highlighted = false;
                 }
+        } else {
+            final List<JBJGLEvent> all = listener.getAllEvents();
+
+            for (JBJGLEvent e : all)
+                if (e instanceof JBJGLMouseEvent mouseEvent &&
+                        mouseEvent.matchesAction(JBJGLMouseEvent.Action.CLICK))
+                    setMode = false;
         }
     }
 

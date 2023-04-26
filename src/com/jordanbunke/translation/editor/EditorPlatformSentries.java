@@ -1,6 +1,7 @@
 package com.jordanbunke.translation.editor;
 
 import com.jordanbunke.translation.gameplay.entities.Sentry;
+import com.jordanbunke.translation.gameplay.level.SentrySpec;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +13,7 @@ public class EditorPlatformSentries {
         private Sentry.Role secondary;
         private int speed;
         private int direction;
+        private int counter = 0, counterMax = 0;
 
         private EditorSentrySpec() {
             role = Sentry.Role.PUSHER;
@@ -19,10 +21,19 @@ public class EditorPlatformSentries {
 
             speed = DEFAULT_SPEED;
             direction = Sentry.LEFT;
+
+            setCounter();
         }
 
         public static EditorSentrySpec create() {
             return new EditorSentrySpec();
+        }
+
+        public SentrySpec toSentrySpec(final int platformIndex) {
+            final int initialMovement = speed * direction;
+            return role == Sentry.Role.SPAWNER
+                    ? SentrySpec.defineSpawner(secondary, platformIndex, initialMovement)
+                    : SentrySpec.define(role, platformIndex, initialMovement);
         }
 
         public void speedDown() {
@@ -45,15 +56,36 @@ public class EditorPlatformSentries {
         }
 
         public void nextRole(final boolean changeSecondary) {
-            final int TOTAL = Sentry.Role.values().length;
-            final int setToIndex = ((changeSecondary ? secondary : role).ordinal() + 1) % TOTAL;
-
-            final Sentry.Role setTo = Sentry.Role.values()[setToIndex];
+            final Sentry.Role setTo = (changeSecondary ? secondary : role).next();
 
             if (changeSecondary)
                 secondary = setTo;
-            else
+            else {
                 role = setTo;
+
+                if (setTo == Sentry.Role.SPAWNER)
+                    secondary = Sentry.Role.RANDOM;
+                else
+                    secondary = setTo;
+
+                setCounter();
+            }
+        }
+
+        public void updateCounter() {
+            counter++;
+            counter %= counterMax;
+        }
+
+        private void setCounter() {
+            counterMax = switch (role) {
+                case SPAWNER -> Sentry.SPAWN_CYCLE;
+                case NOMAD -> Sentry.NOMADIC_CYCLE;
+                case NECROMANCER -> Sentry.REVIVAL_CYCLE;
+                case ANCHOR, MAGNET, FEATHER -> Sentry.ANIMATION_CYCLE;
+                default -> 1;
+            };
+            counter = 0;
         }
 
         public int getSpeed() {
@@ -67,18 +99,26 @@ public class EditorPlatformSentries {
         public Sentry.Role getRole() {
             return role;
         }
+
+        public Sentry.Role getSecondaryRole() {
+            return secondary;
+        }
+
+        public int getCounter() {
+            return counter;
+        }
     }
 
     private static final int NO_SENTRIES_INDEX = -1;
 
     private final List<EditorSentrySpec> sentrySpecs;
-    private int sentryIndex;
+    private int selectedIndex;
     private int renderSentryIndex;
     private boolean selected;
 
     private EditorPlatformSentries() {
         sentrySpecs = new ArrayList<>();
-        sentryIndex = NO_SENTRIES_INDEX;
+        selectedIndex = NO_SENTRIES_INDEX;
         renderSentryIndex = NO_SENTRIES_INDEX;
         selected = false;
     }
@@ -89,15 +129,16 @@ public class EditorPlatformSentries {
 
     public void createSentry() {
         sentrySpecs.add(EditorSentrySpec.create());
-        sentryIndex = sentrySpecs.size() - 1;
+        selectedIndex = sentrySpecs.size() - 1;
+        renderSentryIndex = selectedIndex;
     }
 
     public void deleteSentry() {
         if (!sentrySpecs.isEmpty()) {
-            sentrySpecs.remove(sentryIndex);
+            sentrySpecs.remove(selectedIndex);
 
-            while (sentryIndex >= sentrySpecs.size())
-                sentryIndex--;
+            while (selectedIndex >= sentrySpecs.size())
+                selectedIndex--;
 
             renderSentryIndex = 0;
         }
@@ -105,7 +146,7 @@ public class EditorPlatformSentries {
 
     public void toggleSentryIndex() {
         if (!sentrySpecs.isEmpty())
-            sentryIndex = (sentryIndex + 1) % sentrySpecs.size();
+            selectedIndex = (selectedIndex + 1) % sentrySpecs.size();
     }
 
     public void toggleRenderSentryIndex() {
@@ -130,7 +171,27 @@ public class EditorPlatformSentries {
         return sentrySpecs.size() > 1;
     }
 
-    public EditorSentrySpec getCurrentSentry() {
-        return sentrySpecs.get(sentryIndex);
+    public EditorSentrySpec get(final int index) {
+        return sentrySpecs.get(index);
+    }
+
+    public EditorSentrySpec getSelectedSentry() {
+        return sentrySpecs.get(selectedIndex);
+    }
+
+    public int getSelectedIndex() {
+        return selectedIndex;
+    }
+
+    public EditorSentrySpec getRenderSentry() {
+        return sentrySpecs.get(renderSentryIndex);
+    }
+
+    public int getSize() {
+        return sentrySpecs.size();
+    }
+
+    public boolean isSelected() {
+        return selected;
     }
 }

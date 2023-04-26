@@ -93,8 +93,14 @@ public class Platform extends Entity {
                 getPosition()[RenderConstants.Y] - rawHalfHeight
         );
 
-        JBJGLImage platform = JBJGLImage.create(width, height);
-        Graphics pg = platform.getGraphics();
+        g.drawImage(draw(width, height, pixel),
+                renderPosition[RenderConstants.X],
+                renderPosition[RenderConstants.Y], null);
+    }
+
+    private JBJGLImage draw(final int width, final int height, final int pixel) {
+        final JBJGLImage platform = JBJGLImage.create(width, height);
+        final Graphics pg = platform.getGraphics();
 
         pg.setColor(TLColors.BLACK());
         pg.fillRect(0, 0, width, height);
@@ -106,10 +112,9 @@ public class Platform extends Entity {
                 width - (2 * pixel), height - (2 * pixel)
         );
 
-        g.drawImage(
-                platform, renderPosition[RenderConstants.X],
-                renderPosition[RenderConstants.Y], null
-        );
+        pg.dispose();
+
+        return platform;
     }
 
     public void renderForEditor(
