@@ -11,6 +11,7 @@ import com.jordanbunke.translation.gameplay.entities.Entity;
 import com.jordanbunke.translation.gameplay.entities.Platform;
 import com.jordanbunke.translation.gameplay.entities.Sentry;
 import com.jordanbunke.translation.gameplay.image.ImageAssets;
+import com.jordanbunke.translation.gameplay.level.Level;
 import com.jordanbunke.translation.gameplay.level.PlatformSpec;
 import com.jordanbunke.translation.gameplay.level.SentrySpec;
 import com.jordanbunke.translation.io.ControlScheme;
@@ -26,8 +27,7 @@ import java.util.Map;
 public class Editor {
 
     public enum Mode {
-        MOVE_PLATFORM, RESIZE_PLATFORM, SENTRY
-        ;
+        MOVE_PLATFORM, RESIZE_PLATFORM, SENTRY;
 
         Mode next() {
             resetPlatformMovementVariables();
@@ -513,6 +513,49 @@ public class Editor {
             map.put(p, EditorPlatformSentries.create());
 
         return map;
+    }
+
+    public static void setFromLevel(final Level level) {
+        mode = Mode.MOVE_PLATFORM;
+
+        resetPlatformMovementVariables();
+        resetPlatformSizingVariables();
+
+        setPlatformsAndSentriesFromLevel(level);
+
+        camera = Camera.createForEditor();
+
+        selectedPlatform = null;
+        highlightedPlatform = null;
+        selectionText = determineSelectionText();
+
+        sentryRenderCounter = 0;
+    }
+
+    private static void setPlatformsAndSentriesFromLevel(final Level level) {
+        // 1: platforms
+        final PlatformSpec[] platformSpecs = level.getPlatformSpecs();
+
+        startingPlatform = platformSpecs[0].generate();
+
+        additionalPlatforms = new ArrayList<>();
+        for (int i = 1; i < platformSpecs.length; i++)
+            additionalPlatforms.add(platformSpecs[i].generate());
+
+        // 2: sentries
+        final SentrySpec[] sentrySpecs = level.getSentrySpecs();
+
+        sentriesMap = generateSentriesMap();
+
+        for (SentrySpec sentrySpec : sentrySpecs) {
+            final int index = sentrySpec.getPlatformIndex();
+            final Platform platform = index == 0
+                    ? startingPlatform
+                    : additionalPlatforms.get(index - 1);
+
+            sentriesMap.get(platform).createSentry(
+                    EditorPlatformSentries.EditorSentrySpec.fromSentrySpec(sentrySpec));
+        }
     }
 
     public static void reset() {

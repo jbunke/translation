@@ -25,8 +25,22 @@ public class EditorPlatformSentries {
             setCounter();
         }
 
+        private EditorSentrySpec(final SentrySpec sentrySpec) {
+            role = sentrySpec.getRole();
+            secondary = sentrySpec.getSecondary();
+
+            speed = Math.abs(sentrySpec.getInitialMovement());
+            direction = (int)Math.signum(sentrySpec.getInitialMovement());
+
+            setCounter();
+        }
+
         public static EditorSentrySpec create() {
             return new EditorSentrySpec();
+        }
+
+        public static EditorSentrySpec fromSentrySpec(final SentrySpec sentrySpec) {
+            return new EditorSentrySpec(sentrySpec);
         }
 
         public SentrySpec toSentrySpec(final int platformIndex) {
@@ -128,7 +142,11 @@ public class EditorPlatformSentries {
     }
 
     public void createSentry() {
-        sentrySpecs.add(EditorSentrySpec.create());
+        createSentry(EditorSentrySpec.create());
+    }
+
+    public void createSentry(final EditorSentrySpec sentrySpec) {
+        sentrySpecs.add(sentrySpec);
         selectedIndex = sentrySpecs.size() - 1;
         renderSentryIndex = selectedIndex;
     }

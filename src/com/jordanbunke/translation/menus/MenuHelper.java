@@ -11,6 +11,7 @@ import com.jordanbunke.jbjgl.text.JBJGLText;
 import com.jordanbunke.jbjgl.text.JBJGLTextBuilder;
 import com.jordanbunke.jbjgl.text.JBJGLTextComponent;
 import com.jordanbunke.translation.Translation;
+import com.jordanbunke.translation.editor.Editor;
 import com.jordanbunke.translation.fonts.Fonts;
 import com.jordanbunke.translation.gameplay.campaign.Campaign;
 import com.jordanbunke.translation.gameplay.entities.Sentry;
@@ -177,24 +178,28 @@ public class MenuHelper {
             final Level level, final int index,
             final Campaign campaign, final Context context
     ) {
-        final String PLAY_HEADING = "PLAY", DELETE_HEADING = context.getDeleteHeading();
+        final String PLAY_HEADING = "PLAY", TEMPLATE_HEADING = "USE AS TEMPLATE",
+                DELETE_HEADING = context.getDeleteHeading();
         final Runnable playBehaviour = () -> {
             Translation.campaign.setLevel(index);
             Translation.campaign.getLevel().getStats().reset();
             Translation.campaign.getLevel().launchLevel();
             Translation.manager.setActiveStateIndex(Translation.GAMEPLAY_INDEX);
+        }, templateBehaviour = () -> {
+            Editor.setFromLevel(level);
+            Translation.manager.setActiveStateIndex(Translation.EDITOR_INDEX);
         }, deleteBehaviour = () -> linkMenu(MenuIDs.ARE_YOU_SURE_DELETE_LEVEL,
                 generateAreYouSureDeleteLevelMenu(campaign, level, context));
 
         final JBJGLMenuElementGrouping contents = JBJGLMenuElementGrouping.generateOf(
                 generateHorizontalListMenuOptions(
                         context.levelsCanBeDeleted
-                                ? new String[] { PLAY_HEADING, DELETE_HEADING }
-                                : new String[] { PLAY_HEADING },
+                                ? new String[] { PLAY_HEADING, TEMPLATE_HEADING, DELETE_HEADING }
+                                : new String[] { PLAY_HEADING, TEMPLATE_HEADING },
                         context.levelsCanBeDeleted
-                                ? new Runnable[] { playBehaviour, deleteBehaviour }
-                                : new Runnable[] { playBehaviour }, heightCoord(0.85),
-                        widthCoord(context.levelsCanBeDeleted ? 0.3 : 0.5)),
+                                ? new Runnable[] { playBehaviour, templateBehaviour, deleteBehaviour }
+                                : new Runnable[] { playBehaviour, templateBehaviour },
+                        heightCoord(0.85), widthCoord(context.levelsCanBeDeleted ? 0.25 : 0.4)),
                 JBJGLTextMenuElement.generate(
                         new int[] {
                                 widthCoord(0.5),
@@ -1239,10 +1244,10 @@ public class MenuHelper {
     }
 
     private static JBJGLTextMenuElement generateTextMenuTitle(final String title) {
-        final int INCREMENT = 23;
-        final double THRESHOLD = 0.7;
+        final int STARTING_Y = -23, INCREMENT = 5;
+        final double THRESHOLD = 0.6, DECREMENT = 0.25;
 
-        int offsetY = -INCREMENT;
+        int offsetY = STARTING_Y;
         double textSize = TechnicalSettings.getPixelSize();
         JBJGLText titleText;
 
@@ -1251,7 +1256,7 @@ public class MenuHelper {
                     JBJGLText.Orientation.CENTER, TLColors.MENU_TEXT(),
                     Fonts.GAME_ITALICS_SPACED()).addText(title).build();
 
-            textSize--;
+            textSize -= DECREMENT;
             offsetY += INCREMENT;
         } while (titleText.draw().getWidth() > widthCoord(THRESHOLD));
 
