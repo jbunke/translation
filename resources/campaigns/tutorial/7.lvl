@@ -1,5 +1,5 @@
-name:{8 - TELEPORTATION}
-hint:{Teleport to cover ground quickly}
+name:{Teleportation}
+hint:{Hold key:<INIT_TELEPORT> to charge a teleport and release to execute}
 stats:{}
 platforms:{
 	(0,0,200);

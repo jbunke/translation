@@ -1,5 +1,5 @@
-name:{11 - SAVE & LOAD}
-hint:{Loading position preserves velocity}
+name:{Save & Load Position}
+hint:{Save position with key:<SAVE_POS> and load position with key:<LOAD_POS>. Loading preserves your vertical velocity.}
 stats:{}
 platforms:{
 	(0,0,200);

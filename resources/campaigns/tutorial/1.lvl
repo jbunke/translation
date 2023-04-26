@@ -1,5 +1,5 @@
-name:{2 - DROP}
-hint:{You can drop off of platforms}
+name:{Drop}
+hint:{You can drop off of platforms and dive in mid-air with key:<DROP>}
 stats:{}
 platforms:{
 	(0,0,200);

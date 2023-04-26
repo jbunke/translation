@@ -1,5 +1,5 @@
-name:{12 - CINEMATOGRAPHER}
-hint:{The camera can be moved manually}
+name:{Cinematographer}
+hint:{The camera's behaviour can be toggled with key:<TOGGLE_FOLLOW_MODE>}
 stats:{}
 platforms:{
 	(0,0,200);

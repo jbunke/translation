@@ -160,10 +160,10 @@ public class LevelIO {
                 FILE_NAMING, isDefaultNaming ? DEFAULT : CUSTOM));
         ParserWriter.newLineSB(sb);
 
-        if (!isDefaultNaming)
+        if (!isDefaultNaming) {
             writeCampaignFiles(campaign, sb);
-
-        ParserWriter.newLineSB(sb);
+            ParserWriter.newLineSB(sb);
+        }
 
         JBJGLFileIO.writeFile(filepath, sb.toString());
     }

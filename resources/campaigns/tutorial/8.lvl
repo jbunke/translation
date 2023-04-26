@@ -1,5 +1,5 @@
-name:{9 - CAMERA}
-hint:{The camera's zoom can be toggled}
+name:{Camera Zoom}
+hint:{The camera's zoom can be toggled with key:<TOGGLE_ZOOM>}
 stats:{}
 platforms:{
 	(0,0,200);

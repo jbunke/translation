@@ -520,7 +520,7 @@ public class Menus {
                 }, 1.0);
 
         return MenuHelper.generateBasicMenu(level.getName(),
-                level.getHint(), contents);
+                level.getParsedHint(), contents);
     }
 
     private static JBJGLMenu generateLevelCompleteMenu(final Level level) {

@@ -4,12 +4,12 @@ import com.jordanbunke.jbjgl.image.JBJGLImage;
 import com.jordanbunke.jbjgl.text.JBJGLText;
 import com.jordanbunke.jbjgl.text.JBJGLTextBuilder;
 import com.jordanbunke.translation.Translation;
+import com.jordanbunke.translation.colors.TLColors;
 import com.jordanbunke.translation.fonts.Fonts;
 import com.jordanbunke.translation.gameplay.Camera;
 import com.jordanbunke.translation.gameplay.entities.Player;
 import com.jordanbunke.translation.settings.GameplaySettings;
 import com.jordanbunke.translation.settings.TechnicalSettings;
-import com.jordanbunke.translation.colors.TLColors;
 
 import java.awt.*;
 
@@ -104,9 +104,63 @@ public class LevelHUD {
     }
 
     private static JBJGLImage generateHintHUD(final Level level) {
-        return JBJGLTextBuilder.initialize(
-                2., JBJGLText.Orientation.CENTER, TLColors.PLAYER(),
-                Fonts.GAME_STANDARD()).addText(level.getHint()).build().draw();
+        final int SPLIT_TO_LINES_LENGTH_THRESHOLD = 40;
+
+        final String hint = level.getParsedHint();
+        final JBJGLTextBuilder tb = JBJGLTextBuilder.initialize(2.,
+                JBJGLText.Orientation.CENTER, TLColors.PLAYER(),
+                Fonts.GAME_STANDARD());
+
+        if (hint.length() < SPLIT_TO_LINES_LENGTH_THRESHOLD)
+            return tb.addText(hint).build().draw();
+
+        final int numLines = (hint.length() / SPLIT_TO_LINES_LENGTH_THRESHOLD) + 1;
+        final int approxLineLength = (int)(hint.length() / (double)numLines);
+
+        final String[] lines = new String[numLines];
+        final int[] processed = new int[numLines];
+        processed[0] = 0;
+
+        // 1: assign lines
+        for (int i = 0; i < numLines; i++) {
+            final int expectedLineEndIndex = approxLineLength * (i + 1);
+
+            for (int j = 0; expectedLineEndIndex - j > processed[i] && expectedLineEndIndex + j < hint.length(); j++) {
+                if (hint.charAt(expectedLineEndIndex - j) == ' ') {
+                    final String substring = hint.substring(processed[i], expectedLineEndIndex - j);
+                    lines[i] = substring;
+
+                    if (i + 1 < numLines)
+                        processed[i + 1] = processed[i] + substring.length();
+
+                    break;
+                } else if (hint.charAt(expectedLineEndIndex + j) == ' ') {
+                    final String substring = hint.substring(processed[i], expectedLineEndIndex + j);
+                    lines[i] = substring;
+
+                    if (i + 1 < numLines)
+                        processed[i + 1] = processed[i] + substring.length();
+
+                    break;
+                } else if (expectedLineEndIndex - (j + 1) == processed[i] ||
+                        expectedLineEndIndex + (j + 1) == hint.length()) {
+                    final String substring = hint.substring(processed[i], expectedLineEndIndex);
+                    lines[i] = substring + "-";
+
+                    if (i + 1 < numLines)
+                        processed[i + 1] = processed[i] + substring.length();
+                }
+            }
+        }
+
+        lines[numLines - 1] = hint.substring(processed[numLines - 1]);
+
+        for (int i = 0; i < lines.length; i++) {
+            tb.addText(lines[i]);
+            if (i + 1 < lines.length) tb.addLineBreak();
+        }
+
+        return tb.build().draw();
     }
 
     public static void initializeFollowModeUpdateCounter(final Level level) {

@@ -47,7 +47,7 @@ public class MenuHelper {
     private static final int
             LIST_MENU_INITIAL_Y = 140,
             MENU_TITLE_Y = 0,
-            MENU_SUBTITLE_Y = LIST_MENU_INITIAL_Y,
+            MENU_SUBTITLE_Y = MENU_TITLE_Y + (3 * 37),
             MARGIN = 20;
 
     public static final String DOES_NOT_EXIST = "!does-not-exist!";
@@ -212,8 +212,9 @@ public class MenuHelper {
                 generateLevelKeyInfo(level),
                 generatePrevNextLevelButtons(index, campaign, context));
 
-        return generateBasicMenu(level.getName(), level.getHint(),
-                contents, MenuIDs.CAMPAIGN_LEVELS);
+        final String title = (context == Context.MY_LEVELS ? "" : (index + 1) + ". ") + level.getName();
+
+        return generateBasicMenu(title, level.getParsedHint(), contents, MenuIDs.CAMPAIGN_LEVELS);
     }
 
     private static JBJGLMenu generateAreYouSureDeleteCampaignMenu(
@@ -1266,17 +1267,25 @@ public class MenuHelper {
     }
 
     private static JBJGLTextMenuElement generateTextMenuSubtitle(final String subtitle) {
-        final int width = TechnicalSettings.getWidth();
-        final int pixel = TechnicalSettings.getPixelSize();
+        final int INCREMENT = 2;
+        final double THRESHOLD = 0.85, DECREMENT = 0.1;
+
+        int offsetY = -INCREMENT;
+        double textSize = TechnicalSettings.getPixelSize() / 2.;
+        JBJGLText subtitleText;
+
+        do {
+            subtitleText = JBJGLTextBuilder.initialize(textSize,
+                    JBJGLText.Orientation.CENTER, TLColors.MENU_TEXT(),
+                    Fonts.GAME_ITALICS_SPACED()).addText(subtitle).build();
+
+            textSize -= DECREMENT;
+            offsetY += INCREMENT;
+        } while (subtitleText.draw().getWidth() > widthCoord(THRESHOLD));
 
         return JBJGLTextMenuElement.generate(
-                new int[] { width / 2, MENU_SUBTITLE_Y },
-                JBJGLMenuElement.Anchor.CENTRAL_TOP,
-                JBJGLTextBuilder.initialize(
-                        pixel / 2., JBJGLText.Orientation.CENTER,
-                        TLColors.MENU_TEXT(), Fonts.GAME_ITALICS_SPACED()
-                ).addText(subtitle).build()
-        );
+                new int[] { widthCoord(0.5), MENU_SUBTITLE_Y + offsetY },
+                JBJGLMenuElement.Anchor.CENTRAL_TOP, subtitleText);
     }
 
     private static JBJGLToggleClickableMenuElement generateTextToggleButton(

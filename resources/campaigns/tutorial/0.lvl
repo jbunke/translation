@@ -1,5 +1,5 @@
-name:{1 - JUMP}
-hint:{Stomp all sentries to complete a level}
+name:{Jump}
+hint:{Jump with key:<JUMP>. Land on top of the sentry to complete the level.}
 stats:{}
 platforms:{
 	(0,0,200);

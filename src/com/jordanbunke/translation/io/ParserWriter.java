@@ -46,7 +46,7 @@ public class ParserWriter {
     public static String encloseInTag(final String tag, final String content) {
         return tag + CONTENT_FOLLOWING + BIG_OPEN + content + BIG_CLOSE;
     }
-    
+
     public static String packAndEncloseInTag(
             final String tag, final String[] elements, final boolean format
     ) {

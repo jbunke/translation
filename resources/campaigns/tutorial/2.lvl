@@ -1,5 +1,5 @@
-name:{3 - MOVEMENT}
-hint:{You can move left and right}
+name:{Movement}
+hint:{You can move left and right with key:<MOVE_LEFT> and key:<MOVE_RIGHT>}
 stats:{}
 platforms:{
 	(0,0,200);

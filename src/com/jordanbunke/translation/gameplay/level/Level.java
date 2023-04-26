@@ -11,6 +11,7 @@ import com.jordanbunke.translation.gameplay.entities.Platform;
 import com.jordanbunke.translation.gameplay.entities.Player;
 import com.jordanbunke.translation.gameplay.entities.Sentry;
 import com.jordanbunke.translation.gameplay.image.ImageAssets;
+import com.jordanbunke.translation.io.ControlScheme;
 import com.jordanbunke.translation.io.LevelIO;
 import com.jordanbunke.translation.menus.MenuHelper;
 import com.jordanbunke.translation.menus.MenuIDs;
@@ -21,6 +22,7 @@ import java.awt.*;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 public class Level {
     public static final String EDITOR_LEVEL_NAME = "TESTING EDITOR LEVEL";
@@ -32,7 +34,7 @@ public class Level {
 
     private Path filepath;
 
-    private final String name, hint;
+    private final String name, hint, parsedHint;
     private final LevelStats stats;
     private final PlatformSpec[] platformSpecs;
     private final SentrySpec[] sentrySpecs;
@@ -60,6 +62,7 @@ public class Level {
 
         this.name = name;
         this.hint = hint;
+        this.parsedHint = parseHint();
         this.stats = stats;
 
         this.platformSpecs = platformSpecs;
@@ -281,6 +284,31 @@ public class Level {
         return true;
     }
 
+    // HINT PARSING
+
+    private String parseHint() {
+        final Function<String, String> KEY_REPLACEMENT_F = x ->
+                ControlScheme.getCorrespondingKey(ControlScheme.Action.valueOf(x)).print();
+
+        final String KEY_TAG = "key", AFTER_TAG = ":", OPEN = "<", CLOSE = ">",
+                TAG_START = KEY_TAG + AFTER_TAG + OPEN;
+
+        String mutableHint = hint;
+
+        while (mutableHint.contains(TAG_START) &&
+                mutableHint.indexOf(CLOSE) > mutableHint.indexOf(TAG_START)) {
+            final String before = mutableHint.substring(0, mutableHint.indexOf(TAG_START)),
+                    replacement = KEY_REPLACEMENT_F.apply(
+                            mutableHint.substring(mutableHint.indexOf(TAG_START) +
+                                    TAG_START.length(), mutableHint.indexOf(CLOSE))),
+                    after = mutableHint.substring(mutableHint.indexOf(CLOSE) + 1);
+
+            mutableHint = before + replacement + after;
+        }
+
+        return mutableHint;
+    }
+
     // GETTERS
 
     public boolean isEditorLevel() {
@@ -313,6 +341,10 @@ public class Level {
 
     public String getHint() {
         return hint;
+    }
+
+    public String getParsedHint() {
+        return parsedHint;
     }
 
     public LevelStats getStats() {
