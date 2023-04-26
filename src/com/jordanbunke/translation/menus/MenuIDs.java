@@ -12,6 +12,8 @@ public class MenuIDs {
                         CAMPAIGN_LEVELS = "campaign-l",
                             LEVEL_OVERVIEW = "level-overview",
                                 ARE_YOU_SURE_DELETE_LEVEL = "ays-dl-lo",
+                            ARE_YOU_SURE_DELETE_CAMPAIGN = "ays-dc-cl",
+                            LEVEL_SELECT = "level-select-cl",
                     MY_CONTENT_MENU = "my-content-p",
                         NEW_CAMPAIGN = "new-campaign-mcp",
                 SETTINGS = "settings",

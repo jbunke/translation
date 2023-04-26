@@ -110,11 +110,17 @@ public class LevelIO {
     public static void writeCampaignsInFolder(
             final Path folder, final Campaign[] campaigns
     ) {
-        final Path filepath = folder.resolve(CAMPAIGNS_IN_FOLDER);
-        final StringBuilder sb = new StringBuilder();
-
         final String[] campaignFolderNames = new String[campaigns.length];
         Arrays.stream(campaigns).map(Campaign::getFolderName).toList().toArray(campaignFolderNames);
+
+        writeCampaignsInFolder(folder, campaignFolderNames);
+    }
+
+    private static void writeCampaignsInFolder(
+            final Path folder, final String[] campaignFolderNames
+    ) {
+        final Path filepath = folder.resolve(CAMPAIGNS_IN_FOLDER);
+        final StringBuilder sb = new StringBuilder();
 
         sb.append(ParserWriter.packAndEncloseInTag(CAMPAIGNS, campaignFolderNames, true));
         ParserWriter.newLineSB(sb);
@@ -156,6 +162,8 @@ public class LevelIO {
 
         if (!isDefaultNaming)
             writeCampaignFiles(campaign, sb);
+
+        ParserWriter.newLineSB(sb);
 
         JBJGLFileIO.writeFile(filepath, sb.toString());
     }
@@ -394,7 +402,7 @@ public class LevelIO {
         return generateFilename(name, false);
     }
 
-    private static String generateLevelFilename(final String name) {
+    public static String generateLevelFilename(final String name) {
         return generateFilename(name, true);
     }
 
@@ -429,5 +437,40 @@ public class LevelIO {
 
     public static void deleteLevelFile(final Level level) {
         JBJGLFileIO.deleteFile(level.getFilepath());
+    }
+
+    public static void deleteCampaign(final Campaign campaign, final Path containingFolder) {
+        final String campaignFolderName = campaign.getFolderName();
+
+        // 1: delete all files contained
+
+        // delete spec
+        final Path specFilepath = campaign.getFolder().resolve(CAMPAIGN_SPEC);
+        JBJGLFileIO.deleteFile(specFilepath);
+
+        // delete level files
+        for (int i = 0; i < campaign.getLevelCount(); i++)
+            JBJGLFileIO.deleteFile(campaign.getLevelAt(i).getFilepath());
+
+        // 2: delete campaign folder itself
+
+        JBJGLFileIO.deleteFile(campaign.getFolder());
+
+        // 3: remove folder name reference from .campaigns file in containing folder
+
+        final Path dotCampaignsFile = containingFolder.resolve(CAMPAIGNS_IN_FOLDER);
+        final String toParse = JBJGLFileIO.readFile(dotCampaignsFile);
+        final String[] containedCampaigns = ParserWriter.extractFromTagAndSplit(CAMPAIGNS, toParse);
+
+        final List<String> updatedContainedCampaigns = new ArrayList<>();
+
+        for (String c : containedCampaigns) {
+            final String containedCampaign = c.trim();
+
+            if (!containedCampaign.equals(campaignFolderName))
+                updatedContainedCampaigns.add(containedCampaign);
+        }
+
+        writeCampaignsInFolder(containingFolder, updatedContainedCampaigns.toArray(new String[0]));
     }
 }

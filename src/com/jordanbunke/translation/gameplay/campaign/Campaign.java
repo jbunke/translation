@@ -52,11 +52,15 @@ public class Campaign {
                 campaignFolder, new ArrayList<>());
     }
 
+    public void updateLevelFilenames() {
+        for (int i = 0; i < getLevelCount(); i++)
+            getLevelAt(i).updateFilepathFromCampaign(campaignFolder, levelFilenames.get(i));
+    }
+
     public void updateFolder(final Path newFolder) {
         campaignFolder = newFolder;
 
-        for (int i = 0; i < getLevelCount(); i++)
-            getLevelAt(i).updateFilepathFromCampaign(campaignFolder, levelFilenames.get(i));
+        updateLevelFilenames();
     }
 
     public void addLevel(
