@@ -1,0 +1,12 @@
+name:{Red Pill, Blue Pill}
+hint:{}
+stats:{}
+platforms:{
+	(0,0,200);
+	(-200,240,200);
+	(200,240,200)
+}
+sentries:{
+	(PUSHER,1,-6);
+	(DROPPER,2,-6)
+}

@@ -1,4 +1,4 @@
-fullscreen:{true}
+fullscreen:{false}
 pixel-locking:{true}
 
 default-follow-mode:{STEADY}
@@ -9,6 +9,7 @@ show-follow-mode-updates:{true}
 show-debug:{false}
 show-pixel-grid:{false}
 
+save-pos-c:{Q}
 move-right-c:{D}
 cam-left-c:{LEFT_ARROW}
 snap-to-grid-c:{C}
@@ -23,4 +24,3 @@ load-pos-c:{E}
 drop-c:{S}
 jump-c:{W}
 pause-c:{ESCAPE}
-save-pos-c:{Q}

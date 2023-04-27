@@ -1,0 +1,12 @@
+name:{Coup d'Etat}
+hint:{}
+stats:{}
+platforms:{
+	(0,0,200);
+	(-283,157,101);
+	(-480,-360,200)
+}
+sentries:{
+	(BOUNCER,1,-6);
+	(ANCHOR,2,-2)
+}

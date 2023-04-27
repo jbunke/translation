@@ -1,0 +1,16 @@
+name:{Valinor}
+hint:{}
+stats:{}
+platforms:{
+	(0,0,200);
+	(480,160,200);
+	(1440,0,200);
+	(2880,0,200);
+	(1840,-160,200)
+}
+sentries:{
+	(SLIDER,1,-4);
+	(SLIDER,2,2);
+	(NECROMANCER,3,-6);
+	(SLIDER,4,6)
+}

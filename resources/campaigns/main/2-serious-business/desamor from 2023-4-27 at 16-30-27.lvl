@@ -1,0 +1,13 @@
+name:{Desamor}
+hint:{}
+stats:{}
+platforms:{
+	(0,0,200);
+	(440,0,120);
+	(-600,0,200);
+	(-280,-200,200)
+}
+sentries:{
+	(MAGNET,1,-6);
+	(REPELLER,2,-4)
+}

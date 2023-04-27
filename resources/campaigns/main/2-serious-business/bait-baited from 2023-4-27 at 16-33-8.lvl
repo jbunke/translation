@@ -1,0 +1,13 @@
+name:{Bait, Baited}
+hint:{}
+stats:{}
+platforms:{
+	(0,0,200);
+	(-200,-200,200);
+	(200,-200,200);
+	(0,200,200)
+}
+sentries:{
+	(INVERTER,1,-6);
+	(COWARD,2,-6)
+}

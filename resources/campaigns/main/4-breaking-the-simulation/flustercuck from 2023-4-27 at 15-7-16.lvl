@@ -1,0 +1,15 @@
+name:{Flustercuck}
+hint:{}
+stats:{}
+platforms:{
+	(0,0,200);
+	(-400,0,200);
+	(400,0,200)
+}
+sentries:{
+	(PUSHER,1,-6);
+	(REPELLER,1,-4);
+	(PULLER,1,-8);
+	(RANDOM,2,-10);
+	(RANDOM,2,8)
+}

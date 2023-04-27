@@ -1,0 +1,10 @@
+name:{What You See Is What You Get}
+hint:{Random sentries assign themselves a type when they spawn}
+stats:{}
+platforms:{
+	(0,0,200);
+	(-400,0,200)
+}
+sentries:{
+	(RANDOM,1,-6)
+}

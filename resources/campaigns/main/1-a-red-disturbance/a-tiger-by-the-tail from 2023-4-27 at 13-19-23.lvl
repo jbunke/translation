@@ -1,0 +1,10 @@
+name:{A Tiger by the Tail}
+hint:{}
+stats:{}
+platforms:{
+	(0,0,200);
+	(0,-200,200)
+}
+sentries:{
+	(SHOVER,1,-6)
+}
