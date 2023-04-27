@@ -1,0 +1,16 @@
+name:{The Spice of Life}
+hint:{This level is non-deterministic, meaning sentry behaviour is not fully predictable.}
+stats:{}
+platforms:{
+	(0,0,100);
+	(-350,180,200);
+	(350,180,200);
+	(-350,-180,200);
+	(350,-180,200)
+}
+sentries:{
+	(RANDOM,1,8);
+	(RANDOM,2,-8);
+	(RANDOM,3,8);
+	(RANDOM,4,-8)
+}

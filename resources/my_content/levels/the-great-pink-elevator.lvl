@@ -1,0 +1,14 @@
+name:{The Great Pink Elevator}
+hint:{Anchors and Feathers have opposite effects on gravity...}
+stats:{}
+platforms:{
+	(0,0,200);
+	(0,-200,200);
+	(-300,-300,200);
+	(0,-500,100)
+}
+sentries:{
+	(FEATHER,1,8);
+	(BOOSTER,2,-2);
+	(ANCHOR,3,8)
+}

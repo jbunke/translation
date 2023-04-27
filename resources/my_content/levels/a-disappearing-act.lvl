@@ -1,0 +1,16 @@
+name:{A Disappearing Act}
+hint:{Walk in faith, not by sight}
+stats:{}
+platforms:{
+	(0,0,200);
+	(300,0,200);
+	(600,0,200);
+	(-600,0,200);
+	(-300,0,200)
+}
+sentries:{
+	(COWARD,1,-8);
+	(COWARD,2,8);
+	(COWARD,3,-6);
+	(COWARD,4,6)
+}

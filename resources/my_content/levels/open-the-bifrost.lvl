@@ -1,0 +1,10 @@
+name:{Open the Bifrost!}
+hint:{Bouncers can suspend you in mid-air}
+stats:{}
+platforms:{
+	(0,0,200);
+	(1200,0,200)
+}
+sentries:{
+	(BOUNCER,1,2)
+}

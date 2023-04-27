@@ -1,0 +1,18 @@
+name:{Lost in Space}
+hint:{}
+stats:{}
+platforms:{
+	(0,0,50);
+	(-1000,500,50);
+	(1500,750,50);
+	(-2000,1500,50);
+	(1000,-750,50);
+	(0,3000,50)
+}
+sentries:{
+	(BOUNCER,1,-8);
+	(BOUNCER,2,-8);
+	(BOUNCER,3,6);
+	(BOUNCER,4,-6);
+	(FEATHER,5,8)
+}

@@ -1,0 +1,20 @@
+name:{Generational Cowardice}
+hint:{}
+stats:{}
+platforms:{
+	(0,0,200);
+	(0,200,200);
+	(0,400,200);
+	(0,600,200);
+	(0,800,200);
+	(0,1000,200);
+	(0,1200,200)
+}
+sentries:{
+	(COWARD,1,4);
+	(COWARD,2,6);
+	(COWARD,3,8);
+	(COWARD,4,10);
+	(COWARD,5,12);
+	(COWARD,6,14)
+}

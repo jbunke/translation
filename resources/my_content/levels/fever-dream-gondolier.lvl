@@ -1,0 +1,14 @@
+name:{Fever Dream Gondolier}
+hint:{}
+stats:{}
+platforms:{
+	(0,0,100);
+	(-350,0,200);
+	(-2000,-200,200);
+	(0,180,200)
+}
+sentries:{
+	(SLIDER,1,-6);
+	(ANCHOR,2,8);
+	(FEATHER,3,-8)
+}

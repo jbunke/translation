@@ -1,0 +1,13 @@
+name:{Swimming Against the Current}
+hint:{}
+stats:{}
+platforms:{
+	(0,0,200);
+	(500,0,800);
+	(1000,0,200);
+	(500,-120,100)
+}
+sentries:{
+	(SHOVER,2,8);
+	(INVERTER,3,8)
+}

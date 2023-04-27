@@ -1,0 +1,10 @@
+name:{Come fly with me!}
+hint:{Use key:<DROP> to avoid floating out of range}
+stats:{}
+platforms:{
+	(0,0,200);
+	(0,-700,200)
+}
+sentries:{
+	(FEATHER,1,-4)
+}

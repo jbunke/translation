@@ -1,0 +1,12 @@
+name:{Stuck Like Glue}
+hint:{Don't fight it...}
+stats:{}
+platforms:{
+	(0,0,100);
+	(-400,0,300);
+	(400,0,300)
+}
+sentries:{
+	(PULLER,1,4);
+	(MAGNET,2,4)
+}

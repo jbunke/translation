@@ -1,0 +1,15 @@
+name:{Splitsville}
+hint:{}
+stats:{}
+platforms:{
+	(0,0,100);
+	(0,-200,100);
+	(0,200,50);
+	(-500,0,50);
+	(500,0,50)
+}
+sentries:{
+	(INVERTER,1,6);
+	(SLIDER,3,-8);
+	(SLIDER,4,8)
+}

@@ -84,7 +84,9 @@ public class Translation {
     }
 
     private static void updateMenusAfterResize() {
-        final Level level = currentLevel == null ? campaign.getLevel() : currentLevel;
+        final Level level = currentLevel == null
+                ? (campaign.getLevelCount() > 0 ? campaign.getLevel() : null)
+                : currentLevel;
 
         if (manager.getActiveStateIndex() == PAUSE_INDEX)
             Menus.generateAfterResize(pauseState.getMenuManager(), false, level);

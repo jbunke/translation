@@ -1,0 +1,18 @@
+name:{Slip and Slide}
+hint:{The level resets automatically if Sliders get too far away}
+stats:{}
+platforms:{
+	(0,0,160);
+	(-400,-200,160);
+	(400,-400,160);
+	(-400,-600,160);
+	(400,-800,160);
+	(0,-1000,160)
+}
+sentries:{
+	(SLIDER,1,4);
+	(SLIDER,2,6);
+	(SLIDER,3,8);
+	(SLIDER,4,10);
+	(CRUMBLER,5,6)
+}

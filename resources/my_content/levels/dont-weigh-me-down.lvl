@@ -1,0 +1,16 @@
+name:{Don't weigh me down}
+hint:{}
+stats:{}
+platforms:{
+	(0,0,200);
+	(200,150,200);
+	(400,300,200);
+	(600,450,200);
+	(600,0,200)
+}
+sentries:{
+	(ANCHOR,1,-2);
+	(ANCHOR,2,-4);
+	(ANCHOR,3,-6);
+	(MAGNET,4,-6)
+}

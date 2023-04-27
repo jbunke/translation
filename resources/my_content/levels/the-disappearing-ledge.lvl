@@ -1,0 +1,10 @@
+name:{The Disappearing Ledge}
+hint:{Release your teleport at the apex of your jump}
+stats:{}
+platforms:{
+	(0,0,200);
+	(500,-200,200)
+}
+sentries:{
+	(CRUMBLER,1,-8)
+}
