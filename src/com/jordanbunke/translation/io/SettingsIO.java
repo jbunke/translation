@@ -8,7 +8,6 @@ import com.jordanbunke.translation.settings.TechnicalSettings;
 import com.jordanbunke.translation.settings.debug.DebugSettings;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -16,8 +15,8 @@ import java.util.Set;
 // TODO: extend for audio settings
 
 public class SettingsIO {
-    public static final Path SETTINGS_FILE = ParserWriter.RESOURCE_ROOT.resolve(
-            Paths.get("settings", ".settings"));
+    public static final Path SETTINGS_FILE =
+            ParserWriter.GAME_DATA_ROOT.resolve(Path.of("settings", ".settings"));
 
     private static final String FULLSCREEN = "fullscreen",
             PIXEL_LOCKING = "pixel-locking",

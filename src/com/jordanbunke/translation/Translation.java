@@ -27,7 +27,9 @@ public class Translation {
     public static final String TITLE = "Translation",
             VERSION = "0.2.0 (dev)",
             MY_GITHUB_LINK = "https://github.com/jbunke",
-            MY_GAMES_LINK = "https://flinkerflitzer.itch.io/";
+            MY_GAMES_LINK = "https://flinkerflitzer.itch.io/",
+            TRANSLATION_ITCH_PAGE = "https://flinkerflitzer.itch.io/translation",
+            TWITTER = "https://twitter.com/flinkerflitzer";
 
     public static final int GAMEPLAY_INDEX = 0, PAUSE_INDEX = 1,
             LEVEL_COMPLETE_INDEX = 2, MENU_INDEX = 3, SPLASH_SCREEN_INDEX = 4,

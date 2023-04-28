@@ -1,10 +1,10 @@
 package com.jordanbunke.translation.io;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 public class ParserWriter {
-    public static final Path RESOURCE_ROOT = Paths.get("resources");
+    public static final Path RESOURCE_ROOT = Path.of("resources");
+    public static final Path GAME_DATA_ROOT = Path.of("game_data");
 
     private static final int NF = -1;
     private static final String

@@ -2,12 +2,12 @@ package com.jordanbunke.translation.fonts;
 
 import com.jordanbunke.jbjgl.fonts.Font;
 import com.jordanbunke.jbjgl.fonts.FontFamily;
+import com.jordanbunke.translation.io.ParserWriter;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 public class Fonts {
-    private static final Path FONT_FOLDER = Paths.get("resources", "font_files");
+    private static final Path FONT_FOLDER = ParserWriter.RESOURCE_ROOT.resolve("font_files");
     private static final FontFamily CLASSIC = FontFamily.loadFromSources(
             "Classic", FONT_FOLDER,
             "font-classic", FontFamily.NOT_AVAILABLE, "font-classic-italics",

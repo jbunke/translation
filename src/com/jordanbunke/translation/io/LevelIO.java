@@ -14,10 +14,11 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 public class LevelIO {
-    private static final Path CAMPAIGNS_FOLDER = ParserWriter.RESOURCE_ROOT.resolve("campaigns"),
-            MY_CONTENT_FOLDER = ParserWriter.RESOURCE_ROOT.resolve("my_content"); // TODO - potentially elsewhere
+    private static final Path CAMPAIGNS_FOLDER = ParserWriter.GAME_DATA_ROOT.resolve("campaigns"),
+            MY_CONTENT_FOLDER = ParserWriter.GAME_DATA_ROOT.resolve("my_content");
 
     public static final Path MAIN_CAMPAIGNS_FOLDER = CAMPAIGNS_FOLDER.resolve("main"),
             TUTORIAL_CAMPAIGN_FOLDER = CAMPAIGNS_FOLDER.resolve("tutorial"),
@@ -53,6 +54,15 @@ public class LevelIO {
             campaigns[i] = readCampaign(folder.resolve(campaignFolders[i].trim()));
 
         return campaigns;
+    }
+
+    public static Optional<Campaign> tryReadImportedCampaign(final Path importedCampaignFolder) {
+        String toParse = JBJGLFileIO.readFile(importedCampaignFolder.resolve(CAMPAIGN_SPEC));
+
+        if (toParse.equals(""))
+            return Optional.empty();
+
+        return Optional.of(parseCampaign(toParse, importedCampaignFolder));
     }
 
     public static Campaign readMyLevels() {

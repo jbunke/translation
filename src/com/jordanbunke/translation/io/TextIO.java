@@ -3,17 +3,16 @@ package com.jordanbunke.translation.io;
 import com.jordanbunke.jbjgl.io.JBJGLFileIO;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 public class TextIO {
     public static final Path TEXT_FOLDER =
-            ParserWriter.RESOURCE_ROOT.resolve(Paths.get("text"));
+            ParserWriter.RESOURCE_ROOT.resolve("text");
     public static final Path PATCH_NOTES_FOLDER =
-            TEXT_FOLDER.resolve(Paths.get("patch notes"));
+            TEXT_FOLDER.resolve("patch notes");
     public static final int DEFAULT_PATCH_NOTES_PAGE_INDEX = 1;
 
     private static final Path UPDATES_FILE =
-            PATCH_NOTES_FOLDER.resolve(Paths.get(".updates"));
+            PATCH_NOTES_FOLDER.resolve(".updates");
     private static final String TEXT_FILE_SUFFIX = ".txt";
 
     private static final String VERSION = "version", DATE = "date",
@@ -51,6 +50,6 @@ public class TextIO {
         final String filename = updateID.replaceAll("\\.", "_") +
                 TEXT_FILE_SUFFIX;
 
-        return PATCH_NOTES_FOLDER.resolve(Paths.get(filename));
+        return PATCH_NOTES_FOLDER.resolve(filename);
     }
 }

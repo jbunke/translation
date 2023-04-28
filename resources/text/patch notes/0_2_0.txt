@@ -1,6 +1,10 @@
 version:{0.2.0}
-date:{planned for 21/09/2022}
+date:{01/05/2023}
 contents:{
-+ (TODO) Add level editor
-+ (TODO) Add campaign creation; campaign importing and exporting
++ Added level editor; level creation
++ Added campaign creation and importing
++ Added sound effects
++ Added 17 new levels
+> Redesigned main campaigns
+> Redesigned menus
 }
