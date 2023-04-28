@@ -5,24 +5,28 @@ import com.jordanbunke.jbjgl.debug.JBJGLGameDebugger;
 import com.jordanbunke.jbjgl.game.JBJGLGame;
 import com.jordanbunke.jbjgl.game.JBJGLGameEngine;
 import com.jordanbunke.jbjgl.game.JBJGLGameManager;
-import com.jordanbunke.jbjgl.window.JBJGLBoilerplate;
+import com.jordanbunke.jbjgl.window.JBJGLOnStartup;
 import com.jordanbunke.jbjgl.window.JBJGLWindow;
 import com.jordanbunke.translation.fonts.Fonts;
 import com.jordanbunke.translation.game_states.EditorGameState;
+import com.jordanbunke.translation.game_states.GameplayGameState;
 import com.jordanbunke.translation.game_states.LevelMenuGameState;
 import com.jordanbunke.translation.gameplay.campaign.Campaign;
 import com.jordanbunke.translation.gameplay.image.ImageAssets;
 import com.jordanbunke.translation.gameplay.level.Level;
 import com.jordanbunke.translation.io.LevelIO;
 import com.jordanbunke.translation.io.SettingsIO;
-import com.jordanbunke.translation.settings.GameplayConstants;
-import com.jordanbunke.translation.game_states.GameplayGameState;
 import com.jordanbunke.translation.menus.Menus;
+import com.jordanbunke.translation.settings.GameplayConstants;
 import com.jordanbunke.translation.settings.TechnicalSettings;
 import com.jordanbunke.translation.settings.debug.DebugRenderer;
 
 public class Translation {
-    private static final int INDEX_SKIP_SPLASH_SCREEN = 0, INDEX_SHOW_BOUNDING_BOXES = 1, TOTAL_FLAGS = 2;
+    private static final int
+            INDEX_SKIP_SPLASH_SCREEN = 0,
+            INDEX_SHOW_BOUNDING_BOXES = 1,
+            INDEX_PRINT_FRAME_RATE = 2,
+            TOTAL_FLAGS = 3;
 
     public static final String TITLE = "Translation",
             VERSION = "0.2.0 (dev)",
@@ -51,7 +55,7 @@ public class Translation {
     public static JBJGLGame game;
 
     public static void main(String[] args) {
-        JBJGLBoilerplate.run();
+        JBJGLOnStartup.run();
 
         Fonts.setGameFontToClassic();
         SettingsIO.read();
@@ -61,13 +65,13 @@ public class Translation {
     private static boolean[] processArgs(final String[] args) {
         final boolean[] flags = new boolean[TOTAL_FLAGS];
 
-        final String skipSplashScreenFlag = "-sss";
-        final String showBoundingBoxesFlag = "-sbb";
+        final String skipSplashScreenFlag = "-sss", showBoundingBoxesFlag = "-sbb", printFrameRate = "-pfr";
 
         for (String arg : args) {
             int index = switch (arg) {
                 case skipSplashScreenFlag -> INDEX_SKIP_SPLASH_SCREEN;
                 case showBoundingBoxesFlag -> INDEX_SHOW_BOUNDING_BOXES;
+                case printFrameRate -> INDEX_PRINT_FRAME_RATE;
                 default -> -1;
             };
 
@@ -142,12 +146,13 @@ public class Translation {
         if (!flags[INDEX_SHOW_BOUNDING_BOXES])
             d.hideBoundingBoxes();
 
-        d.muteChannel(JBJGLGameDebugger.PERFORMANCE_CHANNEL);
+        if (!flags[INDEX_PRINT_FRAME_RATE])
+            d.muteChannel(JBJGLGameDebugger.FRAME_RATE);
 
         // debugger channel output functions
-        d.getChannel(JBJGLGameDebugger.PERFORMANCE_CHANNEL).setOutputFunction(DebugRenderer::debugOutputFunction);
+        d.getChannel(JBJGLGameDebugger.FRAME_RATE).setOutputFunction(DebugRenderer::debugOutputFunction);
         d.getChannel(JBJGLGameDebugger.LOGIC_CHANNEL).setOutputFunction(DebugRenderer::debugOutputFunction);
-        d.getChannel(JBJGLGameDebugger.MEMORY_CHANNEL).setOutputFunction(DebugRenderer::debugOutputFunction);
+        d.getChannel(JBJGLGameDebugger.PERFORMANCE).setOutputFunction(DebugRenderer::debugOutputFunction);
 
         return d;
     }

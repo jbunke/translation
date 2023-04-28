@@ -3,7 +3,6 @@ package com.jordanbunke.translation.io;
 import java.nio.file.Path;
 
 public class ParserWriter {
-    public static final Path RESOURCE_ROOT = Path.of("resources");
     public static final Path GAME_DATA_ROOT = Path.of("game_data");
 
     private static final int NF = -1;

@@ -2,14 +2,13 @@ package com.jordanbunke.translation.menus;
 
 import com.jordanbunke.jbjgl.contexts.JBJGLMenuManager;
 import com.jordanbunke.jbjgl.image.JBJGLImage;
-import com.jordanbunke.jbjgl.io.JBJGLFileIO;
-import com.jordanbunke.jbjgl.io.JBJGLImageIO;
 import com.jordanbunke.jbjgl.menus.JBJGLMenu;
 import com.jordanbunke.jbjgl.menus.menu_elements.JBJGLAnimationMenuElement;
 import com.jordanbunke.jbjgl.menus.menu_elements.JBJGLMenuElement;
 import com.jordanbunke.jbjgl.menus.menu_elements.JBJGLMenuElementGrouping;
 import com.jordanbunke.jbjgl.menus.menu_elements.JBJGLTimedMenuElement;
 import com.jordanbunke.jbjgl.text.JBJGLText;
+import com.jordanbunke.translation.ResourceManager;
 import com.jordanbunke.translation.Translation;
 import com.jordanbunke.translation.editor.Editor;
 import com.jordanbunke.translation.gameplay.Camera;
@@ -427,17 +426,15 @@ public class Menus {
         final int NUM_IMAGES = 6, FILENAME_INDEX_OFFSET = 1;
         final String baseFilename = "ff-large-running-cycle-";
 
-        final Path devImageFolder = ParserWriter.RESOURCE_ROOT.resolve(
-                Path.of("images", "developer-running-cycle"));
-        final Path devTextFilepath = TextIO.TEXT_FOLDER.resolve(
-                Path.of("developer.txt"));
-        final String devText = JBJGLFileIO.readFile(devTextFilepath);
+        final Path devImageFolder = ResourceManager.getImagesFolder().resolve("developer-running-cycle");
+        final Path devTextFilepath = ResourceManager.getTextFolder().resolve("developer.txt");
+        final String devText = ResourceManager.getTextResource(devTextFilepath);
 
         final JBJGLImage[] devImages = new JBJGLImage[NUM_IMAGES];
 
         for (int i = 0; i < NUM_IMAGES; i++) {
             final String filename = baseFilename + (i + FILENAME_INDEX_OFFSET) + ".png";
-            devImages[i] = JBJGLImageIO.readImage(devImageFolder.resolve(filename));
+            devImages[i] = ResourceManager.getImageResource(devImageFolder.resolve(filename));
         }
 
         final JBJGLMenuElementGrouping contents = JBJGLMenuElementGrouping.generateOf(
@@ -641,7 +638,7 @@ public class Menus {
                 i -> i + 1,
                 FF_SPLASH_SCREEN_FRAME_COUNT,
                 FF_SPLASH_SCREEN_TICKS_PER_FRAME, 0, 10,
-                ParserWriter.RESOURCE_ROOT.resolve(Path.of("images", "splash_screen", "splash_screen_3")),
+                ResourceManager.getImagesFolder().resolve(Path.of("splash_screen", "splash_screen_3")),
                 "ss3-frame (");
     }
 
@@ -651,7 +648,7 @@ public class Menus {
                 SPLASH_SCREEN_1_FRAME_COUNT,
                 SPLASH_SCREEN_1_TICKS_PER_FRAME,
                 5, 1,
-                ParserWriter.RESOURCE_ROOT.resolve(Path.of("images", "splash_screen", "splash_screen_1")),
+                ResourceManager.getImagesFolder().resolve(Path.of("splash_screen", "splash_screen_1")),
                 "ss1-frame- (");
     }
 
@@ -661,7 +658,7 @@ public class Menus {
                 SPLASH_SCREEN_2_FRAME_COUNT,
                 SPLASH_SCREEN_2_TICKS_PER_FRAME,
                 15, 1,
-                ParserWriter.RESOURCE_ROOT.resolve(Path.of("images", "splash_screen", "splash_screen_2")),
+                ResourceManager.getImagesFolder().resolve(Path.of("splash_screen", "splash_screen_2")),
                 "ss2-frame- (");
     }
 

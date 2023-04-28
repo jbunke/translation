@@ -1,4 +1,4 @@
-fullscreen:{false}
+fullscreen:{true}
 pixel-locking:{true}
 
 default-follow-mode:{STEADY}
@@ -6,21 +6,21 @@ show-tethers:{true}
 show-combo:{true}
 show-follow-mode-updates:{true}
 
-show-debug:{false}
+show-debug:{true}
 show-pixel-grid:{false}
 
-move-left-c:{A}
-cam-left-c:{LEFT_ARROW}
-follow-c:{X}
-cam-right-c:{RIGHT_ARROW}
-cam-up-c:{UP_ARROW}
-load-pos-c:{E}
 cam-down-c:{DOWN_ARROW}
-drop-c:{S}
-jump-c:{W}
-pause-c:{ESCAPE}
-save-pos-c:{Q}
+tp-c:{SPACE}
 move-right-c:{D}
 snap-to-grid-c:{C}
-tp-c:{SPACE}
+drop-c:{S}
+move-left-c:{A}
+jump-c:{W}
+cam-left-c:{LEFT_ARROW}
 zoom-c:{Z}
+follow-c:{X}
+cam-right-c:{RIGHT_ARROW}
+load-pos-c:{E}
+cam-up-c:{UP_ARROW}
+pause-c:{ESCAPE}
+save-pos-c:{Q}

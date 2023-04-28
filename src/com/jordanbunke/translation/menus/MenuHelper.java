@@ -4,12 +4,12 @@ import com.jordanbunke.jbjgl.contexts.JBJGLMenuManager;
 import com.jordanbunke.jbjgl.events.JBJGLKey;
 import com.jordanbunke.jbjgl.image.JBJGLImage;
 import com.jordanbunke.jbjgl.io.JBJGLFileIO;
-import com.jordanbunke.jbjgl.io.JBJGLImageIO;
 import com.jordanbunke.jbjgl.menus.JBJGLMenu;
 import com.jordanbunke.jbjgl.menus.menu_elements.*;
 import com.jordanbunke.jbjgl.text.JBJGLText;
 import com.jordanbunke.jbjgl.text.JBJGLTextBuilder;
 import com.jordanbunke.jbjgl.text.JBJGLTextComponent;
+import com.jordanbunke.translation.ResourceManager;
 import com.jordanbunke.translation.Translation;
 import com.jordanbunke.translation.colors.TLColors;
 import com.jordanbunke.translation.editor.Editor;
@@ -21,7 +21,6 @@ import com.jordanbunke.translation.gameplay.level.Level;
 import com.jordanbunke.translation.gameplay.level.LevelStats;
 import com.jordanbunke.translation.io.ControlScheme;
 import com.jordanbunke.translation.io.LevelIO;
-import com.jordanbunke.translation.io.ParserWriter;
 import com.jordanbunke.translation.io.PatchNotes;
 import com.jordanbunke.translation.menus.custom_elements.ConditionalMenuElement;
 import com.jordanbunke.translation.menus.custom_elements.SetInputMenuElement;
@@ -267,10 +266,8 @@ public class MenuHelper {
         final double METADATA_HEIGHT_FRACTION = 0.35;
         final int pixel = TechnicalSettings.getPixelSize();
 
-        final Path sentryDescriptionFilepath = ParserWriter.RESOURCE_ROOT.resolve(
-                Path.of("sentries", "descriptions",
-                        role.name().toLowerCase() + ".txt"));
-        final String sentryDescription = JBJGLFileIO.readFile(sentryDescriptionFilepath);
+        final Path sentryDescriptionFilepath = Path.of("sentries", "descriptions", role.name().toLowerCase() + ".txt");
+        final String sentryDescription = ResourceManager.getTextResource(sentryDescriptionFilepath);
 
         final JBJGLMenuElementGrouping contents = JBJGLMenuElementGrouping.generateOf(
                 // sentry
@@ -496,7 +493,7 @@ public class MenuHelper {
             final String filename = baseFileName + fileIndex + ").png";
             final Path path = folder.resolve(filename);
 
-            frames[paddingFrameCount + i] = JBJGLImageIO.readImage(path);
+            frames[paddingFrameCount + i] = ResourceManager.getImageResource(path);
         }
 
         final int frameWidth = frames[paddingFrameCount].getWidth(),
