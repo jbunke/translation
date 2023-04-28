@@ -8,6 +8,7 @@ import com.jordanbunke.jbjgl.menus.menu_elements.JBJGLMenuElement;
 import com.jordanbunke.jbjgl.menus.menu_elements.JBJGLMenuElementGrouping;
 import com.jordanbunke.jbjgl.menus.menu_elements.JBJGLTimedMenuElement;
 import com.jordanbunke.jbjgl.text.JBJGLText;
+import com.jordanbunke.translation.Info;
 import com.jordanbunke.translation.ResourceManager;
 import com.jordanbunke.translation.Translation;
 import com.jordanbunke.translation.editor.Editor;
@@ -413,8 +414,8 @@ public class Menus {
                 MenuHelper.generateListMenuOptions(
                         new String[] { "ITCH.IO COMMUNITY PAGE", "MY TWITTER" },
                         new Runnable[] {
-                                () -> BrowserIO.openLink(URI.create(Translation.TRANSLATION_ITCH_PAGE)),
-                                () -> BrowserIO.openLink(URI.create(Translation.TWITTER))
+                                () -> BrowserIO.openLink(URI.create(Info.THIS_GAME_ITCH_LINK)),
+                                () -> BrowserIO.openLink(URI.create(Info.MY_TWITTER_LINK))
                         }, 1.0));
 
         return MenuHelper.generateBasicMenu("Feedback", "Please be nice!",
@@ -452,8 +453,8 @@ public class Menus {
                 MenuHelper.generateHorizontalListMenuOptions(
                         new String[] { "PUBLISHED GAMES", "GITHUB" },
                         new Runnable[] {
-                                () -> BrowserIO.openLink(URI.create(Translation.MY_GAMES_LINK)),
-                                () -> BrowserIO.openLink(URI.create(Translation.MY_GITHUB_LINK))
+                                () -> BrowserIO.openLink(URI.create(Info.MY_GAMES_LINK)),
+                                () -> BrowserIO.openLink(URI.create(Info.MY_GITHUB_LINK))
                         }, MenuHelper.heightCoord(0.9), MenuHelper.widthCoord(0.3)
                 ));
 

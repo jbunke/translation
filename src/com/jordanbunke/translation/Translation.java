@@ -1,11 +1,11 @@
 package com.jordanbunke.translation;
 
+import com.jordanbunke.jbjgl.JBJGLOnStartup;
 import com.jordanbunke.jbjgl.contexts.JBJGLMenuManager;
 import com.jordanbunke.jbjgl.debug.JBJGLGameDebugger;
 import com.jordanbunke.jbjgl.game.JBJGLGame;
 import com.jordanbunke.jbjgl.game.JBJGLGameEngine;
 import com.jordanbunke.jbjgl.game.JBJGLGameManager;
-import com.jordanbunke.jbjgl.window.JBJGLOnStartup;
 import com.jordanbunke.jbjgl.window.JBJGLWindow;
 import com.jordanbunke.translation.fonts.Fonts;
 import com.jordanbunke.translation.game_states.EditorGameState;
@@ -26,14 +26,8 @@ public class Translation {
             INDEX_SKIP_SPLASH_SCREEN = 0,
             INDEX_SHOW_BOUNDING_BOXES = 1,
             INDEX_PRINT_FRAME_RATE = 2,
-            TOTAL_FLAGS = 3;
-
-    public static final String TITLE = "Translation",
-            VERSION = "0.2.0 (dev)",
-            MY_GITHUB_LINK = "https://github.com/jbunke",
-            MY_GAMES_LINK = "https://flinkerflitzer.itch.io/",
-            TRANSLATION_ITCH_PAGE = "https://flinkerflitzer.itch.io/translation",
-            TWITTER = "https://twitter.com/flinkerflitzer";
+            INDEX_INCREMENT_BUILD_VERSION = 3,
+            TOTAL_FLAGS = 4;
 
     public static final int GAMEPLAY_INDEX = 0, PAUSE_INDEX = 1,
             LEVEL_COMPLETE_INDEX = 2, MENU_INDEX = 3, SPLASH_SCREEN_INDEX = 4,
@@ -65,13 +59,15 @@ public class Translation {
     private static boolean[] processArgs(final String[] args) {
         final boolean[] flags = new boolean[TOTAL_FLAGS];
 
-        final String skipSplashScreenFlag = "-sss", showBoundingBoxesFlag = "-sbb", printFrameRate = "-pfr";
+        final String skipSplashScreenFlag = "-sss", showBoundingBoxesFlag = "-sbb",
+                printFrameRate = "-pfr", incrementBuildVersion = "-ibv";
 
         for (String arg : args) {
             int index = switch (arg) {
                 case skipSplashScreenFlag -> INDEX_SKIP_SPLASH_SCREEN;
                 case showBoundingBoxesFlag -> INDEX_SHOW_BOUNDING_BOXES;
                 case printFrameRate -> INDEX_PRINT_FRAME_RATE;
+                case incrementBuildVersion -> INDEX_INCREMENT_BUILD_VERSION;
                 default -> -1;
             };
 
@@ -102,12 +98,15 @@ public class Translation {
 
     private static JBJGLWindow generateWindow() {
         return JBJGLWindow.create(
-                TITLE, TechnicalSettings.getWidth(), TechnicalSettings.getHeight(),
+                Info.TITLE, TechnicalSettings.getWidth(), TechnicalSettings.getHeight(),
                 ImageAssets.ICON, true, false, TechnicalSettings.isFullscreen()
         );
     }
 
     private static void launch(final boolean[] flags) {
+        if (flags[INDEX_INCREMENT_BUILD_VERSION])
+            incrementBuildVersion();
+
         debugger = prepDebugger(flags);
 
         campaign = LevelIO.readCampaign(LevelIO.TUTORIAL_CAMPAIGN_FOLDER);
@@ -130,7 +129,7 @@ public class Translation {
                 editorGameState
         );
 
-        game = JBJGLGame.create(TITLE, manager,
+        game = JBJGLGame.create(Info.TITLE, manager,
                 TechnicalSettings.getWidth(), TechnicalSettings.getHeight(),
                 ImageAssets.ICON,
                 true, TechnicalSettings.isFullscreen(),
@@ -155,6 +154,11 @@ public class Translation {
         d.getChannel(JBJGLGameDebugger.PERFORMANCE).setOutputFunction(DebugRenderer::debugOutputFunction);
 
         return d;
+    }
+
+    private static void incrementBuildVersion() {
+        Info.VERSION.incrementBuild();
+        Info.writeInfoFile();
     }
 
     public static void setLevel(final Level level) {

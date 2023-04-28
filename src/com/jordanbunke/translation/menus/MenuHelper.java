@@ -9,6 +9,7 @@ import com.jordanbunke.jbjgl.menus.menu_elements.*;
 import com.jordanbunke.jbjgl.text.JBJGLText;
 import com.jordanbunke.jbjgl.text.JBJGLTextBuilder;
 import com.jordanbunke.jbjgl.text.JBJGLTextComponent;
+import com.jordanbunke.translation.Info;
 import com.jordanbunke.translation.ResourceManager;
 import com.jordanbunke.translation.Translation;
 import com.jordanbunke.translation.colors.TLColors;
@@ -533,20 +534,21 @@ public class MenuHelper {
             final int x, final int y, final JBJGLMenuElement.Anchor anchor
     ) {
         final int pixel = TechnicalSettings.getPixelSize();
+        final String title = Info.TITLE;
 
         return JBJGLMenuElementGrouping.generateOf(
                 JBJGLTextMenuElement.generate(new int[] { x, y },
                         anchor, JBJGLText.createOf(
                                 pixel, JBJGLText.Orientation.CENTER,
                                 JBJGLTextComponent.add(
-                                        Translation.TITLE.toUpperCase(),
+                                        title.toUpperCase(),
                                         Fonts.VIGILANT_ITALICS(),
                                         TLColors.BLACK()))),
                 JBJGLTextMenuElement.generate(new int[] { x - (pixel * 2), y },
                         anchor, JBJGLText.createOf(
                                 pixel, JBJGLText.Orientation.CENTER,
                                 JBJGLTextComponent.add(
-                                        Translation.TITLE.toUpperCase(),
+                                        title.toUpperCase(),
                                         Fonts.VIGILANT_ITALICS(),
                                         TLColors.TITLE_RED()))));
     }
@@ -558,7 +560,7 @@ public class MenuHelper {
         return JBJGLTextMenuElement.generate(
                 new int[] { pixel, height }, JBJGLMenuElement.Anchor.LEFT_BOTTOM,
                 generateInitialMenuTextBuilder()
-                        .addText("version " + Translation.VERSION).addLineBreak()
+                        .addText("v" + Info.VERSION.toString()).addLineBreak()
                         .addText("Jordan Bunke, 2022-2023").build());
     }
 
