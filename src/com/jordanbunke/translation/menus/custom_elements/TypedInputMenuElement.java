@@ -14,6 +14,7 @@ import com.jordanbunke.translation.colors.TLColors;
 import com.jordanbunke.translation.fonts.Fonts;
 import com.jordanbunke.translation.menus.MenuHelper;
 import com.jordanbunke.translation.settings.TechnicalSettings;
+import com.jordanbunke.translation.sound.Sounds;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -194,6 +195,8 @@ public class TypedInputMenuElement extends JBJGLMenuElement {
                         mouseEvent.matchesAction(JBJGLMouseEvent.Action.CLICK)) {
                     mouseEvent.markAsProcessed();
 
+                    Sounds.buttonClick();
+
                     setMode = !setMode;
                     highlighted = false;
                 }
@@ -219,6 +222,8 @@ public class TypedInputMenuElement extends JBJGLMenuElement {
                             // No longer setting button input
                             case ENTER, TAB, ESCAPE -> {
                                 keyEvent.markAsProcessed();
+
+                                Sounds.typedBoxSet();
 
                                 setMode = false;
                                 generateImages();
@@ -271,6 +276,8 @@ public class TypedInputMenuElement extends JBJGLMenuElement {
                         final char c = keyEvent.getCharacter();
 
                         if (c == DELETE || c < LOWEST_PRINTABLE || input.length() >= maxLength) continue;
+
+                        Sounds.typedChar();
 
                         input = input.substring(0, cursorIndex) + c + input.substring(cursorIndex);
                         addGlyph(nonHighlightedLetterGlyphs, cursorIndex, c, false);

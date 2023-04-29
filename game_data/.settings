@@ -1,26 +1,32 @@
 fullscreen:{true}
 pixel-locking:{true}
 
+ui-sounds:{true}
+milestone-sounds:{true}
+player-sounds:{true}
+sentry-sounds:{true}
+environment-sounds:{true}
+
 default-follow-mode:{STEADY}
 show-tethers:{true}
 show-combo:{true}
 show-follow-mode-updates:{true}
 
-show-debug:{false}
+show-debug:{true}
 show-pixel-grid:{false}
 
 cam-down-c:{DOWN_ARROW}
 cam-left-c:{LEFT_ARROW}
 cam-right-c:{RIGHT_ARROW}
-tp-c:{SPACE}
-follow-c:{X}
-load-pos-c:{E}
-move-right-c:{D}
-move-left-c:{A}
 cam-up-c:{UP_ARROW}
 drop-c:{S}
+follow-c:{X}
 jump-c:{W}
-zoom-c:{Z}
+load-pos-c:{E}
+move-left-c:{A}
+move-right-c:{D}
 pause-c:{ESCAPE}
-snap-to-grid-c:{C}
 save-pos-c:{Q}
+snap-to-grid-c:{C}
+tp-c:{SPACE}
+zoom-c:{Z}

@@ -53,7 +53,7 @@ public class ResetGame {
 
         for (int i = 0; i < campaign.getLevelCount(); i++) {
             final Level level = campaign.getLevelAt(i);
-            level.saveLevel(true);
+            level.save(true);
             System.out.println("Saved [ " + campaign.getName() + " ] " + level.getName());
         }
     }

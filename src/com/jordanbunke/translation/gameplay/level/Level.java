@@ -16,6 +16,7 @@ import com.jordanbunke.translation.io.LevelIO;
 import com.jordanbunke.translation.menus.MenuHelper;
 import com.jordanbunke.translation.menus.MenuIDs;
 import com.jordanbunke.translation.settings.GameplaySettings;
+import com.jordanbunke.translation.sound.Sounds;
 import com.jordanbunke.translation.utility.Utility;
 
 import java.awt.*;
@@ -108,7 +109,7 @@ public class Level {
         filepath = folder.resolve(levelFilename);
     }
 
-    public void saveLevel(final boolean reset) {
+    public void save(final boolean reset) {
         if (filepath != null)
             LevelIO.writeLevel(this, reset);
     }
@@ -153,9 +154,8 @@ public class Level {
         // player
         player.update();
 
-        // sentries - potential concurrent modification so no enhanced for loop
-        for (int i = 0; i < sentries.size(); i++)
-            sentries.get(i).update();
+        // sentries
+        updateSentries();
 
         // animation aging
         for (int i = 0; i < animations.size(); i++) {
@@ -212,12 +212,22 @@ public class Level {
         player.process(listener);
     }
 
+    private void updateSentries() {
+        Sounds.resetSeenByCSTArray();
+
+        // potential concurrent modification (spawner spawns child) so no enhanced for loop
+        for (int i = 0; i < sentries.size(); i++)
+            sentries.get(i).update();
+
+        Sounds.processSeenByCSTArray();
+    }
+
     private void checkIfCompleted() {
         if (completed) {
             countdown--;
 
             if (countdown <= 0)
-                levelEndScreen();
+                levelComplete();
         } else {
             completed = sentries.stream().map(
                     x -> !x.isAlive()
@@ -227,15 +237,17 @@ public class Level {
         }
     }
 
-    private void levelEndScreen() {
+    private void levelComplete() {
         stats.finalizeStats();
 
         // save level and campaign
         if (!isEditorLevel()) {
             Translation.campaign.updateBeaten();
             LevelIO.writeCampaign(Translation.campaign, false);
-            saveLevel(false);
+            save(false);
         }
+
+        Sounds.completedLevel();
 
         Translation.manager.setActiveStateIndex(Translation.LEVEL_COMPLETE_INDEX);
         MenuHelper.linkMenu(MenuIDs.LEVEL_COMPLETE);

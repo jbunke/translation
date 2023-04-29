@@ -14,11 +14,15 @@ import com.jordanbunke.translation.Translation;
 import com.jordanbunke.translation.editor.Editor;
 import com.jordanbunke.translation.gameplay.Camera;
 import com.jordanbunke.translation.gameplay.level.Level;
-import com.jordanbunke.translation.io.*;
+import com.jordanbunke.translation.io.BrowserIO;
+import com.jordanbunke.translation.io.ControlScheme;
+import com.jordanbunke.translation.io.LevelIO;
+import com.jordanbunke.translation.io.TextIO;
 import com.jordanbunke.translation.menus.custom_elements.TypedInputMenuElement;
 import com.jordanbunke.translation.settings.GameplaySettings;
 import com.jordanbunke.translation.settings.TechnicalSettings;
 import com.jordanbunke.translation.settings.debug.DebugSettings;
+import com.jordanbunke.translation.sound.Sounds;
 import com.jordanbunke.translation.utility.Utility;
 
 import java.net.URI;
@@ -249,11 +253,50 @@ public class Menus {
     }
 
     private static JBJGLMenu generateAudioSettingsMenu() {
-        final JBJGLMenuElementGrouping contents = JBJGLMenuElementGrouping.generateOf();
-        // TODO - audio settings toggle options and sliders
+        final JBJGLMenuElementGrouping contents = MenuHelper.generateListMenuToggleOptions(
+                new String[] {
+                        "UI SOUNDS", "MILESTONE SOUNDS", "PLAYER SOUNDS",
+                        "SENTRY SOUNDS", "ENVIRONMENT SOUNDS"
+                },
+                new String[][] {
+                        new String[] { "ON", "OFF" },
+                        new String[] { "ON", "OFF" },
+                        new String[] { "ON", "OFF" },
+                        new String[] { "ON", "OFF" },
+                        new String[] { "ON", "OFF" }
+                },
+                new Runnable[][] {
+                        new Runnable[] {
+                                () -> TechnicalSettings.setPlayUISounds(false),
+                                () -> TechnicalSettings.setPlayUISounds(true)
+                        },
+                        new Runnable[] {
+                                () -> TechnicalSettings.setPlayMilestoneSounds(false),
+                                () -> TechnicalSettings.setPlayMilestoneSounds(true)
+                        },
+                        new Runnable[] {
+                                () -> TechnicalSettings.setPlayPlayerSounds(false),
+                                () -> TechnicalSettings.setPlayPlayerSounds(true)
+                        },
+                        new Runnable[] {
+                                () -> TechnicalSettings.setPlaySentrySounds(false),
+                                () -> TechnicalSettings.setPlaySentrySounds(true)
+                        },
+                        new Runnable[] {
+                                () -> TechnicalSettings.setPlayEnvironmentSounds(false),
+                                () -> TechnicalSettings.setPlayEnvironmentSounds(true)
+                        }
+                },
+                new Callable[] {
+                        () -> TechnicalSettings.isPlayUISounds() ? 0 : 1,
+                        () -> TechnicalSettings.isPlayMilestoneSounds() ? 0 : 1,
+                        () -> TechnicalSettings.isPlayPlayerSounds() ? 0 : 1,
+                        () -> TechnicalSettings.isPlaySentrySounds() ? 0 : 1,
+                        () -> TechnicalSettings.isPlayEnvironmentSounds() ? 0 : 1
+                }, 1.0);
 
         return MenuHelper.generateBasicMenu(
-                "Audio Settings", "Under construction...",
+                "Audio Settings", MenuHelper.DOES_NOT_EXIST,
                 contents, MenuIDs.SETTINGS);
     }
 
@@ -467,7 +510,11 @@ public class Menus {
         final JBJGLMenuElementGrouping contents = MenuHelper.generateListMenuOptions(
                 new String[] { "BACK TO EDITOR", "TEST LEVEL", "RESET", "QUIT TO MENU" },
                 new Runnable[] {
-                        () -> Translation.manager.setActiveStateIndex(Translation.EDITOR_INDEX),
+                        () -> {
+                            Sounds.gameResumed();
+
+                            Translation.manager.setActiveStateIndex(Translation.EDITOR_INDEX);
+                        },
                         () -> {
                             final Level level = Level.fromEditor();
                             Translation.setLevel(level);
@@ -499,7 +546,10 @@ public class Menus {
         final JBJGLMenuElementGrouping contents = MenuHelper.generateListMenuOptions(
                 new String[] { "RESUME", "SETTINGS", aysButtonHeading },
                 new Runnable[] {
-                        () -> Translation.manager.setActiveStateIndex(Translation.GAMEPLAY_INDEX),
+                        () -> {
+                            Sounds.gameResumed();
+                            Translation.manager.setActiveStateIndex(Translation.GAMEPLAY_INDEX);
+                        },
                         () -> MenuHelper.linkMenu(MenuIDs.SETTINGS,
                                 generateSettingsMenu(false)),
                         aysBehaviour

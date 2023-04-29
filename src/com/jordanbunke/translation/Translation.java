@@ -20,6 +20,7 @@ import com.jordanbunke.translation.menus.Menus;
 import com.jordanbunke.translation.settings.GameplayConstants;
 import com.jordanbunke.translation.settings.TechnicalSettings;
 import com.jordanbunke.translation.settings.debug.DebugRenderer;
+import com.jordanbunke.translation.sound.Sounds;
 
 public class Translation {
     private static final int
@@ -50,9 +51,11 @@ public class Translation {
 
     public static void main(String[] args) {
         JBJGLOnStartup.run();
+        Sounds.init();
 
         Fonts.setGameFontToClassic();
         SettingsIO.read();
+
         launch(processArgs(args));
     }
 

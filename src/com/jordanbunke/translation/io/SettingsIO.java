@@ -8,18 +8,18 @@ import com.jordanbunke.translation.settings.TechnicalSettings;
 import com.jordanbunke.translation.settings.debug.DebugSettings;
 
 import java.nio.file.Path;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
-// TODO: extend for audio settings
+import java.util.*;
 
 public class SettingsIO {
-    public static final Path SETTINGS_FILE =
-            ParserWriter.GAME_DATA_ROOT.resolve(Path.of("settings", ".settings"));
+    public static final Path SETTINGS_FILE = ParserWriter.GAME_DATA_ROOT.resolve(".settings");
 
     private static final String FULLSCREEN = "fullscreen",
             PIXEL_LOCKING = "pixel-locking",
+            PLAY_UI_SOUNDS = "ui-sounds",
+            PLAY_MILESTONE_SOUNDS = "milestone-sounds",
+            PLAY_PLAYER_SOUNDS = "player-sounds",
+            PLAY_SENTRY_SOUNDS = "sentry-sounds",
+            PLAY_ENVIRONMENT_SOUNDS = "environment-sounds",
             DEFAULT_FOLLOW_MODE = "default-follow-mode",
             SHOW_TETHERS = "show-tethers",
             SHOW_COMBO = "show-combo",
@@ -39,29 +39,44 @@ public class SettingsIO {
     public static void read() {
         final String toParse = JBJGLFileIO.readFile(SETTINGS_FILE);
 
-        final boolean fullscreen =
-                Boolean.parseBoolean(ParserWriter.extractFromTag(FULLSCREEN, toParse));
-        final boolean pixelLocking =
-                Boolean.parseBoolean(ParserWriter.extractFromTag(PIXEL_LOCKING, toParse));
-        final Camera.FollowMode defaultFollowMode =
-                Camera.FollowMode.valueOf(ParserWriter.extractFromTag(DEFAULT_FOLLOW_MODE, toParse));
-        final boolean showTethers =
-                Boolean.parseBoolean(ParserWriter.extractFromTag(SHOW_TETHERS, toParse));
-        final boolean showCombo =
-                Boolean.parseBoolean(ParserWriter.extractFromTag(SHOW_COMBO, toParse));
-        final boolean showFollowModeUpdates =
-                Boolean.parseBoolean(ParserWriter.extractFromTag(SHOW_FOLLOW_MODE_UPDATES, toParse));
-        final boolean showDebug =
-                Boolean.parseBoolean(ParserWriter.extractFromTag(SHOW_DEBUG, toParse));
-        final boolean showPixelGrid =
-                Boolean.parseBoolean(ParserWriter.extractFromTag(SHOW_PIXEL_GRID, toParse));
+        final boolean
+                // VIDEO
+                fullscreen = Boolean.parseBoolean(ParserWriter.extractFromTag(FULLSCREEN, toParse)),
+                pixelLocking = Boolean.parseBoolean(ParserWriter.extractFromTag(PIXEL_LOCKING, toParse)),
+
+                // AUDIO
+                playUISounds = Boolean.parseBoolean(ParserWriter.extractFromTag(PLAY_UI_SOUNDS, toParse)),
+                playMilestoneSounds = Boolean.parseBoolean(ParserWriter.extractFromTag(PLAY_MILESTONE_SOUNDS, toParse)),
+                playPlayerSounds = Boolean.parseBoolean(ParserWriter.extractFromTag(PLAY_PLAYER_SOUNDS, toParse)),
+                playSentrySounds = Boolean.parseBoolean(ParserWriter.extractFromTag(PLAY_SENTRY_SOUNDS, toParse)),
+                playEnvironmentSounds = Boolean.parseBoolean(ParserWriter.extractFromTag(PLAY_ENVIRONMENT_SOUNDS, toParse)),
+
+                // GAMEPLAY
+                showTethers = Boolean.parseBoolean(ParserWriter.extractFromTag(SHOW_TETHERS, toParse)),
+                showCombo = Boolean.parseBoolean(ParserWriter.extractFromTag(SHOW_COMBO, toParse)),
+                showFollowModeUpdates = Boolean.parseBoolean(ParserWriter.extractFromTag(SHOW_FOLLOW_MODE_UPDATES, toParse)),
+
+                // TECHNICAL
+                showDebug = Boolean.parseBoolean(ParserWriter.extractFromTag(SHOW_DEBUG, toParse)),
+                showPixelGrid = Boolean.parseBoolean(ParserWriter.extractFromTag(SHOW_PIXEL_GRID, toParse));
+
+        final Camera.FollowMode defaultFollowMode = Camera.FollowMode.valueOf(
+                ParserWriter.extractFromTag(DEFAULT_FOLLOW_MODE, toParse));
 
         TechnicalSettings.setFullscreen(fullscreen);
         TechnicalSettings.setPixelLocked(pixelLocking);
+
+        TechnicalSettings.setPlayUISounds(playUISounds);
+        TechnicalSettings.setPlayMilestoneSounds(playMilestoneSounds);
+        TechnicalSettings.setPlayPlayerSounds(playPlayerSounds);
+        TechnicalSettings.setPlaySentrySounds(playSentrySounds);
+        TechnicalSettings.setPlayEnvironmentSounds(playEnvironmentSounds);
+
         GameplaySettings.setDefaultFollowMode(defaultFollowMode);
         GameplaySettings.setShowingNecromancerTethers(showTethers);
         GameplaySettings.setShowingCombo(showCombo);
         GameplaySettings.setShowingFollowModeUpdates(showFollowModeUpdates);
+
         DebugSettings.setPrintDebug(showDebug);
         DebugSettings.setShowPixelGrid(showPixelGrid);
 
@@ -118,6 +133,28 @@ public class SettingsIO {
 
         ParserWriter.newLineSB(sb);
 
+        sb.append(ParserWriter.encloseInTag(PLAY_UI_SOUNDS,
+                String.valueOf(TechnicalSettings.isPlayUISounds())));
+        ParserWriter.newLineSB(sb);
+
+        sb.append(ParserWriter.encloseInTag(PLAY_MILESTONE_SOUNDS,
+                String.valueOf(TechnicalSettings.isPlayMilestoneSounds())));
+        ParserWriter.newLineSB(sb);
+
+        sb.append(ParserWriter.encloseInTag(PLAY_PLAYER_SOUNDS,
+                String.valueOf(TechnicalSettings.isPlayPlayerSounds())));
+        ParserWriter.newLineSB(sb);
+
+        sb.append(ParserWriter.encloseInTag(PLAY_SENTRY_SOUNDS,
+                String.valueOf(TechnicalSettings.isPlaySentrySounds())));
+        ParserWriter.newLineSB(sb);
+
+        sb.append(ParserWriter.encloseInTag(PLAY_ENVIRONMENT_SOUNDS,
+                String.valueOf(TechnicalSettings.isPlayEnvironmentSounds())));
+        ParserWriter.newLineSB(sb);
+
+        ParserWriter.newLineSB(sb);
+
         sb.append(ParserWriter.encloseInTag(DEFAULT_FOLLOW_MODE,
                 GameplaySettings.getDefaultFollowMode().name()));
         ParserWriter.newLineSB(sb);
@@ -153,9 +190,14 @@ public class SettingsIO {
 
     private static void writeControls(final StringBuilder sb) {
         final Map<ControlScheme.Action, String> actionLabels = getActionLabels();
+
+        final List<ControlScheme.Action> actions = new ArrayList<>(actionLabels.keySet());
+        final Comparator<ControlScheme.Action> comparator = Comparator.comparing(actionLabels::get);
+        actions.sort(comparator);
+
         final Set<String> processedLabels = new HashSet<>();
 
-        for (ControlScheme.Action action : actionLabels.keySet()) {
+        for (ControlScheme.Action action : actions) {
             String label = actionLabels.get(action);
 
             if (processedLabels.contains(label))

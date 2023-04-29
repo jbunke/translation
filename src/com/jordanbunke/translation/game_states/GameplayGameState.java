@@ -11,6 +11,7 @@ import com.jordanbunke.translation.menus.MenuHelper;
 import com.jordanbunke.translation.menus.MenuIDs;
 import com.jordanbunke.translation.settings.debug.DebugRenderer;
 import com.jordanbunke.translation.settings.debug.DebugSettings;
+import com.jordanbunke.translation.sound.Sounds;
 
 import java.awt.*;
 
@@ -58,6 +59,8 @@ public class GameplayGameState extends ProgramContext {
 
         listener.checkForMatchingKeyStroke(
                 ControlScheme.getKeyEvent(ControlScheme.Action.PAUSE), () -> {
+                    Sounds.gamePaused();
+
                     Translation.manager.setActiveStateIndex(Translation.PAUSE_INDEX);
                     MenuHelper.linkMenu(MenuIDs.PAUSE_MENU);
                 }

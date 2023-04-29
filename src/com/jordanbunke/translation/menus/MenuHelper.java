@@ -6,6 +6,7 @@ import com.jordanbunke.jbjgl.image.JBJGLImage;
 import com.jordanbunke.jbjgl.io.JBJGLFileIO;
 import com.jordanbunke.jbjgl.menus.JBJGLMenu;
 import com.jordanbunke.jbjgl.menus.menu_elements.*;
+import com.jordanbunke.jbjgl.sound.JBJGLSound;
 import com.jordanbunke.jbjgl.text.JBJGLText;
 import com.jordanbunke.jbjgl.text.JBJGLTextBuilder;
 import com.jordanbunke.jbjgl.text.JBJGLTextComponent;
@@ -28,6 +29,7 @@ import com.jordanbunke.translation.menus.custom_elements.SetInputMenuElement;
 import com.jordanbunke.translation.menus.custom_elements.TypedInputMenuElement;
 import com.jordanbunke.translation.menus.custom_elements.VerticalScrollableMenuElement;
 import com.jordanbunke.translation.settings.TechnicalSettings;
+import com.jordanbunke.translation.sound.Sounds;
 import com.jordanbunke.translation.utility.Utility;
 
 import java.awt.*;
@@ -267,7 +269,8 @@ public class MenuHelper {
         final double METADATA_HEIGHT_FRACTION = 0.35;
         final int pixel = TechnicalSettings.getPixelSize();
 
-        final Path sentryDescriptionFilepath = Path.of("sentries", "descriptions", role.name().toLowerCase() + ".txt");
+        final Path sentryDescriptionFilepath = ResourceManager.getTextFolder().resolve(
+                Path.of("descriptions", role.name().toLowerCase() + ".txt"));
         final String sentryDescription = ResourceManager.getTextResource(sentryDescriptionFilepath);
 
         final JBJGLMenuElementGrouping contents = JBJGLMenuElementGrouping.generateOf(
@@ -510,7 +513,10 @@ public class MenuHelper {
                 JBJGLTimedMenuElement.generate(
                         (paddingFrameCount * ticksPerFrame) +
                                 (frameCount * reps * ticksPerFrame),
-                        () -> Translation.manager.setActiveStateIndex(Translation.MENU_INDEX)
+                        () -> {
+                            Sounds.bootedUpMainMenu();
+                            Translation.manager.setActiveStateIndex(Translation.MENU_INDEX);
+                        }
                 ),
 
                 // visuals in render order
@@ -1062,12 +1068,37 @@ public class MenuHelper {
                 TechnicalSettings.getPixelSize() / 2.,
                         role.getColor(TLColors.OPAQUE()));
 
+        final JBJGLSound sound = switch (role) {
+            case SPAWNER -> Sounds.SENTRY_SPAWNED_SUCCESSFULLY;
+            case NECROMANCER -> Sounds.SENTRY_REVIVED_SUCCESSFULLY;
+            case NOMAD -> Sounds.NOMAD_TELEPORTED;
+            case PUSHER -> Sounds.PUSHER_SEES_PLAYER;
+            case PULLER -> Sounds.PULLER_SEES_PLAYER;
+            case SHOVER -> Sounds.SHOVER_SEES_PLAYER;
+            case DROPPER -> Sounds.DROPPER_SAW_PLAYER;
+            case CRUMBLER -> Sounds.CRUMBLER_SEES_PLAYER;
+            case SLIDER -> Sounds.SLIDER_SEES_PLAYER;
+            case BUILDER -> Sounds.BUILDER_SEES_PLAYER;
+            case REPELLER -> Sounds.REPELLER_SEES_PLAYER;
+            case COWARD -> Sounds.COWARD_SAW_PLAYER;
+            case BOOSTER -> Sounds.BOOSTER_SAW_PLAYER;
+            case BOUNCER -> Sounds.BOUNCER_SAW_PLAYER;
+            case INVERTER -> Sounds.INVERTER_SAW_PLAYER;
+            case MAGNET -> Sounds.DRAGGED_BY_MAGNET;
+            case ANCHOR -> Sounds.HEAVIER_GRAVITY;
+            case FEATHER -> Sounds.LIGHTER_GRAVITY;
+            // RANDOM
+            default -> Sounds.BUTTON_CLICK;
+        };
+
         return JBJGLClickableMenuElement.generate(
                 new int[] { x, y }, new int[] { width, height },
                 JBJGLMenuElement.Anchor.CENTRAL_TOP,
                 nonHighlightedButton, highlightedButton,
-                () -> linkMenu(MenuIDs.SENTRY_ROLE_GM,
-                        generateSentryRoleWikiPage(role)));
+                () -> {
+                    Sounds.playUISound(sound);
+                    linkMenu(MenuIDs.SENTRY_ROLE_GM, generateSentryRoleWikiPage(role));
+                });
     }
 
     public static ConditionalMenuElement generateConditionalButton(
@@ -1298,11 +1329,13 @@ public class MenuHelper {
                     drawHighlightedTextButton(width, headings[i]);
         }
 
+        final Runnable globalBehaviour = Sounds::buttonClick;
+
         return JBJGLToggleClickableMenuElement.generate(
                 position, new int[] { width, nonHighlightedButtons[0].getHeight() },
                 JBJGLMenuElement.Anchor.CENTRAL_TOP,
                 nonHighlightedButtons, highlightedButtons,
-                behaviours, updateIndexLogic);
+                behaviours, updateIndexLogic, globalBehaviour);
     }
 
     public static JBJGLMenuElement determineTextButton(
@@ -1328,9 +1361,14 @@ public class MenuHelper {
         JBJGLImage highlightedButton =
                 drawHighlightedTextButton(buttonWidth, heading);
 
-        return JBJGLClickableMenuElement.generate(
-                position, new int[] { buttonWidth, nonHighlightedButton.getHeight() },
-                anchor, nonHighlightedButton, highlightedButton, behaviour);
+        final Runnable behaviourWithClickSound = () -> {
+            Sounds.buttonClick();
+            behaviour.run();
+        };
+
+        return JBJGLClickableMenuElement.generate(position,
+                new int[] { buttonWidth, nonHighlightedButton.getHeight() }, anchor,
+                nonHighlightedButton, highlightedButton, behaviourWithClickSound);
     }
 
     private static JBJGLStaticMenuElement generateTextButtonStub(
