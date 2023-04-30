@@ -116,7 +116,10 @@ public class Sentry extends SentientSquare {
                     Sounds.pullerSeesPlayer();
                     player.incrementX(-sentry.getSpeed() * sentry.direction);
                 }
-                case DROPPER -> player.incrementY(GameplayConstants.SQUARE_LENGTH() + 1);
+                case DROPPER -> {
+                    Sounds.dropperSawPlayer();
+                    player.incrementY(GameplayConstants.SQUARE_LENGTH() + 1);
+                }
                 case SLIDER -> {
                     Sounds.sliderSeesPlayer();
                     sentry.platform.incrementX(-(sentry.getSpeed() * sentry.direction));
@@ -141,8 +144,14 @@ public class Sentry extends SentientSquare {
                         );
                     }
                 }
-                case BOOSTER -> player.mulGAcceleration(2);
-                case BOUNCER -> player.mulGAcceleration(-1);
+                case BOOSTER -> {
+                    Sounds.boosterSawPlayer();
+                    player.mulGAcceleration(2);
+                }
+                case BOUNCER -> {
+                    Sounds.bouncerSawPlayer();
+                    player.mulGAcceleration(-1);
+                }
                 case REPELLER -> {
                     Sounds.repellerSeesPlayer();
 
@@ -178,6 +187,11 @@ public class Sentry extends SentientSquare {
                             candidate = Utility.randomElementFromList(platforms);
                         } while (candidate == null || candidate.equals(sentry.platform));
 
+                        if (this == NOMAD)
+                            Sounds.nomadWandered();
+                        else
+                            Sounds.cowardSawPlayer();
+
                         sentry.getLevel().getAnimations().add(Animation.createDisappearance(
                                 sentry.getPosition(), sentry.role
                         ));
@@ -185,6 +199,8 @@ public class Sentry extends SentientSquare {
                     }
                 }
                 case INVERTER -> {
+                    Sounds.inverterSawPlayer();
+
                     final int playerY = player.getPosition()[RenderConstants.Y];
 
                     // player adjustments
@@ -221,9 +237,13 @@ public class Sentry extends SentientSquare {
                     sentry.counter++;
                     sentry.counter %= ANIMATION_CYCLE;
 
-                    player.incrementX((int)(sentry.getSpeed() * Math.signum(
+                    final int magnetPull = (int)(sentry.getSpeed() * Math.signum(
                             sentry.getPosition()[RenderConstants.X] -
-                                    player.getPosition()[RenderConstants.X])));
+                                    player.getPosition()[RenderConstants.X]));
+
+                    Sounds.updateMagnetTracker(magnetPull);
+
+                    player.incrementX(magnetPull);
                 }
                 case SPAWNER -> {
                     sentry.counter++;
@@ -236,37 +256,50 @@ public class Sentry extends SentientSquare {
                         }
                     }
 
-                    if (sentry.counter == 0 && sentry.children.size() < MAX_CHILDREN_SPAWNABLE) {
-                        final int speed = Utility.boundedRandom(1, (MAX_SENTRY_SPEED / 2) + 1) * 2;
-                        Platform platform;
+                    if (sentry.counter == 0)
+                        if (sentry.children.size() < MAX_CHILDREN_SPAWNABLE) {
+                            final int speed = Utility.boundedRandom(1, (MAX_SENTRY_SPEED / 2) + 1) * 2;
+                            Platform platform;
 
-                        do {
-                            platform = Utility.randomElementFromList(platforms);
-                        } while (platform == null || platform.equals(sentry.platform));
+                            do {
+                                platform = Utility.randomElementFromList(platforms);
+                            } while (platform == null || platform.equals(sentry.platform));
 
-                        Sentry child = Sentry.create(
-                                sentry.secondary, sentry.secondary,
-                                sentry.getLevel(), platform,
-                                speed * Utility.coinToss(LEFT, RIGHT));
+                            Sounds.sentrySpawnedSuccessfully();
 
-                        sentry.addChild(child);
-                    }
+                            Sentry child = Sentry.create(
+                                    sentry.secondary, sentry.secondary,
+                                    sentry.getLevel(), platform,
+                                    speed * Utility.coinToss(LEFT, RIGHT));
+
+                            sentry.addChild(child);
+                        } else
+                            Sounds.spawnAttemptFailed();
                 }
                 case NECROMANCER -> {
                     sentry.counter++;
                     sentry.counter %= REVIVAL_CYCLE;
 
                     if (sentry.counter == 0) {
-                        for (Sentry s : sentries) {
+                        boolean reanimated = false;
+
+                        for (final Sentry s : sentries) {
                             if (s.equals(sentry))
                                 continue;
 
                             if (!s.isAlive()) {
+                                reanimated = true;
+
+                                Sounds.sentryReanimatedSuccessfully();
+
                                 s.alive = true;
                                 sentry.addChild(s);
                                 break;
                             }
                         }
+
+                        if (!reanimated)
+                            Sounds.reanimationAttemptFailed();
                     }
                 }
                 case RANDOM -> {
@@ -283,6 +316,11 @@ public class Sentry extends SentientSquare {
                 case ANCHOR, FEATHER -> {
                     sentry.counter++;
                     sentry.counter %= ANIMATION_CYCLE;
+
+                    if (this == ANCHOR)
+                        Sounds.incrementGravityTracker();
+                    else
+                        Sounds.decrementGravityTracker();
 
                     player.incrementGAcceleration(
                             GRAVITY_FACTOR * (this == ANCHOR ? -1 : 1)

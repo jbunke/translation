@@ -1070,8 +1070,8 @@ public class MenuHelper {
 
         final JBJGLSound sound = switch (role) {
             case SPAWNER -> Sounds.SENTRY_SPAWNED_SUCCESSFULLY;
-            case NECROMANCER -> Sounds.SENTRY_REVIVED_SUCCESSFULLY;
-            case NOMAD -> Sounds.NOMAD_TELEPORTED;
+            case NECROMANCER -> Sounds.SENTRY_REANIMATED_SUCCESSFULLY;
+            case NOMAD -> Sounds.NOMAD_WANDERED;
             case PUSHER -> Sounds.PUSHER_SEES_PLAYER;
             case PULLER -> Sounds.PULLER_SEES_PLAYER;
             case SHOVER -> Sounds.SHOVER_SEES_PLAYER;

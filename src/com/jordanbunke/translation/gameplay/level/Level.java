@@ -176,6 +176,9 @@ public class Level {
             stats.increment(LevelStats.FAILURES);
             stats.resetStat(LevelStats.TIME);
             stats.resetStat(LevelStats.SIGHTINGS);
+
+            Sounds.failedLevel();
+
             launchLevel();
         }
 
@@ -213,13 +216,13 @@ public class Level {
     }
 
     private void updateSentries() {
-        Sounds.resetSeenByCSTArray();
+        Sounds.resetContinuousSentryData();
 
         // potential concurrent modification (spawner spawns child) so no enhanced for loop
         for (int i = 0; i < sentries.size(); i++)
             sentries.get(i).update();
 
-        Sounds.processSeenByCSTArray();
+        Sounds.processContinuousSentryData();
     }
 
     private void checkIfCompleted() {
