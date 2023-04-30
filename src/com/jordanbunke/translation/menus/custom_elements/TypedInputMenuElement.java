@@ -277,8 +277,6 @@ public class TypedInputMenuElement extends JBJGLMenuElement {
 
                         if (c == DELETE || c < LOWEST_PRINTABLE || input.length() >= maxLength) continue;
 
-                        Sounds.typedChar();
-
                         input = input.substring(0, cursorIndex) + c + input.substring(cursorIndex);
                         addGlyph(nonHighlightedLetterGlyphs, cursorIndex, c, false);
                         addGlyph(highlightedLetterGlyphs, cursorIndex, c, true);

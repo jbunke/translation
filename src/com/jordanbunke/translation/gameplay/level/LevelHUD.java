@@ -23,14 +23,12 @@ public class LevelHUD {
     private static int hintUpdateCounter;
     private static JBJGLImage hintHUD;
 
-    public static void update(final Level level) {
+    public static void update() {
         if (followModeUpdateCounter > 0)
             followModeUpdateCounter--;
 
         if (hintUpdateCounter > 0)
             hintUpdateCounter--;
-
-        // TODO - other elements
     }
 
     public static void render(final Level level, final Graphics g) {

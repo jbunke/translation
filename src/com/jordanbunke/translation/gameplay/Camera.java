@@ -4,6 +4,7 @@ import com.jordanbunke.jbjgl.utility.RenderConstants;
 import com.jordanbunke.translation.editor.Editor;
 import com.jordanbunke.translation.gameplay.entities.Entity;
 import com.jordanbunke.translation.settings.TechnicalSettings;
+import com.jordanbunke.translation.sound.Sounds;
 
 public class Camera extends HasPosition {
     private static final int CAMERA_MOVEMENT_SPEED = TechnicalSettings.getPixelSize();
@@ -169,11 +170,18 @@ public class Camera extends HasPosition {
     // SETTERS
     public void toggleZoom() {
         zoom = !zoom;
+
+        if (zoom)
+            Sounds.zoomIn();
+        else
+            Sounds.zoomOut();
     }
 
     public void toggleFollowMode() {
         if (!canToggleFollowMode)
             return;
+
+        Sounds.actionSucceeded();
 
         followMode = followMode.next();
 

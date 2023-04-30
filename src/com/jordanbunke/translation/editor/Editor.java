@@ -17,6 +17,7 @@ import com.jordanbunke.translation.gameplay.level.SentrySpec;
 import com.jordanbunke.translation.io.ControlScheme;
 import com.jordanbunke.translation.settings.GameplayConstants;
 import com.jordanbunke.translation.settings.TechnicalSettings;
+import com.jordanbunke.translation.sound.Sounds;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -99,19 +100,31 @@ public class Editor {
         if (platformIsSelected()) {
             Platform p = selectedPlatform;
 
-            if (platformIsMovingLeft)
+            if (platformIsMovingLeft) {
+                Sounds.tick();
                 p.incrementX(-DELTA);
-            if (platformIsMovingRight)
+            }
+            if (platformIsMovingRight) {
+                Sounds.tick();
                 p.incrementX(DELTA);
-            if (platformIsMovingUp)
+            }
+            if (platformIsMovingUp) {
+                Sounds.tick();
                 p.incrementY(-DELTA);
-            if (platformIsMovingDown)
+            }
+            if (platformIsMovingDown) {
+                Sounds.tick();
                 p.incrementY(DELTA);
+            }
 
-            if (platformIsExpanding && p.getWidth() < Sentry.MAX_PLATFORM_WIDTH)
+            if (platformIsExpanding && p.getWidth() < Sentry.MAX_PLATFORM_WIDTH) {
+                Sounds.tick();
                 p.changeWidth(DELTA);
-            if (platformIsContracting && p.getWidth() > GameplayConstants.SQUARE_LENGTH())
+            }
+            if (platformIsContracting && p.getWidth() > GameplayConstants.SQUARE_LENGTH()) {
+                Sounds.tick();
                 p.changeWidth(-DELTA);
+            }
         }
     }
 
@@ -591,6 +604,8 @@ public class Editor {
 
     // BEHAVIOURS
     private static void toggleMode() {
+        Sounds.actionSucceeded();
+
         mode = mode.next();
         EditorHUD.initializeModeHUD();
 
@@ -632,6 +647,8 @@ public class Editor {
     }
 
     private static void addPlatform() {
+        Sounds.actionSucceeded();
+
         final int[] p = getCursorPosition();
 
         Platform newPlatform = Platform.create(
@@ -643,6 +660,8 @@ public class Editor {
     }
 
     private static void deletePlatform() {
+        Sounds.actionFailed();
+
         additionalPlatforms.remove(selectedPlatform);
         sentriesMap.remove(selectedPlatform);
         selectedPlatform = null;

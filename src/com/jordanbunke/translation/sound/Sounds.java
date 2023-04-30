@@ -15,63 +15,70 @@ public class Sounds {
             CST_SLIDER = 3, CST_CRUMBLER = 4, CST_BUILDER = 5, CST_REPELLER = 6;
     private static final boolean[] seenByContinuousSentryTypes = new boolean[Sounds.TOTAL_CONTINUOUS_SENTRY_TYPES];
     private static int netGravity = 0, netMagnetPull = 0;
+    private static long lastBouncerCall = 0L, lastBoosterCall = 0L,
+            lastInverterCall = 0L, lastTickCall = 0L;
+    private static final long BOUNCER_BOOSTER_THRESHOLD_MILLIS = 250L,
+            INVERTER_THRESHOLD_MILLIS = 500L, TICK_THRESHOLD_MILLIS = 125L;
 
-    // UI sounds - TODO: record, import, and update file names
     public static final JBJGLSound
             BUTTON_CLICK = JBJGLSound.fromResource("BUTTON_CLICK", SOUNDS_FOLDER.resolve("button_click.wav"), ResourceManager.class),
-            SET_CONTROL = JBJGLSound.fromResource("SET_CONTROL", SOUNDS_FOLDER.resolve("silence.wav"), ResourceManager.class),
-            CHAR_TYPED = JBJGLSound.fromResource("CHAR_TYPED", SOUNDS_FOLDER.resolve("silence.wav"), ResourceManager.class),
-            SET_TYPED_BOX = JBJGLSound.fromResource("SET_TYPED_BOX", SOUNDS_FOLDER.resolve("silence.wav"), ResourceManager.class),
-            PAUSED_GAME = JBJGLSound.fromResource("PAUSED_GAME", SOUNDS_FOLDER.resolve("silence.wav"), ResourceManager.class),
-            RESUMED_GAME = JBJGLSound.fromResource("RESUMED_GAME", SOUNDS_FOLDER.resolve("silence.wav"), ResourceManager.class),
+            SET_CONTROL = JBJGLSound.fromResource("SET_CONTROL", SOUNDS_FOLDER.resolve("ui_set.wav"), ResourceManager.class),
+            SET_TYPED_BOX = JBJGLSound.fromResource("SET_TYPED_BOX", SOUNDS_FOLDER.resolve("ui_set.wav"), ResourceManager.class),
+            ZOOM_IN = JBJGLSound.fromResource("ZOOM_IN", SOUNDS_FOLDER.resolve("zoom_in.wav"), ResourceManager.class),
+            ZOOM_OUT = JBJGLSound.fromResource("ZOOM_OUT", SOUNDS_FOLDER.resolve("zoom_out.wav"), ResourceManager.class),
+            TOGGLE = JBJGLSound.fromResource("TOGGLE", SOUNDS_FOLDER.resolve("ui_set.wav"), ResourceManager.class),
+            TICK = JBJGLSound.fromResource("TICK", SOUNDS_FOLDER.resolve("tick.wav"), ResourceManager.class),
+            UI_FAILED = JBJGLSound.fromResource("UI_FAILED", SOUNDS_FOLDER.resolve("ui_failed.wav"), ResourceManager.class),
+            PAUSED_GAME = JBJGLSound.fromResource("PAUSED_GAME", SOUNDS_FOLDER.resolve("paused.wav"), ResourceManager.class),
+            RESUMED_GAME = JBJGLSound.fromResource("RESUMED_GAME", SOUNDS_FOLDER.resolve("resumed.wav"), ResourceManager.class),
 
     // MILESTONE
-            LEVEL_COMPLETE = JBJGLSound.fromResource("LEVEL_COMPLETE", SOUNDS_FOLDER.resolve("example.wav"), ResourceManager.class),
-            LEVEL_FAILED = JBJGLSound.fromResource("LEVEL_FAILED", SOUNDS_FOLDER.resolve("example.wav"), ResourceManager.class),
-            FIRST_TIME_MAIN_MENU = JBJGLSound.fromResource("FIRST_TIME_MAIN_MENU", SOUNDS_FOLDER.resolve("example.wav"), ResourceManager.class),
+            LEVEL_COMPLETE = JBJGLSound.fromResource("LEVEL_COMPLETE", SOUNDS_FOLDER.resolve("level_complete.wav"), ResourceManager.class),
+            LEVEL_FAILED = JBJGLSound.fromResource("LEVEL_FAILED", SOUNDS_FOLDER.resolve("level_failed.wav"), ResourceManager.class),
+            FIRST_TIME_MAIN_MENU = JBJGLSound.fromResource("FIRST_TIME_MAIN_MENU", SOUNDS_FOLDER.resolve("game_loaded.wav"), ResourceManager.class),
 
     // DISCRETE SENTRY
-            COWARD_SAW_PLAYER = JBJGLSound.fromResource("COWARD_SAW_PLAYER", SOUNDS_FOLDER.resolve("temp_discrete_sentry.wav"), ResourceManager.class),
-            DROPPER_SAW_PLAYER = JBJGLSound.fromResource("DROPPER_SAW_PLAYER", SOUNDS_FOLDER.resolve("temp_discrete_sentry.wav"), ResourceManager.class),
-            BOUNCER_SAW_PLAYER = JBJGLSound.fromResource("BOUNCER_SAW_PLAYER", SOUNDS_FOLDER.resolve("temp_discrete_sentry.wav"), ResourceManager.class),
-            BOOSTER_SAW_PLAYER = JBJGLSound.fromResource("BOOSTER_SAW_PLAYER", SOUNDS_FOLDER.resolve("temp_discrete_sentry.wav"), ResourceManager.class),
-            INVERTER_SAW_PLAYER = JBJGLSound.fromResource("INVERTER_SAW_PLAYER", SOUNDS_FOLDER.resolve("temp_discrete_sentry.wav"), ResourceManager.class),
+            COWARD_SAW_PLAYER = JBJGLSound.fromResource("COWARD_SAW_PLAYER", SOUNDS_FOLDER.resolve("coward.wav"), ResourceManager.class),
+            DROPPER_SAW_PLAYER = JBJGLSound.fromResource("DROPPER_SAW_PLAYER", SOUNDS_FOLDER.resolve("dropper.wav"), ResourceManager.class),
+            BOUNCER_SAW_PLAYER = JBJGLSound.fromResource("BOUNCER_SAW_PLAYER", SOUNDS_FOLDER.resolve("bouncer.wav"), ResourceManager.class),
+            BOOSTER_SAW_PLAYER = JBJGLSound.fromResource("BOOSTER_SAW_PLAYER", SOUNDS_FOLDER.resolve("booster.wav"), ResourceManager.class),
+            INVERTER_SAW_PLAYER = JBJGLSound.fromResource("INVERTER_SAW_PLAYER", SOUNDS_FOLDER.resolve("inverter.wav"), ResourceManager.class),
 
     // CONTINUOUS SENTRY
-            PUSHER_SEES_PLAYER = JBJGLSound.fromResource("PUSHER_SEES_PLAYER", SOUNDS_FOLDER.resolve("temp_cont_sentry.wav"), ResourceManager.class),
-            PULLER_SEES_PLAYER = JBJGLSound.fromResource("PULLER_SEES_PLAYER", SOUNDS_FOLDER.resolve("temp_cont_sentry.wav"), ResourceManager.class),
-            SHOVER_SEES_PLAYER = JBJGLSound.fromResource("SHOVER_SEES_PLAYER", SOUNDS_FOLDER.resolve("temp_cont_sentry.wav"), ResourceManager.class),
-            SLIDER_SEES_PLAYER = JBJGLSound.fromResource("SLIDER_SEES_PLAYER", SOUNDS_FOLDER.resolve("temp_cont_sentry.wav"), ResourceManager.class),
-            CRUMBLER_SEES_PLAYER = JBJGLSound.fromResource("CRUMBLER_SEES_PLAYER", SOUNDS_FOLDER.resolve("temp_cont_sentry.wav"), ResourceManager.class),
-            BUILDER_SEES_PLAYER = JBJGLSound.fromResource("BUILDER_SEES_PLAYER", SOUNDS_FOLDER.resolve("temp_cont_sentry.wav"), ResourceManager.class),
-            REPELLER_SEES_PLAYER = JBJGLSound.fromResource("REPELLER_SEES_PLAYER", SOUNDS_FOLDER.resolve("temp_cont_sentry.wav"), ResourceManager.class),
+            PUSHER_SEES_PLAYER = JBJGLSound.fromResource("PUSHER_SEES_PLAYER", SOUNDS_FOLDER.resolve("pusher.wav"), ResourceManager.class),
+            PULLER_SEES_PLAYER = JBJGLSound.fromResource("PULLER_SEES_PLAYER", SOUNDS_FOLDER.resolve("puller.wav"), ResourceManager.class),
+            SHOVER_SEES_PLAYER = JBJGLSound.fromResource("SHOVER_SEES_PLAYER", SOUNDS_FOLDER.resolve("shover.wav"), ResourceManager.class),
+            SLIDER_SEES_PLAYER = JBJGLSound.fromResource("SLIDER_SEES_PLAYER", SOUNDS_FOLDER.resolve("slider.wav"), ResourceManager.class),
+            CRUMBLER_SEES_PLAYER = JBJGLSound.fromResource("CRUMBLER_SEES_PLAYER", SOUNDS_FOLDER.resolve("crumbler.wav"), ResourceManager.class),
+            BUILDER_SEES_PLAYER = JBJGLSound.fromResource("BUILDER_SEES_PLAYER", SOUNDS_FOLDER.resolve("builder.wav"), ResourceManager.class),
+            REPELLER_SEES_PLAYER = JBJGLSound.fromResource("REPELLER_SEES_PLAYER", SOUNDS_FOLDER.resolve("repeller.wav"), ResourceManager.class),
 
     // LOADED SENTRY
-            NOMAD_WANDERED = JBJGLSound.fromResource("NOMAD_WANDERED", SOUNDS_FOLDER.resolve("temp_discrete_sentry.wav"), ResourceManager.class),
-            SENTRY_REANIMATED_SUCCESSFULLY = JBJGLSound.fromResource("SENTRY_REANIMATED_SUCCESSFULLY", SOUNDS_FOLDER.resolve("temp_discrete_sentry.wav"), ResourceManager.class),
-            NECROMANCER_FAIL = JBJGLSound.fromResource("NECROMANCER_FAIL", SOUNDS_FOLDER.resolve("temp_discrete_sentry.wav"), ResourceManager.class),
-            SENTRY_SPAWNED_SUCCESSFULLY = JBJGLSound.fromResource("SENTRY_SPAWNED_SUCCESSFULLY", SOUNDS_FOLDER.resolve("temp_discrete_sentry.wav"), ResourceManager.class),
-            SPAWNER_FAIL = JBJGLSound.fromResource("SPAWNER_FAIL", SOUNDS_FOLDER.resolve("temp_discrete_sentry.wav"), ResourceManager.class),
+            NOMAD_WANDERED = JBJGLSound.fromResource("NOMAD_WANDERED", SOUNDS_FOLDER.resolve("nomad.wav"), ResourceManager.class),
+            SENTRY_REANIMATED_SUCCESSFULLY = JBJGLSound.fromResource("SENTRY_REANIMATED_SUCCESSFULLY", SOUNDS_FOLDER.resolve("reanimated.wav"), ResourceManager.class),
+            NECROMANCER_FAIL = JBJGLSound.fromResource("NECROMANCER_FAIL", SOUNDS_FOLDER.resolve("sentry_load_failed.wav"), ResourceManager.class),
+            SENTRY_SPAWNED_SUCCESSFULLY = JBJGLSound.fromResource("SENTRY_SPAWNED_SUCCESSFULLY", SOUNDS_FOLDER.resolve("spawned.wav"), ResourceManager.class),
+            SPAWNER_FAIL = JBJGLSound.fromResource("SPAWNER_FAIL", SOUNDS_FOLDER.resolve("sentry_load_failed.wav"), ResourceManager.class),
 
     // SENTRY EVENTS
-            SENTRY_CRUSHED = JBJGLSound.fromResource("SENTRY_CRUSHED", SOUNDS_FOLDER.resolve("temp_discrete_sentry.wav"), ResourceManager.class),
-            SENTRY_UNTETHERED = JBJGLSound.fromResource("SENTRY_UNTETHERED", SOUNDS_FOLDER.resolve("temp_discrete_sentry.wav"), ResourceManager.class),
+            SENTRY_CRUSHED = JBJGLSound.fromResource("SENTRY_CRUSHED", SOUNDS_FOLDER.resolve("crushed.wav"), ResourceManager.class),
+            SENTRY_UNTETHERED = JBJGLSound.fromResource("SENTRY_UNTETHERED", SOUNDS_FOLDER.resolve("untethered.wav"), ResourceManager.class),
 
     // ENVIRONMENTAL
-            DRAGGED_BY_MAGNET = JBJGLSound.fromResource("DRAGGED_BY_MAGNET", SOUNDS_FOLDER.resolve("temp_cont_sentry.wav"), ResourceManager.class),
-            HEAVIER_GRAVITY = JBJGLSound.fromResource("HEAVIER_GRAVITY", SOUNDS_FOLDER.resolve("temp_cont_sentry.wav"), ResourceManager.class),
-            LIGHTER_GRAVITY = JBJGLSound.fromResource("LIGHTER_GRAVITY", SOUNDS_FOLDER.resolve("temp_cont_sentry.wav"), ResourceManager.class),
+            DRAGGED_BY_MAGNET = JBJGLSound.fromResource("DRAGGED_BY_MAGNET", SOUNDS_FOLDER.resolve("dragged_by_magnet.wav"), ResourceManager.class),
+            HEAVIER_GRAVITY = JBJGLSound.fromResource("HEAVIER_GRAVITY", SOUNDS_FOLDER.resolve("heavier_gravity.wav"), ResourceManager.class),
+            LIGHTER_GRAVITY = JBJGLSound.fromResource("LIGHTER_GRAVITY", SOUNDS_FOLDER.resolve("lighter_gravity.wav"), ResourceManager.class),
 
     // DISCRETE PLAYER
-            PLAYER_JUMP = JBJGLSound.fromResource("PLAYER_JUMP", SOUNDS_FOLDER.resolve("silence.wav"), ResourceManager.class),
-            PLAYER_LAND = JBJGLSound.fromResource("PLAYER_LAND", SOUNDS_FOLDER.resolve("silence.wav"), ResourceManager.class),
-            PLAYER_DROP = JBJGLSound.fromResource("PLAYER_DROP", SOUNDS_FOLDER.resolve("silence.wav"), ResourceManager.class),
-            PLAYER_DIVE = JBJGLSound.fromResource("PLAYER_DIVE", SOUNDS_FOLDER.resolve("silence.wav"), ResourceManager.class),
-            PLAYER_INIT_TELEPORT = JBJGLSound.fromResource("PLAYER_INIT_TELEPORT", SOUNDS_FOLDER.resolve("silence.wav"), ResourceManager.class),
-            PLAYER_TELEPORTED = JBJGLSound.fromResource("PLAYER_TELEPORTED", SOUNDS_FOLDER.resolve("silence.wav"), ResourceManager.class),
-            PLAYER_SAVED_POSITION = JBJGLSound.fromResource("PLAYER_SAVED_POSITION", SOUNDS_FOLDER.resolve("silence.wav"), ResourceManager.class),
-            PLAYER_LOADED_POSITION = JBJGLSound.fromResource("PLAYER_LOADED_POSITION", SOUNDS_FOLDER.resolve("silence.wav"), ResourceManager.class),
-            PLAYER_LOAD_POSITION_FAILED = JBJGLSound.fromResource("PLAYER_LOAD_POSITION_FAILED", SOUNDS_FOLDER.resolve("silence.wav"), ResourceManager.class);
+            PLAYER_JUMP = JBJGLSound.fromResource("PLAYER_JUMP", SOUNDS_FOLDER.resolve("jump.wav"), ResourceManager.class),
+            PLAYER_LAND = JBJGLSound.fromResource("PLAYER_LAND", SOUNDS_FOLDER.resolve("land.wav"), ResourceManager.class),
+            PLAYER_DROP = JBJGLSound.fromResource("PLAYER_DROP", SOUNDS_FOLDER.resolve("drop.wav"), ResourceManager.class),
+            PLAYER_DIVE = JBJGLSound.fromResource("PLAYER_DIVE", SOUNDS_FOLDER.resolve("dive.wav"), ResourceManager.class),
+            PLAYER_INIT_TELEPORT = JBJGLSound.fromResource("PLAYER_INIT_TELEPORT", SOUNDS_FOLDER.resolve("init_teleport.wav"), ResourceManager.class),
+            PLAYER_TELEPORTED = JBJGLSound.fromResource("PLAYER_TELEPORTED", SOUNDS_FOLDER.resolve("teleported.wav"), ResourceManager.class),
+            PLAYER_SAVED_POSITION = JBJGLSound.fromResource("PLAYER_SAVED_POSITION", SOUNDS_FOLDER.resolve("saved_position.wav"), ResourceManager.class),
+            PLAYER_LOADED_POSITION = JBJGLSound.fromResource("PLAYER_LOADED_POSITION", SOUNDS_FOLDER.resolve("loaded_position.wav"), ResourceManager.class),
+            PLAYER_LOAD_POSITION_FAILED = JBJGLSound.fromResource("PLAYER_LOAD_POSITION_FAILED", SOUNDS_FOLDER.resolve("load_position_failed.wav"), ResourceManager.class);
 
     public static void init() {
         // reads sounds in (static initializers) triggered on static class entry
@@ -89,12 +96,32 @@ public class Sounds {
         playUISound(SET_CONTROL);
     }
 
-    public static void typedChar() {
-        playUISound(CHAR_TYPED);
-    }
-
     public static void typedBoxSet() {
         playUISound(SET_TYPED_BOX);
+    }
+
+    public static void zoomIn() {
+        playUISound(ZOOM_IN);
+    }
+
+    public static void zoomOut() {
+        playUISound(ZOOM_OUT);
+    }
+
+    public static void actionSucceeded() {
+        playUISound(TOGGLE);
+    }
+
+    public static void tick() {
+        final long now = System.currentTimeMillis();
+        if (now - lastTickCall >= TICK_THRESHOLD_MILLIS) {
+            lastTickCall = now;
+            playDiscreteSentrySound(TICK);
+        }
+    }
+
+    public static void actionFailed() {
+        playUISound(UI_FAILED);
     }
 
     public static void gamePaused() {
@@ -124,9 +151,6 @@ public class Sounds {
     public static void bootedUpMainMenu() {
         playMilestoneSound(FIRST_TIME_MAIN_MENU);
     }
-
-    // TODO - camera sounds (as part of UI setting): zoom & toggle mode
-    // TODO - editor UI sounds
 
     // player sounds
 
@@ -252,16 +276,27 @@ public class Sounds {
     }
 
     public static void boosterSawPlayer() {
-        playDiscreteSentrySound(BOOSTER_SAW_PLAYER);
+        final long now = System.currentTimeMillis();
+        if (now - lastBoosterCall >= BOUNCER_BOOSTER_THRESHOLD_MILLIS) {
+            lastBoosterCall = now;
+            playDiscreteSentrySound(BOOSTER_SAW_PLAYER);
+        }
     }
 
     public static void bouncerSawPlayer() {
-        // TODO - ~0.25 second cooldown
-        playDiscreteSentrySound(BOUNCER_SAW_PLAYER);
+        final long now = System.currentTimeMillis();
+        if (now - lastBouncerCall >= BOUNCER_BOOSTER_THRESHOLD_MILLIS) {
+            lastBouncerCall = now;
+            playDiscreteSentrySound(BOUNCER_SAW_PLAYER);
+        }
     }
 
     public static void inverterSawPlayer() {
-        playDiscreteSentrySound(INVERTER_SAW_PLAYER);
+        final long now = System.currentTimeMillis();
+        if (now - lastInverterCall >= INVERTER_THRESHOLD_MILLIS) {
+            lastInverterCall = now;
+            playDiscreteSentrySound(INVERTER_SAW_PLAYER);
+        }
     }
 
     // loaded sentry sounds

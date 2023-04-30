@@ -168,7 +168,7 @@ public class Level {
         }
 
         // HUD elements
-        LevelHUD.update(this);
+        LevelHUD.update();
 
         camera.update();
 

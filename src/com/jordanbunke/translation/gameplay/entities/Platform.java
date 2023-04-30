@@ -8,6 +8,7 @@ import com.jordanbunke.translation.gameplay.Camera;
 import com.jordanbunke.translation.settings.GameplayConstants;
 import com.jordanbunke.translation.settings.TechnicalSettings;
 import com.jordanbunke.translation.colors.TLColors;
+import com.jordanbunke.translation.sound.Sounds;
 
 import java.awt.*;
 

@@ -270,7 +270,7 @@ public class MenuHelper {
         final int pixel = TechnicalSettings.getPixelSize();
 
         final Path sentryDescriptionFilepath = ResourceManager.getTextFolder().resolve(
-                Path.of("descriptions", role.name().toLowerCase() + ".txt"));
+                Path.of("sentry_descriptions", role.name().toLowerCase() + ".txt"));
         final String sentryDescription = ResourceManager.getTextResource(sentryDescriptionFilepath);
 
         final JBJGLMenuElementGrouping contents = JBJGLMenuElementGrouping.generateOf(

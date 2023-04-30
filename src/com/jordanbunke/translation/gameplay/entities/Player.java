@@ -297,7 +297,7 @@ public class Player extends SentientSquare {
         setY(platform.getPosition()[RenderConstants.Y] - GameplayConstants.PLATFORM_HEIGHT());
 
         if (lastPosition[RenderConstants.Y] < getPosition()[RenderConstants.Y])
-            Sounds.playerLanded(); // TODO - test
+            Sounds.playerLanded();
     }
 
     private void resetLastPosition() {
