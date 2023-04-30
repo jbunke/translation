@@ -1,0 +1,18 @@
+name:{The Stairs to Heaven}
+hint:{Crushing the necromancer will un-tether and vanquish all the enemies it has reanimated}
+stats:{}
+platforms:{
+	(0,0,200);
+	(400,-100,200);
+	(800,-200,200);
+	(1200,-300,200);
+	(1600,-400,200);
+	(2000,-500,200)
+}
+sentries:{
+	(PUSHER,1,-8);
+	(PUSHER,2,-8);
+	(PUSHER,3,-8);
+	(PUSHER,4,-8);
+	(NECROMANCER,5,-4)
+}

@@ -1,0 +1,10 @@
+name:{Blindness}
+hint:{Some sentries do not rely on sight}
+stats:{}
+platforms:{
+	(0,0,200);
+	(350,0,200)
+}
+sentries:{
+	(MAGNET,1,-6)
+}

@@ -1,0 +1,17 @@
+name:{A Fish Rots from the Head}
+hint:{}
+stats:{}
+platforms:{
+	(0,0,100);
+	(-50,100,100);
+	(0,-600,100);
+	(-350,-450,150);
+	(300,-300,150);
+	(-350,-150,150)
+}
+sentries:{
+	(BOUNCER,1,-2);
+	(DROPPER,3,-8);
+	(DROPPER,4,-6);
+	(DROPPER,5,-4)
+}

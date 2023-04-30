@@ -1,0 +1,13 @@
+name:{An Undertaking}
+hint:{}
+stats:{}
+platforms:{
+	(0,0,50);
+	(-400,0,50);
+	(400,0,50);
+	(0,150,50)
+}
+sentries:{
+	(SLIDER,1,10);
+	(SLIDER,2,10)
+}

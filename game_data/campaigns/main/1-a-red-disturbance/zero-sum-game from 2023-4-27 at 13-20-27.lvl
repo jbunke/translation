@@ -1,0 +1,12 @@
+name:{Zero Sum Game}
+hint:{"Dead zones" can appear where sentries' abilities cancel out}
+stats:{}
+platforms:{
+	(0,0,200);
+	(-400,0,200);
+	(400,0,200)
+}
+sentries:{
+	(PUSHER,1,-8);
+	(PUSHER,2,8)
+}

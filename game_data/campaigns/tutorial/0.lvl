@@ -1,0 +1,10 @@
+name:{Jump}
+hint:{Jump with key:<JUMP>. Land on top of the sentry to complete the level.}
+stats:{}
+platforms:{
+	(0,0,200);
+	(0,-200,200)
+}
+sentries:{
+	(PUSHER,1,-6)
+}

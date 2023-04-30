@@ -1,0 +1,10 @@
+version:{0.2.0}
+date:{01/05/2023}
+contents:{
++ Added level editor; level creation
++ Added campaign creation and importing
++ Added sound effects
++ Added 17 new levels
+> Redesigned main campaigns
+> Redesigned menus
+}

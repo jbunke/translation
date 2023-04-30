@@ -1,0 +1,16 @@
+name:{Decision Time}
+hint:{}
+stats:{}
+platforms:{
+	(0,0,200);
+	(400,0,200);
+	(400,200,200);
+	(0,200,200);
+	(-400,200,200);
+	(400,-200,200)
+}
+sentries:{
+	(REPELLER,2,-6);
+	(COWARD,4,-4);
+	(COWARD,5,8)
+}

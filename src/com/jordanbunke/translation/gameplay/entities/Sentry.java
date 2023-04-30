@@ -10,6 +10,7 @@ import com.jordanbunke.translation.settings.GameplayConstants;
 import com.jordanbunke.translation.settings.GameplaySettings;
 import com.jordanbunke.translation.settings.TechnicalSettings;
 import com.jordanbunke.translation.colors.TLColors;
+import com.jordanbunke.translation.sound.Sounds;
 import com.jordanbunke.translation.utility.Utility;
 
 import java.awt.*;
@@ -103,13 +104,30 @@ public class Sentry extends SentientSquare {
             final List<Animation> animations = sentry.getLevel().getAnimations();
 
             switch (this) {
-                case PUSHER -> player.incrementX(sentry.getSpeed() * sentry.direction);
-                case SHOVER -> player.incrementX(sentry.getSpeed() * sentry.direction * SHOVE_FACTOR);
-                case PULLER -> player.incrementX(-sentry.getSpeed() * sentry.direction);
-                case DROPPER -> player.incrementY(GameplayConstants.SQUARE_LENGTH() + 1);
-                case SLIDER -> sentry.platform.incrementX(-(sentry.getSpeed() * sentry.direction));
+                case PUSHER -> {
+                    Sounds.pusherSeesPlayer();
+                    player.incrementX(sentry.getSpeed() * sentry.direction);
+                }
+                case SHOVER -> {
+                    Sounds.shoverSeesPlayer();
+                    player.incrementX(sentry.getSpeed() * sentry.direction * SHOVE_FACTOR);
+                }
+                case PULLER -> {
+                    Sounds.pullerSeesPlayer();
+                    player.incrementX(-sentry.getSpeed() * sentry.direction);
+                }
+                case DROPPER -> {
+                    Sounds.dropperSawPlayer();
+                    player.incrementY(GameplayConstants.SQUARE_LENGTH() + 1);
+                }
+                case SLIDER -> {
+                    Sounds.sliderSeesPlayer();
+                    sentry.platform.incrementX(-(sentry.getSpeed() * sentry.direction));
+                }
                 case CRUMBLER -> {
                     if (sentry.platform.getWidth() > GameplayConstants.SQUARE_LENGTH()) {
+                        Sounds.crumblerSeesPlayer();
+
                         sentry.platform.changeWidth(-sentry.getSpeed());
                         sentry.platform.incrementX(
                                 sentry.direction * (-sentry.getSpeed() / 2)
@@ -118,15 +136,25 @@ public class Sentry extends SentientSquare {
                 }
                 case BUILDER -> {
                     if (sentry.platform.getWidth() < MAX_PLATFORM_WIDTH) {
+                        Sounds.builderSeesPlayer();
+
                         sentry.platform.changeWidth(sentry.getSpeed());
                         sentry.platform.incrementX(
                                 sentry.direction * (sentry.getSpeed() / 2)
                         );
                     }
                 }
-                case BOOSTER -> player.mulGAcceleration(2);
-                case BOUNCER -> player.mulGAcceleration(-1);
+                case BOOSTER -> {
+                    Sounds.boosterSawPlayer();
+                    player.mulGAcceleration(2);
+                }
+                case BOUNCER -> {
+                    Sounds.bouncerSawPlayer();
+                    player.mulGAcceleration(-1);
+                }
                 case REPELLER -> {
+                    Sounds.repellerSeesPlayer();
+
                     for (Platform p : platforms) {
                         if (p.equals(sentry.platform))
                             continue;
@@ -157,7 +185,12 @@ public class Sentry extends SentientSquare {
 
                         do {
                             candidate = Utility.randomElementFromList(platforms);
-                        } while (candidate.equals(sentry.platform));
+                        } while (candidate == null || candidate.equals(sentry.platform));
+
+                        if (this == NOMAD)
+                            Sounds.nomadWandered();
+                        else
+                            Sounds.cowardSawPlayer();
 
                         sentry.getLevel().getAnimations().add(Animation.createDisappearance(
                                 sentry.getPosition(), sentry.role
@@ -166,6 +199,8 @@ public class Sentry extends SentientSquare {
                     }
                 }
                 case INVERTER -> {
+                    Sounds.inverterSawPlayer();
+
                     final int playerY = player.getPosition()[RenderConstants.Y];
 
                     // player adjustments
@@ -202,9 +237,13 @@ public class Sentry extends SentientSquare {
                     sentry.counter++;
                     sentry.counter %= ANIMATION_CYCLE;
 
-                    player.incrementX((int)(sentry.getSpeed() * Math.signum(
+                    final int magnetPull = (int)(sentry.getSpeed() * Math.signum(
                             sentry.getPosition()[RenderConstants.X] -
-                                    player.getPosition()[RenderConstants.X])));
+                                    player.getPosition()[RenderConstants.X]));
+
+                    Sounds.updateMagnetTracker(magnetPull);
+
+                    player.incrementX(magnetPull);
                 }
                 case SPAWNER -> {
                     sentry.counter++;
@@ -217,37 +256,50 @@ public class Sentry extends SentientSquare {
                         }
                     }
 
-                    if (sentry.counter == 0 && sentry.children.size() < MAX_CHILDREN_SPAWNABLE) {
-                        final int speed = Utility.boundedRandom(1, (MAX_SENTRY_SPEED / 2) + 1) * 2;
-                        Platform platform;
+                    if (sentry.counter == 0)
+                        if (sentry.children.size() < MAX_CHILDREN_SPAWNABLE) {
+                            final int speed = Utility.boundedRandom(1, (MAX_SENTRY_SPEED / 2) + 1) * 2;
+                            Platform platform;
 
-                        do {
-                            platform = Utility.randomElementFromList(platforms);
-                        } while (platform.equals(sentry.platform));
+                            do {
+                                platform = Utility.randomElementFromList(platforms);
+                            } while (platform == null || platform.equals(sentry.platform));
 
-                        Sentry child = Sentry.create(
-                                sentry.secondary, sentry.secondary,
-                                sentry.getLevel(), platform,
-                                speed * Utility.coinToss(LEFT, RIGHT));
+                            Sounds.sentrySpawnedSuccessfully();
 
-                        sentry.addChild(child);
-                    }
+                            Sentry child = Sentry.create(
+                                    sentry.secondary, sentry.secondary,
+                                    sentry.getLevel(), platform,
+                                    speed * Utility.coinToss(LEFT, RIGHT));
+
+                            sentry.addChild(child);
+                        } else
+                            Sounds.spawnAttemptFailed();
                 }
                 case NECROMANCER -> {
                     sentry.counter++;
                     sentry.counter %= REVIVAL_CYCLE;
 
                     if (sentry.counter == 0) {
-                        for (Sentry s : sentries) {
+                        boolean reanimated = false;
+
+                        for (final Sentry s : sentries) {
                             if (s.equals(sentry))
                                 continue;
 
                             if (!s.isAlive()) {
+                                reanimated = true;
+
+                                Sounds.sentryReanimatedSuccessfully();
+
                                 s.alive = true;
                                 sentry.addChild(s);
                                 break;
                             }
                         }
+
+                        if (!reanimated)
+                            Sounds.reanimationAttemptFailed();
                     }
                 }
                 case RANDOM -> {
@@ -264,6 +316,11 @@ public class Sentry extends SentientSquare {
                 case ANCHOR, FEATHER -> {
                     sentry.counter++;
                     sentry.counter %= ANIMATION_CYCLE;
+
+                    if (this == ANCHOR)
+                        Sounds.incrementGravityTracker();
+                    else
+                        Sounds.decrementGravityTracker();
 
                     player.incrementGAcceleration(
                             GRAVITY_FACTOR * (this == ANCHOR ? -1 : 1)
@@ -337,7 +394,12 @@ public class Sentry extends SentientSquare {
         return new Sentry(x, y, role, secondary, level, platform, direction, speed);
     }
 
-    void crush() {
+    void crush(final boolean untethered) {
+        if (untethered)
+            Sounds.reanimatedSentryUntethered();
+        else
+            Sounds.sentryCrushed();
+
         alive = false;
 
         // animation
@@ -350,7 +412,7 @@ public class Sentry extends SentientSquare {
 
         for (Sentry child : children)
             if (child.isAlive())
-                child.crush();
+                child.crush(true);
     }
 
     boolean isCrushed(final Player player) {

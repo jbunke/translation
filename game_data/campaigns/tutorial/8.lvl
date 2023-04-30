@@ -1,0 +1,10 @@
+name:{Camera Zoom}
+hint:{The camera's zoom can be toggled with key:<TOGGLE_ZOOM>}
+stats:{}
+platforms:{
+	(0,0,200);
+	(0,400,200)
+}
+sentries:{
+	(PUSHER,1,-6)
+}

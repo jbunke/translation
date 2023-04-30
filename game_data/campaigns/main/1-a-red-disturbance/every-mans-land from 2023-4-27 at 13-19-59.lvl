@@ -1,0 +1,12 @@
+name:{Every Man's Land}
+hint:{}
+stats:{}
+platforms:{
+	(0,0,150);
+	(680,-48,200);
+	(-400,0,200)
+}
+sentries:{
+	(BUILDER,1,8);
+	(ANCHOR,2,-2)
+}

@@ -4,14 +4,15 @@ import com.jordanbunke.jbjgl.debug.JBJGLGameDebugger;
 import com.jordanbunke.jbjgl.image.JBJGLImage;
 import com.jordanbunke.jbjgl.io.JBJGLListener;
 import com.jordanbunke.jbjgl.utility.RenderConstants;
+import com.jordanbunke.translation.colors.TLColors;
 import com.jordanbunke.translation.gameplay.Camera;
 import com.jordanbunke.translation.gameplay.level.Level;
-import com.jordanbunke.translation.io.ControlScheme;
 import com.jordanbunke.translation.gameplay.level.LevelHUD;
 import com.jordanbunke.translation.gameplay.level.LevelStats;
+import com.jordanbunke.translation.io.ControlScheme;
 import com.jordanbunke.translation.settings.GameplayConstants;
 import com.jordanbunke.translation.settings.TechnicalSettings;
-import com.jordanbunke.translation.colors.TLColors;
+import com.jordanbunke.translation.sound.Sounds;
 
 import java.awt.*;
 
@@ -83,29 +84,22 @@ public class Player extends SentientSquare {
     public void process(final JBJGLListener listener) {
         listener.checkForMatchingKeyStroke(
                 ControlScheme.getKeyEvent(ControlScheme.Action.MOVE_LEFT),
-                () -> {
-                    isLeft = true;
-                    lookingDirection = LEFT;
-                }
+                () -> processMovementChanges(true, isRight, LEFT)
         );
         listener.checkForMatchingKeyStroke(
                 ControlScheme.getKeyEvent(ControlScheme.Action.MOVE_RIGHT),
-                () -> {
-                    isRight = true;
-                    lookingDirection = RIGHT;
-                }
+                () -> processMovementChanges(isLeft, true, RIGHT)
         );
         listener.checkForMatchingKeyStroke(
                 ControlScheme.getKeyEvent(ControlScheme.Action.STOP_MOVING_LEFT),
-                () -> isLeft = false
+                () -> processMovementChanges(false, isRight, lookingDirection)
         );
         listener.checkForMatchingKeyStroke(
                 ControlScheme.getKeyEvent(ControlScheme.Action.STOP_MOVING_RIGHT),
-                () -> isRight = false
+                () -> processMovementChanges(isLeft, false, lookingDirection)
         );
         listener.checkForMatchingKeyStroke(
-                ControlScheme.getKeyEvent(ControlScheme.Action.INIT_TELEPORT),
-                () -> isTele = true
+                ControlScheme.getKeyEvent(ControlScheme.Action.INIT_TELEPORT), this::initTeleport
         );
         listener.checkForMatchingKeyStroke(
                 ControlScheme.getKeyEvent(ControlScheme.Action.TELEPORT), this::teleport
@@ -167,6 +161,14 @@ public class Player extends SentientSquare {
         );
     }
 
+    private void processMovementChanges(
+            final boolean isLeft, final boolean isRight, final int lookingDirection
+    ) {
+        this.isLeft = isLeft;
+        this.isRight = isRight;
+        this.lookingDirection = lookingDirection;
+    }
+
     public void update() {
         comboUpdate();
         movementUpdate();
@@ -206,7 +208,7 @@ public class Player extends SentientSquare {
     private void checkCrush() {
         for (Sentry s : getLevel().getSentries()) {
             if (s.isAlive() && s.isCrushed(this)) {
-                s.crush();
+                s.crush(false);
 
                 // combo
                 ticksSinceLastCrush = 0;
@@ -240,9 +242,16 @@ public class Player extends SentientSquare {
         return positionIsSaved && isNotFallingWithoutCover;
     }
 
+    private void initTeleport() {
+        Sounds.playerInitiatedTeleport();
+        isTele = true;
+    }
+
     private void teleport() {
         if (telePhase == 0)
             return;
+
+        Sounds.playerTeleported();
 
         resetLastPosition();
         isTele = false;
@@ -261,6 +270,8 @@ public class Player extends SentientSquare {
 
     private void jump() {
         if (isSupported()) {
+            Sounds.playerJumped();
+
             gAcceleration = JUMP_ACCELERATION;
             getLevel().getAnimations().add(Animation.createJump(getPosition()));
         }
@@ -269,9 +280,13 @@ public class Player extends SentientSquare {
     private void drop() {
         if (isSupported()) {
             // drop from platform
+            Sounds.playerDropped();
+
             incrementY(GameplayConstants.PLATFORM_HEIGHT() + 1);
         } else {
-            // drop in air
+            // dive in mid-air
+            Sounds.playerDove();
+
             gAcceleration -= JUMP_ACCELERATION;
             getLevel().getAnimations().add(Animation.createJump(getPosition()));
         }
@@ -280,6 +295,9 @@ public class Player extends SentientSquare {
     public void platformSupportLogic(final Platform platform) {
         gAcceleration = 0;
         setY(platform.getPosition()[RenderConstants.Y] - GameplayConstants.PLATFORM_HEIGHT());
+
+        if (lastPosition[RenderConstants.Y] < getPosition()[RenderConstants.Y])
+            Sounds.playerLanded();
     }
 
     private void resetLastPosition() {
@@ -288,6 +306,8 @@ public class Player extends SentientSquare {
     }
 
     private void savePosition() {
+        Sounds.playerSavedPosition();
+
         savedPosition[RenderConstants.X] = getPosition()[RenderConstants.X];
         savedPosition[RenderConstants.Y] = getPosition()[RenderConstants.Y];
 
@@ -296,11 +316,15 @@ public class Player extends SentientSquare {
 
     private void loadPosition() {
         if (canLoadPosition()) {
+            Sounds.playerLoadedPosition();
+
             setPosition(savedPosition[RenderConstants.X], savedPosition[RenderConstants.Y]);
 
             positionIsSaved = false;
 
             getLevel().getAnimations().add(Animation.createLoad(getPosition()));
+        } else {
+            Sounds.playerCouldNotLoadPosition();
         }
     }
 

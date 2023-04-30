@@ -1,6 +1,0 @@
-version:{0.2.0}
-date:{planned for 21/09/2022}
-contents:{
-+ (TODO) Add level editor
-+ (TODO) Add campaign creation; campaign importing and exporting
-}

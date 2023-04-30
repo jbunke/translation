@@ -2,28 +2,31 @@ package com.jordanbunke.translation.menus;
 
 import com.jordanbunke.jbjgl.contexts.JBJGLMenuManager;
 import com.jordanbunke.jbjgl.image.JBJGLImage;
-import com.jordanbunke.jbjgl.io.JBJGLFileIO;
-import com.jordanbunke.jbjgl.io.JBJGLImageIO;
 import com.jordanbunke.jbjgl.menus.JBJGLMenu;
 import com.jordanbunke.jbjgl.menus.menu_elements.JBJGLAnimationMenuElement;
 import com.jordanbunke.jbjgl.menus.menu_elements.JBJGLMenuElement;
 import com.jordanbunke.jbjgl.menus.menu_elements.JBJGLMenuElementGrouping;
 import com.jordanbunke.jbjgl.menus.menu_elements.JBJGLTimedMenuElement;
 import com.jordanbunke.jbjgl.text.JBJGLText;
+import com.jordanbunke.translation.Info;
+import com.jordanbunke.translation.ResourceManager;
 import com.jordanbunke.translation.Translation;
 import com.jordanbunke.translation.editor.Editor;
 import com.jordanbunke.translation.gameplay.Camera;
 import com.jordanbunke.translation.gameplay.level.Level;
-import com.jordanbunke.translation.io.*;
+import com.jordanbunke.translation.io.BrowserIO;
+import com.jordanbunke.translation.io.ControlScheme;
+import com.jordanbunke.translation.io.LevelIO;
+import com.jordanbunke.translation.io.TextIO;
 import com.jordanbunke.translation.menus.custom_elements.TypedInputMenuElement;
 import com.jordanbunke.translation.settings.GameplaySettings;
 import com.jordanbunke.translation.settings.TechnicalSettings;
 import com.jordanbunke.translation.settings.debug.DebugSettings;
+import com.jordanbunke.translation.sound.Sounds;
 import com.jordanbunke.translation.utility.Utility;
 
 import java.net.URI;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
@@ -94,7 +97,7 @@ public class Menus {
                                 () -> Translation.manager.setActiveStateIndex(Translation.EDITOR_INDEX),
                                 () -> MenuHelper.linkMenu(MenuIDs.SETTINGS, generateSettingsMenu(true)),
                                 () -> MenuHelper.linkMenu(MenuIDs.GAME_MECHANICS, generateGameMechanicsMenu()),
-                                () -> MenuHelper.linkMenu(MenuIDs.ABOUT, generateAboutMenu()),
+                                () -> MenuHelper.linkMenu(MenuIDs.INFORMATION, generateInformationMenu()),
                                 () -> MenuHelper.linkMenu(MenuIDs.ARE_YOU_SURE_QUIT_GAME, generateAreYouSureQuitGame())
                         }),
                 MenuHelper.generateDevelopmentInformation()
@@ -250,11 +253,50 @@ public class Menus {
     }
 
     private static JBJGLMenu generateAudioSettingsMenu() {
-        final JBJGLMenuElementGrouping contents = JBJGLMenuElementGrouping.generateOf();
-        // TODO - audio settings toggle options and sliders
+        final JBJGLMenuElementGrouping contents = MenuHelper.generateListMenuToggleOptions(
+                new String[] {
+                        "UI SOUNDS", "MILESTONE SOUNDS", "PLAYER SOUNDS",
+                        "SENTRY SOUNDS", "ENVIRONMENT SOUNDS"
+                },
+                new String[][] {
+                        new String[] { "ON", "OFF" },
+                        new String[] { "ON", "OFF" },
+                        new String[] { "ON", "OFF" },
+                        new String[] { "ON", "OFF" },
+                        new String[] { "ON", "OFF" }
+                },
+                new Runnable[][] {
+                        new Runnable[] {
+                                () -> TechnicalSettings.setPlayUISounds(false),
+                                () -> TechnicalSettings.setPlayUISounds(true)
+                        },
+                        new Runnable[] {
+                                () -> TechnicalSettings.setPlayMilestoneSounds(false),
+                                () -> TechnicalSettings.setPlayMilestoneSounds(true)
+                        },
+                        new Runnable[] {
+                                () -> TechnicalSettings.setPlayPlayerSounds(false),
+                                () -> TechnicalSettings.setPlayPlayerSounds(true)
+                        },
+                        new Runnable[] {
+                                () -> TechnicalSettings.setPlaySentrySounds(false),
+                                () -> TechnicalSettings.setPlaySentrySounds(true)
+                        },
+                        new Runnable[] {
+                                () -> TechnicalSettings.setPlayEnvironmentSounds(false),
+                                () -> TechnicalSettings.setPlayEnvironmentSounds(true)
+                        }
+                },
+                new Callable[] {
+                        () -> TechnicalSettings.isPlayUISounds() ? 0 : 1,
+                        () -> TechnicalSettings.isPlayMilestoneSounds() ? 0 : 1,
+                        () -> TechnicalSettings.isPlayPlayerSounds() ? 0 : 1,
+                        () -> TechnicalSettings.isPlaySentrySounds() ? 0 : 1,
+                        () -> TechnicalSettings.isPlayEnvironmentSounds() ? 0 : 1
+                }, 1.0);
 
         return MenuHelper.generateBasicMenu(
-                "Audio Settings", "Under construction...",
+                "Audio Settings", MenuHelper.DOES_NOT_EXIST,
                 contents, MenuIDs.SETTINGS);
     }
 
@@ -387,17 +429,16 @@ public class Menus {
                 "Save & Load Position", subtitle, text);
     }
 
-    private static JBJGLMenu generateAboutMenu() {
+    private static JBJGLMenu generateInformationMenu() {
         final JBJGLMenuElementGrouping contents = MenuHelper.generateListMenuOptions(
-                new String[] { "PATCH NOTES", "BACKGROUND", "THE DEVELOPER", "FEEDBACK" },
+                new String[] { "PATCH NOTES", "THE DEVELOPER", "FEEDBACK" },
                 new Runnable[] {
                         () -> MenuHelper.linkMenu(MenuIDs.PATCH_NOTES,
                                 generatePatchNotesMenu()),
-                        () -> MenuHelper.linkMenu(MenuIDs.BACKGROUND_ABOUT,
-                                generateBackgroundAboutPage()),
                         () -> MenuHelper.linkMenu(MenuIDs.DEVELOPER_ABOUT,
                                 generateDeveloperAboutPage()),
-                        null // TODO - feedback
+                        () -> MenuHelper.linkMenu(MenuIDs.FEEDBACK,
+                                generateFeedbackPage()),
                 });
 
         return MenuHelper.generateBasicMenu("Information", MenuHelper.DOES_NOT_EXIST,
@@ -407,26 +448,21 @@ public class Menus {
     private static JBJGLMenu generatePatchNotesMenu() {
         return MenuHelper.generatePatchNotesPage(
                 TextIO.readUpdates(),
-                MenuIDs.ABOUT,
+                MenuIDs.INFORMATION,
                 TextIO.DEFAULT_PATCH_NOTES_PAGE_INDEX);
     }
 
-    private static JBJGLMenu generateBackgroundAboutPage() {
-        final Path backgroundFilepath = ParserWriter.RESOURCE_ROOT.resolve(
-                Paths.get("text", "background.txt"));
-
-        final String backgroundText = JBJGLFileIO.readFile(backgroundFilepath);
-
+    private static JBJGLMenu generateFeedbackPage() {
         final JBJGLMenuElementGrouping contents = JBJGLMenuElementGrouping.generateOf(
-                MenuHelper.generateMenuTextBlurb(
-                        backgroundText,
-                        JBJGLText.Orientation.CENTER,
-                        JBJGLMenuElement.Anchor.CENTRAL,
-                        MenuHelper.widthCoord(0.5), MenuHelper.heightCoord(0.6),
-                        TechnicalSettings.getPixelSize() / 4.));
+                MenuHelper.generateListMenuOptions(
+                        new String[] { "ITCH.IO COMMUNITY PAGE", "MY TWITTER" },
+                        new Runnable[] {
+                                () -> BrowserIO.openLink(URI.create(Info.THIS_GAME_ITCH_LINK)),
+                                () -> BrowserIO.openLink(URI.create(Info.MY_TWITTER_LINK))
+                        }, 1.0));
 
-        return MenuHelper.generateBasicMenu("Background", MenuHelper.DOES_NOT_EXIST,
-                contents, MenuIDs.ABOUT);
+        return MenuHelper.generateBasicMenu("Feedback", "Please be nice!",
+                contents, MenuIDs.INFORMATION);
     }
 
     private static JBJGLMenu generateDeveloperAboutPage() {
@@ -434,46 +470,39 @@ public class Menus {
         final int NUM_IMAGES = 6, FILENAME_INDEX_OFFSET = 1;
         final String baseFilename = "ff-large-running-cycle-";
 
-        final Path devImageFolder = ParserWriter.RESOURCE_ROOT.resolve(
-                Paths.get("images", "developer-running-cycle"));
-        final Path devTextFilepath = TextIO.TEXT_FOLDER.resolve(
-                Paths.get("developer.txt"));
-        final String devText = JBJGLFileIO.readFile(devTextFilepath);
+        final Path devImageFolder = ResourceManager.getImagesFolder().resolve("developer-running-cycle");
+        final Path devTextFilepath = ResourceManager.getTextFolder().resolve("developer.txt");
+        final String devText = ResourceManager.getTextResource(devTextFilepath);
 
         final JBJGLImage[] devImages = new JBJGLImage[NUM_IMAGES];
 
         for (int i = 0; i < NUM_IMAGES; i++) {
             final String filename = baseFilename + (i + FILENAME_INDEX_OFFSET) + ".png";
-            devImages[i] = JBJGLImageIO.readImage(devImageFolder.resolve(filename));
+            devImages[i] = ResourceManager.getImageResource(devImageFolder.resolve(filename));
         }
 
         final JBJGLMenuElementGrouping contents = JBJGLMenuElementGrouping.generateOf(
                 JBJGLAnimationMenuElement.generate(
                         new int[] {
-                                MenuHelper.widthCoord(0.5),
-                                MenuHelper.heightCoord(0.23)
+                                MenuHelper.widthCoord(0.2),
+                                MenuHelper.heightCoord(0.5)
                         }, new int[] { DIM_X, DIM_Y }, JBJGLMenuElement.Anchor.CENTRAL,
-                        5, devImages
-                ),
+                        5, devImages),
                 MenuHelper.generateMenuTextBlurb(devText,
-                        JBJGLText.Orientation.CENTER,
-                        MenuHelper.widthCoord(0.5),
-                        MenuHelper.heightCoord(0.37),
-                        TechnicalSettings.getPixelSize() / 4.),
-                MenuHelper.generateListMenuOptions(
-                        new String[] { "PUBLISHED GAMES", "GITHUB", "WRITING" },
+                        JBJGLText.Orientation.CENTER, JBJGLMenuElement.Anchor.CENTRAL,
+                        MenuHelper.widthCoord(0.6),
+                        MenuHelper.heightCoord(0.5),
+                        TechnicalSettings.getPixelSize() / 2.),
+                MenuHelper.generateHorizontalListMenuOptions(
+                        new String[] { "PUBLISHED GAMES", "GITHUB" },
                         new Runnable[] {
-                                () -> BrowserIO.openLink(URI.create(Translation.MY_GAMES_LINK)),
-                                () -> BrowserIO.openLink(URI.create(Translation.MY_GITHUB_LINK)),
-                                null
-                        },
-                        MenuHelper.widthCoord(0.5),
-                        MenuHelper.heightCoord(0.4),
-                        JBJGLMenuElement.Anchor.CENTRAL_TOP)
-        );
+                                () -> BrowserIO.openLink(URI.create(Info.MY_GAMES_LINK)),
+                                () -> BrowserIO.openLink(URI.create(Info.MY_GITHUB_LINK))
+                        }, MenuHelper.heightCoord(0.9), MenuHelper.widthCoord(0.3)
+                ));
 
         return MenuHelper.generateBasicMenu("The Developer", MenuHelper.DOES_NOT_EXIST,
-                contents, MenuIDs.ABOUT);
+                contents, MenuIDs.INFORMATION);
     }
 
     // EDITOR SECTION
@@ -481,7 +510,11 @@ public class Menus {
         final JBJGLMenuElementGrouping contents = MenuHelper.generateListMenuOptions(
                 new String[] { "BACK TO EDITOR", "TEST LEVEL", "RESET", "QUIT TO MENU" },
                 new Runnable[] {
-                        () -> Translation.manager.setActiveStateIndex(Translation.EDITOR_INDEX),
+                        () -> {
+                            Sounds.gameResumed();
+
+                            Translation.manager.setActiveStateIndex(Translation.EDITOR_INDEX);
+                        },
                         () -> {
                             final Level level = Level.fromEditor();
                             Translation.setLevel(level);
@@ -513,14 +546,17 @@ public class Menus {
         final JBJGLMenuElementGrouping contents = MenuHelper.generateListMenuOptions(
                 new String[] { "RESUME", "SETTINGS", aysButtonHeading },
                 new Runnable[] {
-                        () -> Translation.manager.setActiveStateIndex(Translation.GAMEPLAY_INDEX),
+                        () -> {
+                            Sounds.gameResumed();
+                            Translation.manager.setActiveStateIndex(Translation.GAMEPLAY_INDEX);
+                        },
                         () -> MenuHelper.linkMenu(MenuIDs.SETTINGS,
                                 generateSettingsMenu(false)),
                         aysBehaviour
                 }, 1.0);
 
         return MenuHelper.generateBasicMenu(level.getName(),
-                level.getHint(), contents);
+                level.getParsedHint(), contents);
     }
 
     private static JBJGLMenu generateLevelCompleteMenu(final Level level) {
@@ -579,10 +615,10 @@ public class Menus {
         final TypedInputMenuElement setLevelNameButton =
                 MenuHelper.generateTypedInputButton(x,
                         MenuHelper.heightCoord(0.4), width, "SET LEVEL NAME",
-                        "", Set.of("", Level.EDITOR_LEVEL_NAME)),
+                        "", Set.of("", Level.EDITOR_LEVEL_NAME), 60),
                 setLevelHintButton = MenuHelper.generateTypedInputButton(x,
                         MenuHelper.heightCoord(0.6), width, "SET LEVEL HINT",
-                        "", Set.of());
+                        "", Set.of(), 120);
 
         final JBJGLMenuElementGrouping contents = JBJGLMenuElementGrouping.generateOf(
                 setLevelNameButton,
@@ -641,7 +677,7 @@ public class Menus {
                         """
                                 A PURE PLATFORMING PLAYGROUND
                                 BY FLINKER FLITZER""",
-                        JBJGLText.Orientation.CENTER,
+                        JBJGLText.Orientation.CENTER, JBJGLMenuElement.Anchor.CENTRAL_TOP,
                         MenuHelper.widthCoord(0.5),
                         MenuHelper.heightCoord(0.625), 1));
 
@@ -653,8 +689,7 @@ public class Menus {
                 i -> i + 1,
                 FF_SPLASH_SCREEN_FRAME_COUNT,
                 FF_SPLASH_SCREEN_TICKS_PER_FRAME, 0, 10,
-                Paths.get("resources", "images",
-                        "splash_screen", "splash_screen_3"),
+                ResourceManager.getImagesFolder().resolve(Path.of("splash_screen", "splash_screen_3")),
                 "ss3-frame (");
     }
 
@@ -664,8 +699,7 @@ public class Menus {
                 SPLASH_SCREEN_1_FRAME_COUNT,
                 SPLASH_SCREEN_1_TICKS_PER_FRAME,
                 5, 1,
-                Paths.get("resources", "images",
-                        "splash_screen", "splash_screen_1"),
+                ResourceManager.getImagesFolder().resolve(Path.of("splash_screen", "splash_screen_1")),
                 "ss1-frame- (");
     }
 
@@ -675,8 +709,7 @@ public class Menus {
                 SPLASH_SCREEN_2_FRAME_COUNT,
                 SPLASH_SCREEN_2_TICKS_PER_FRAME,
                 15, 1,
-                Paths.get("resources", "images",
-                        "splash_screen", "splash_screen_2"),
+                ResourceManager.getImagesFolder().resolve(Path.of("splash_screen", "splash_screen_2")),
                 "ss2-frame- (");
     }
 

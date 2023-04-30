@@ -168,8 +168,20 @@ public class LevelStats {
                 : String.valueOf(stat / GameplayConstants.UPDATE_HZ);
 
         return index == TIME
-                ? seconds + "s"
+                ? truncatedTimeInSeconds(seconds) + "s"
                 : base;
+    }
+
+    private String truncatedTimeInSeconds(final String seconds) {
+        final char DECIMAL = '.';
+        final int NOT_CONTAINED = -1, DECIMAL_AND_TWO_PLACES = 3;
+
+        final int index = seconds.indexOf(DECIMAL);
+        final boolean notContained = index == NOT_CONTAINED,
+                fewerThanThreeDecimalPlaces = index + DECIMAL_AND_TWO_PLACES >= seconds.length();
+
+        return notContained || fewerThanThreeDecimalPlaces
+                ? seconds : seconds.substring(0, index + DECIMAL_AND_TWO_PLACES);
     }
 
     private boolean statIsUndefined(final int stat) {

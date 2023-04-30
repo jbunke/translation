@@ -1,0 +1,18 @@
+name:{Walking on Eggshells}
+hint:{}
+stats:{}
+platforms:{
+	(0,0,200);
+	(0,-200,200);
+	(0,200,200);
+	(400,-200,200);
+	(400,200,200);
+	(-400,-200,200);
+	(-400,200,200)
+}
+sentries:{
+	(PUSHER,3,-6);
+	(DROPPER,4,-6);
+	(DROPPER,5,-6);
+	(PUSHER,6,-6)
+}

@@ -1,0 +1,12 @@
+name:{Turn the Tables}
+hint:{}
+stats:{}
+platforms:{
+	(0,0,200);
+	(0,200,100);
+	(0,-200,100)
+}
+sentries:{
+	(INVERTER,1,-4);
+	(ANCHOR,2,4)
+}

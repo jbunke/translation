@@ -1,0 +1,24 @@
+name:{Back to Life}
+hint:{Necromancer un-tethering is transitive}
+stats:{}
+platforms:{
+	(0,0,200);
+	(0,-600,100);
+	(0,600,100);
+	(480,-200,100);
+	(-240,-400,100);
+	(-480,200,100);
+	(240,400,100);
+	(0,-200,40);
+	(0,-400,40);
+	(0,200,40);
+	(0,400,40)
+}
+sentries:{
+	(NECROMANCER,1,6);
+	(NECROMANCER,2,6);
+	(PUSHER,3,4);
+	(PULLER,4,4);
+	(PUSHER,5,4);
+	(PULLER,6,4)
+}

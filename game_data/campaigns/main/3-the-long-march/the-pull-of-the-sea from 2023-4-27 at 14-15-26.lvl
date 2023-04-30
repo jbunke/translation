@@ -1,0 +1,12 @@
+name:{The Pull of the Sea}
+hint:{Fail to prepare, prepare to fail}
+stats:{}
+platforms:{
+	(0,0,200);
+	(200,-150,200);
+	(1500,-150,200)
+}
+sentries:{
+	(BUILDER,1,-10);
+	(PULLER,2,-8)
+}

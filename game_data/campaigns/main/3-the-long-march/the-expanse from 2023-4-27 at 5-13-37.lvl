@@ -1,0 +1,12 @@
+name:{The Expanse}
+hint:{}
+stats:{}
+platforms:{
+	(0,0,200);
+	(400,0,200);
+	(400,-200,200)
+}
+sentries:{
+	(REPELLER,1,6);
+	(SHOVER,2,8)
+}

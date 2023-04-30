@@ -11,6 +11,7 @@ import com.jordanbunke.translation.menus.MenuIDs;
 import com.jordanbunke.translation.menus.Menus;
 import com.jordanbunke.translation.settings.debug.DebugRenderer;
 import com.jordanbunke.translation.settings.debug.DebugSettings;
+import com.jordanbunke.translation.sound.Sounds;
 
 import java.awt.*;
 
@@ -67,11 +68,14 @@ public class LevelMenuGameState extends ProgramContext {
 
         if (type == Type.PAUSE)
             listener.checkForMatchingKeyStroke(
-                    ControlScheme.getKeyEvent(ControlScheme.Action.PAUSE), () ->
-                            Translation.manager.setActiveStateIndex(
-                                    MenuIDs.isAnEditorMenu(menuManager.getActiveMenuID())
-                                            ? Translation.EDITOR_INDEX
-                                            : Translation.GAMEPLAY_INDEX)
+                    ControlScheme.getKeyEvent(ControlScheme.Action.PAUSE), () -> {
+                        Sounds.gameResumed();
+
+                        final int returnIndex = MenuIDs.isAnEditorMenu(menuManager.getActiveMenuID())
+                                ? Translation.EDITOR_INDEX
+                                : Translation.GAMEPLAY_INDEX;
+                        Translation.manager.setActiveStateIndex(returnIndex);
+                    }
             );
     }
 }

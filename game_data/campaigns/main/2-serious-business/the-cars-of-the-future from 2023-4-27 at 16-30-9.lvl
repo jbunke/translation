@@ -1,0 +1,12 @@
+name:{The Cars of the Future}
+hint:{}
+stats:{}
+platforms:{
+	(0,0,200);
+	(680,0,200);
+	(1160,0,200)
+}
+sentries:{
+	(BOUNCER,1,-2);
+	(REPELLER,2,4)
+}

@@ -1,0 +1,14 @@
+name:{Rally Race}
+hint:{}
+stats:{}
+platforms:{
+	(0,0,160);
+	(0,200,400);
+	(0,-200,400);
+	(1600,0,160)
+}
+sentries:{
+	(BOUNCER,1,2);
+	(BOUNCER,2,2);
+	(SHOVER,3,6)
+}

@@ -2,6 +2,7 @@ package com.jordanbunke.translation.editor;
 
 import com.jordanbunke.translation.gameplay.entities.Sentry;
 import com.jordanbunke.translation.gameplay.level.SentrySpec;
+import com.jordanbunke.translation.sound.Sounds;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,6 +60,8 @@ public class EditorPlatformSentries {
         }
 
         private void speedChange(final boolean condition) {
+            Sounds.tick();
+
             if (speed == SPEED_INCREMENT && !condition) {
                 direction *= -1;
                 return;
@@ -71,6 +74,8 @@ public class EditorPlatformSentries {
 
         public void nextRole(final boolean changeSecondary) {
             final Sentry.Role setTo = (changeSecondary ? secondary : role).next();
+
+            Sounds.tick();
 
             if (changeSecondary)
                 secondary = setTo;
@@ -146,6 +151,8 @@ public class EditorPlatformSentries {
     }
 
     public void createSentry(final EditorSentrySpec sentrySpec) {
+        Sounds.actionSucceeded();
+
         sentrySpecs.add(sentrySpec);
         selectedIndex = sentrySpecs.size() - 1;
         renderSentryIndex = selectedIndex;
@@ -153,6 +160,8 @@ public class EditorPlatformSentries {
 
     public void deleteSentry() {
         if (!sentrySpecs.isEmpty()) {
+            Sounds.actionFailed();
+
             sentrySpecs.remove(selectedIndex);
 
             while (selectedIndex >= sentrySpecs.size())
@@ -163,8 +172,11 @@ public class EditorPlatformSentries {
     }
 
     public void toggleSentryIndex() {
-        if (!sentrySpecs.isEmpty())
+        if (!sentrySpecs.isEmpty()) {
+            Sounds.actionSucceeded();
+
             selectedIndex = (selectedIndex + 1) % sentrySpecs.size();
+        }
     }
 
     public void toggleRenderSentryIndex() {

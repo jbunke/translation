@@ -1,0 +1,16 @@
+name:{Separation Anxiety}
+hint:{}
+stats:{}
+platforms:{
+	(0,0,100);
+	(400,0,200);
+	(400,100,200);
+	(400,-100,200);
+	(-600,0,200)
+}
+sentries:{
+	(REPELLER,1,6);
+	(ANCHOR,2,8);
+	(SLIDER,3,8);
+	(PULLER,4,4)
+}

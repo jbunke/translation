@@ -1,0 +1,12 @@
+name:{Taxi Service}
+hint:{}
+stats:{}
+platforms:{
+	(0,0,200);
+	(-400,0,140);
+	(-1400,0,200)
+}
+sentries:{
+	(SLIDER,1,-4);
+	(ANCHOR,2,6)
+}

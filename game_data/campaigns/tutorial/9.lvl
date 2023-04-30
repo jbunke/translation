@@ -1,0 +1,12 @@
+name:{Trampoline}
+hint:{Exploit sentries' abilities for your benefit}
+stats:{}
+platforms:{
+	(0,0,200);
+	(0,-400,100);
+	(0,200,300)
+}
+sentries:{
+	(PUSHER,1,-6);
+	(BOUNCER,2,2)
+}

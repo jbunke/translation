@@ -2,36 +2,32 @@ package com.jordanbunke.translation.fonts;
 
 import com.jordanbunke.jbjgl.fonts.Font;
 import com.jordanbunke.jbjgl.fonts.FontFamily;
+import com.jordanbunke.translation.ResourceManager;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 public class Fonts {
-    private static final Path FONT_FOLDER = Paths.get("resources", "font_files");
+    private static final Path FONT_FOLDER = ResourceManager.getFontFilesFolder();
+    private static final Class<ResourceManager> LOADER_CLASS = ResourceManager.class;
+
     private static final FontFamily CLASSIC = FontFamily.loadFromSources(
-            "Classic", FONT_FOLDER,
-            "font-classic", FontFamily.NOT_AVAILABLE, "font-classic-italics",
-            2, 2, 1, true
-    );
+            "Classic", FONT_FOLDER, LOADER_CLASS, "font-classic",
+            FontFamily.NOT_AVAILABLE, "font-classic-italics", 2, 2, 1, true);
     private static final Font CLASSIC_ITALICS_SPACED = Font.loadFromSource(
-            FONT_FOLDER, "font-classic-italics", true, 2
-    );
+            FONT_FOLDER, LOADER_CLASS, "font-classic-italics", true, 2);
     private static final FontFamily VIGILANT = FontFamily.loadFromSources(
-            "Vigilant", FONT_FOLDER,
-            "font-vigilant", FontFamily.NOT_AVAILABLE, "font-vigilant-italics",
-            2, 2, 0, true
-    );
-    private static final FontFamily MY_HANDWRITING = FontFamily.fromPreLoaded(
-            "My Handwriting", Font.loadFromSource(FONT_FOLDER,
-                    "font-my-handwriting", false, 1.0, 0, true),
-            Font.loadFromSource(FONT_FOLDER, "font-my-handwriting-italics",
+            "Vigilant", FONT_FOLDER, LOADER_CLASS, "font-vigilant",
+            FontFamily.NOT_AVAILABLE, "font-vigilant-italics",
+            2, 2, 0, true);
+    private static final FontFamily MY_HANDWRITING = FontFamily.fromPreLoaded("My Handwriting",
+            Font.loadFromSource(FONT_FOLDER, LOADER_CLASS, "font-my-handwriting",
                     false, 1.0, 0, true),
-            Font.loadFromSource(FONT_FOLDER, "font-my-handwriting-italics",
-                    false, 1.0, -8, true)
-    );
-    private static final Font VIGILANT_ITALICS_SPACED = Font.loadFromSource(
-            FONT_FOLDER, "font-vigilant-italics", true, 2
-    );
+            Font.loadFromSource(FONT_FOLDER, LOADER_CLASS, "font-my-handwriting-italics",
+                    false, 1.0, 0, true),
+            Font.loadFromSource(FONT_FOLDER, LOADER_CLASS, "font-my-handwriting-italics",
+                    false, 1.0, -8, true));
+    private static final Font VIGILANT_ITALICS_SPACED = Font.loadFromSource(FONT_FOLDER, LOADER_CLASS,
+            "font-vigilant-italics", true, 2);
 
     private static Font GAME_STANDARD;
     private static Font GAME_ITALICS;

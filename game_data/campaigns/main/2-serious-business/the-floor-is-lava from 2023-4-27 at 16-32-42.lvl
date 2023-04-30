@@ -1,0 +1,14 @@
+name:{The Floor is Lava}
+hint:{}
+stats:{}
+platforms:{
+	(0,0,200);
+	(400,0,200);
+	(400,200,200);
+	(0,-200,200)
+}
+sentries:{
+	(DROPPER,1,6);
+	(PUSHER,2,-6);
+	(PUSHER,3,4)
+}

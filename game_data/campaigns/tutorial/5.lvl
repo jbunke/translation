@@ -1,0 +1,10 @@
+name:{Environment}
+hint:{Sentries can affect the environment as well}
+stats:{}
+platforms:{
+	(0,0,200);
+	(350,0,200)
+}
+sentries:{
+	(SLIDER,1,-6)
+}

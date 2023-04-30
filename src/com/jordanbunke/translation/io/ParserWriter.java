@@ -1,10 +1,9 @@
 package com.jordanbunke.translation.io;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 public class ParserWriter {
-    public static final Path RESOURCE_ROOT = Paths.get("resources");
+    public static final Path GAME_DATA_ROOT = Path.of("game_data");
 
     private static final int NF = -1;
     private static final String
@@ -46,7 +45,7 @@ public class ParserWriter {
     public static String encloseInTag(final String tag, final String content) {
         return tag + CONTENT_FOLLOWING + BIG_OPEN + content + BIG_CLOSE;
     }
-    
+
     public static String packAndEncloseInTag(
             final String tag, final String[] elements, final boolean format
     ) {

@@ -1,0 +1,10 @@
+name:{Movement}
+hint:{You can move left and right with key:<MOVE_LEFT> and key:<MOVE_RIGHT>}
+stats:{}
+platforms:{
+	(0,0,200);
+	(200,200,200)
+}
+sentries:{
+	(PUSHER,1,4)
+}

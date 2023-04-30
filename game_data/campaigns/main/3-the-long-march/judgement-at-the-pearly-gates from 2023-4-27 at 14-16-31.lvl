@@ -1,0 +1,14 @@
+name:{Judgement at the Pearly Gates}
+hint:{The sentry type on the top platform is Random.}
+stats:{}
+platforms:{
+	(0,0,200);
+	(-350,-150,160);
+	(350,-150,160);
+	(0,-500,200)
+}
+sentries:{
+	(INVERTER,1,8);
+	(BOOSTER,2,8);
+	(RANDOM,3,4)
+}

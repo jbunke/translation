@@ -10,6 +10,7 @@ import com.jordanbunke.jbjgl.image.JBJGLImage;
 import com.jordanbunke.jbjgl.io.JBJGLListener;
 import com.jordanbunke.jbjgl.menus.menu_elements.JBJGLMenuElement;
 import com.jordanbunke.translation.Translation;
+import com.jordanbunke.translation.sound.Sounds;
 
 import java.awt.*;
 import java.util.List;
@@ -112,6 +113,8 @@ public class SetInputMenuElement extends JBJGLMenuElement {
                         mouseEvent.matchesAction(JBJGLMouseEvent.Action.CLICK)) {
                     mouseEvent.markAsProcessed();
 
+                    Sounds.buttonClick();
+
                     setMode = !setMode;
                     highlighted = false;
                 }
@@ -132,6 +135,8 @@ public class SetInputMenuElement extends JBJGLMenuElement {
                 if (e instanceof JBJGLKeyEvent keyEvent &&
                         keyEvent.matchesAction(JBJGLKeyEvent.Action.RELEASE)) {
                     keyEvent.markAsProcessed();
+
+                    Sounds.controlInputSet();
 
                     setMode = false;
                     setFunction.accept(keyEvent.getKey());

@@ -15,8 +15,11 @@ public class TechnicalSettings {
     private static final int PIXEL_SIZE = 4;
 
     // Mutable
-    private static boolean fullscreen = true;
-    private static boolean pixelLocked = true;
+    private static boolean
+            fullscreen = true, pixelLocked = true,
+            playUISounds = true, playMilestoneSounds = true,
+            playSentrySounds = true, playPlayerSounds = true,
+            playEnvironmentSounds = true;
 
     // Helpers
     public static int pixelLockNumber(final int n) {
@@ -66,12 +69,52 @@ public class TechnicalSettings {
         return pixelLocked;
     }
 
+    public static boolean isPlayUISounds() {
+        return playUISounds;
+    }
+
+    public static boolean isPlayMilestoneSounds() {
+        return playMilestoneSounds;
+    }
+
+    public static boolean isPlayPlayerSounds() {
+        return playPlayerSounds;
+    }
+
+    public static boolean isPlaySentrySounds() {
+        return playSentrySounds;
+    }
+
+    public static boolean isPlayEnvironmentSounds() {
+        return playEnvironmentSounds;
+    }
+
     // Setters
     public static void setPixelLocked(final boolean pixelLocked) {
         TechnicalSettings.pixelLocked = pixelLocked;
     }
 
-    public static void setFullscreen(boolean fullscreen) {
+    public static void setFullscreen(final boolean fullscreen) {
         TechnicalSettings.fullscreen = fullscreen;
+    }
+
+    public static void setPlayUISounds(final boolean playUISounds) {
+        TechnicalSettings.playUISounds = playUISounds;
+    }
+
+    public static void setPlayMilestoneSounds(boolean playMilestoneSounds) {
+        TechnicalSettings.playMilestoneSounds = playMilestoneSounds;
+    }
+
+    public static void setPlayPlayerSounds(boolean playPlayerSounds) {
+        TechnicalSettings.playPlayerSounds = playPlayerSounds;
+    }
+
+    public static void setPlaySentrySounds(boolean playSentrySounds) {
+        TechnicalSettings.playSentrySounds = playSentrySounds;
+    }
+
+    public static void setPlayEnvironmentSounds(boolean playEnvironmentSounds) {
+        TechnicalSettings.playEnvironmentSounds = playEnvironmentSounds;
     }
 }

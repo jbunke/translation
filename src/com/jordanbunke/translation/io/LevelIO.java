@@ -14,22 +14,23 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 public class LevelIO {
-    public static final Path CAMPAIGNS_FOLDER = ParserWriter.RESOURCE_ROOT.resolve("campaigns");
-    public static final Path MY_CONTENT_FOLDER = ParserWriter.RESOURCE_ROOT.resolve("my_content"); // TODO - potentially elsewhere
+    private static final Path CAMPAIGNS_FOLDER = ParserWriter.GAME_DATA_ROOT.resolve("campaigns"),
+            MY_CONTENT_FOLDER = ParserWriter.GAME_DATA_ROOT.resolve("my_content");
 
-    public static final Path MAIN_CAMPAIGNS_FOLDER = CAMPAIGNS_FOLDER.resolve("main");
-    public static final Path TUTORIAL_CAMPAIGN_FOLDER = CAMPAIGNS_FOLDER.resolve("tutorial");
-    public static final Path IMPORTED_CAMPAIGNS_FOLDER = CAMPAIGNS_FOLDER.resolve("imported");
-
-    public static final Path MY_CAMPAIGNS_FOLDER = MY_CONTENT_FOLDER.resolve("campaigns");
+    public static final Path MAIN_CAMPAIGNS_FOLDER = CAMPAIGNS_FOLDER.resolve("main"),
+            TUTORIAL_CAMPAIGN_FOLDER = CAMPAIGNS_FOLDER.resolve("tutorial"),
+            IMPORTED_CAMPAIGNS_FOLDER = CAMPAIGNS_FOLDER.resolve("imported"),
+            MY_CAMPAIGNS_FOLDER = MY_CONTENT_FOLDER.resolve("campaigns");
     private static final Path MY_LEVELS_FOLDER = MY_CONTENT_FOLDER.resolve("levels");
 
-    private static final String CAMPAIGNS_IN_FOLDER = ".campaigns";
-    public static final String
-            CAMPAIGN_SPECIFICATION_SUFFIX = "spec",
-            LEVEL_FILE_SUFFIX = "lvl";
+    private static Campaign myLevels = null;
+
+    private static final String CAMPAIGNS_IN_FOLDER = ".campaigns",
+            CAMPAIGN_SPECIFICATION_SUFFIX = "spec";
+    public static final String LEVEL_FILE_SUFFIX = "lvl";
     private static final String FILENAME_EXTENSION_START = ".",
             CAMPAIGN_SPEC = FILENAME_EXTENSION_START + CAMPAIGN_SPECIFICATION_SUFFIX;
 
@@ -55,9 +56,20 @@ public class LevelIO {
         return campaigns;
     }
 
+    public static Optional<Campaign> tryReadImportedCampaign(final Path importedCampaignFolder) {
+        String toParse = JBJGLFileIO.readFile(importedCampaignFolder.resolve(CAMPAIGN_SPEC));
+
+        if (toParse.equals(""))
+            return Optional.empty();
+
+        return Optional.of(parseCampaign(toParse, importedCampaignFolder));
+    }
+
     public static Campaign readMyLevels() {
-        // TODO - unique implementation
-        return readCampaign(MY_LEVELS_FOLDER);
+        if (myLevels == null)
+            myLevels = readCampaign(MY_LEVELS_FOLDER);
+
+        return myLevels;
     }
 
     public static Campaign readCampaign(final Path campaignFolder) {
@@ -160,10 +172,10 @@ public class LevelIO {
                 FILE_NAMING, isDefaultNaming ? DEFAULT : CUSTOM));
         ParserWriter.newLineSB(sb);
 
-        if (!isDefaultNaming)
+        if (!isDefaultNaming) {
             writeCampaignFiles(campaign, sb);
-
-        ParserWriter.newLineSB(sb);
+            ParserWriter.newLineSB(sb);
+        }
 
         JBJGLFileIO.writeFile(filepath, sb.toString());
     }
@@ -396,6 +408,12 @@ public class LevelIO {
         myLevels.addLevel(level, filename, true);
 
         writeCampaign(myLevels, false);
+
+        markMyLevelsAsOutdated();
+    }
+
+    private static void markMyLevelsAsOutdated() {
+        myLevels = null;
     }
 
     private static String generateCampaignFolderName(final String name) {

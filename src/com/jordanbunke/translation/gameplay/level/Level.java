@@ -11,16 +11,19 @@ import com.jordanbunke.translation.gameplay.entities.Platform;
 import com.jordanbunke.translation.gameplay.entities.Player;
 import com.jordanbunke.translation.gameplay.entities.Sentry;
 import com.jordanbunke.translation.gameplay.image.ImageAssets;
+import com.jordanbunke.translation.io.ControlScheme;
 import com.jordanbunke.translation.io.LevelIO;
 import com.jordanbunke.translation.menus.MenuHelper;
 import com.jordanbunke.translation.menus.MenuIDs;
 import com.jordanbunke.translation.settings.GameplaySettings;
+import com.jordanbunke.translation.sound.Sounds;
 import com.jordanbunke.translation.utility.Utility;
 
 import java.awt.*;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 public class Level {
     public static final String EDITOR_LEVEL_NAME = "TESTING EDITOR LEVEL";
@@ -32,7 +35,7 @@ public class Level {
 
     private Path filepath;
 
-    private final String name, hint;
+    private final String name, hint, parsedHint;
     private final LevelStats stats;
     private final PlatformSpec[] platformSpecs;
     private final SentrySpec[] sentrySpecs;
@@ -60,6 +63,7 @@ public class Level {
 
         this.name = name;
         this.hint = hint;
+        this.parsedHint = parseHint();
         this.stats = stats;
 
         this.platformSpecs = platformSpecs;
@@ -105,7 +109,7 @@ public class Level {
         filepath = folder.resolve(levelFilename);
     }
 
-    public void saveLevel(final boolean reset) {
+    public void save(final boolean reset) {
         if (filepath != null)
             LevelIO.writeLevel(this, reset);
     }
@@ -150,9 +154,8 @@ public class Level {
         // player
         player.update();
 
-        // sentries - potential concurrent modification so no enhanced for loop
-        for (int i = 0; i < sentries.size(); i++)
-            sentries.get(i).update();
+        // sentries
+        updateSentries();
 
         // animation aging
         for (int i = 0; i < animations.size(); i++) {
@@ -165,7 +168,7 @@ public class Level {
         }
 
         // HUD elements
-        LevelHUD.update(this);
+        LevelHUD.update();
 
         camera.update();
 
@@ -173,6 +176,9 @@ public class Level {
             stats.increment(LevelStats.FAILURES);
             stats.resetStat(LevelStats.TIME);
             stats.resetStat(LevelStats.SIGHTINGS);
+
+            Sounds.failedLevel();
+
             launchLevel();
         }
 
@@ -209,12 +215,22 @@ public class Level {
         player.process(listener);
     }
 
+    private void updateSentries() {
+        Sounds.resetContinuousSentryData();
+
+        // potential concurrent modification (spawner spawns child) so no enhanced for loop
+        for (int i = 0; i < sentries.size(); i++)
+            sentries.get(i).update();
+
+        Sounds.processContinuousSentryData();
+    }
+
     private void checkIfCompleted() {
         if (completed) {
             countdown--;
 
             if (countdown <= 0)
-                levelEndScreen();
+                levelComplete();
         } else {
             completed = sentries.stream().map(
                     x -> !x.isAlive()
@@ -224,15 +240,17 @@ public class Level {
         }
     }
 
-    private void levelEndScreen() {
+    private void levelComplete() {
         stats.finalizeStats();
 
         // save level and campaign
         if (!isEditorLevel()) {
             Translation.campaign.updateBeaten();
             LevelIO.writeCampaign(Translation.campaign, false);
-            saveLevel(false);
+            save(false);
         }
+
+        Sounds.completedLevel();
 
         Translation.manager.setActiveStateIndex(Translation.LEVEL_COMPLETE_INDEX);
         MenuHelper.linkMenu(MenuIDs.LEVEL_COMPLETE);
@@ -281,6 +299,31 @@ public class Level {
         return true;
     }
 
+    // HINT PARSING
+
+    private String parseHint() {
+        final Function<String, String> KEY_REPLACEMENT_F = x ->
+                ControlScheme.getCorrespondingKey(ControlScheme.Action.valueOf(x)).print();
+
+        final String KEY_TAG = "key", AFTER_TAG = ":", OPEN = "<", CLOSE = ">",
+                TAG_START = KEY_TAG + AFTER_TAG + OPEN;
+
+        String mutableHint = hint;
+
+        while (mutableHint.contains(TAG_START) &&
+                mutableHint.indexOf(CLOSE) > mutableHint.indexOf(TAG_START)) {
+            final String before = mutableHint.substring(0, mutableHint.indexOf(TAG_START)),
+                    replacement = KEY_REPLACEMENT_F.apply(
+                            mutableHint.substring(mutableHint.indexOf(TAG_START) +
+                                    TAG_START.length(), mutableHint.indexOf(CLOSE))),
+                    after = mutableHint.substring(mutableHint.indexOf(CLOSE) + 1);
+
+            mutableHint = before + replacement + after;
+        }
+
+        return mutableHint;
+    }
+
     // GETTERS
 
     public boolean isEditorLevel() {
@@ -313,6 +356,10 @@ public class Level {
 
     public String getHint() {
         return hint;
+    }
+
+    public String getParsedHint() {
+        return parsedHint;
     }
 
     public LevelStats getStats() {
