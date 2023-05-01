@@ -2,6 +2,7 @@ package com.jordanbunke.translation;
 
 import com.jordanbunke.jbjgl.JBJGLOnStartup;
 import com.jordanbunke.jbjgl.contexts.JBJGLMenuManager;
+import com.jordanbunke.jbjgl.debug.JBJGLDebugChannel;
 import com.jordanbunke.jbjgl.debug.JBJGLGameDebugger;
 import com.jordanbunke.jbjgl.game.JBJGLGame;
 import com.jordanbunke.jbjgl.game.JBJGLGameEngine;
@@ -20,6 +21,7 @@ import com.jordanbunke.translation.menus.Menus;
 import com.jordanbunke.translation.settings.GameplayConstants;
 import com.jordanbunke.translation.settings.TechnicalSettings;
 import com.jordanbunke.translation.settings.debug.DebugRenderer;
+import com.jordanbunke.translation.settings.debug.DebuggerHandler;
 import com.jordanbunke.translation.sound.Sounds;
 
 public class Translation {
@@ -151,6 +153,9 @@ public class Translation {
         if (!flags[INDEX_PRINT_FRAME_RATE])
             d.muteChannel(JBJGLGameDebugger.FRAME_RATE);
 
+        d.addChannel(JBJGLDebugChannel.initialize(DebuggerHandler.NOTIFICATION_CENTER_CHANNEL_ID,
+                DebugRenderer::debugOutputFunction, false, true));
+
         // debugger channel output functions
         d.getChannel(JBJGLGameDebugger.FRAME_RATE).setOutputFunction(DebugRenderer::debugOutputFunction);
         d.getChannel(JBJGLGameDebugger.LOGIC_CHANNEL).setOutputFunction(DebugRenderer::debugOutputFunction);
@@ -170,6 +175,8 @@ public class Translation {
         levelCompleteState.setLevel(level);
 
         currentLevel = level;
+
+        DebuggerHandler.printNotification("Set game level: " + level.getName());
     }
 
     public static void quitGame() {

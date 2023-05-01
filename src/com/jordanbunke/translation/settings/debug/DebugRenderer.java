@@ -56,11 +56,12 @@ public class DebugRenderer {
 
         final int printFPSAtX = TechnicalSettings.getWidth() -
                 TechnicalSettings.pixelLockNumber(fpsImage.getWidth() + PRINT_AT_FROM_CORNER);
-        g.drawImage(fpsImage, printFPSAtX, PRINT_AT_FROM_CORNER, null);
+        g.drawImage(fpsImage, printFPSAtX, PRINT_AT_FROM_CORNER -
+                (TechnicalSettings.getPixelSize() * 4), null);
     }
 
     private static JBJGLImage drawFps() {
-        return JBJGLTextBuilder.initialize((double)TechnicalSettings.getPixelSize(),
+        return JBJGLTextBuilder.initialize(TechnicalSettings.getPixelSize() / 2.,
                 JBJGLText.Orientation.RIGHT, TLColors.DEBUG(TLColors.OPAQUE()),
                 Fonts.CLASSIC()).addText(String.valueOf(fpsOnFile)).build().draw();
     }

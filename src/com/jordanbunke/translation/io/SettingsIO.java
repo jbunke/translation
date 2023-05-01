@@ -14,7 +14,7 @@ public class SettingsIO {
     public static final Path SETTINGS_FILE = ParserWriter.GAME_DATA_ROOT.resolve(".settings");
 
     private static final String FULLSCREEN = "fullscreen",
-            PIXEL_LOCKING = "pixel-locking",
+            PIXEL_ALIGNMENT = "pixel-alignment",
             PLAY_UI_SOUNDS = "ui-sounds",
             PLAY_MILESTONE_SOUNDS = "milestone-sounds",
             PLAY_PLAYER_SOUNDS = "player-sounds",
@@ -42,7 +42,7 @@ public class SettingsIO {
         final boolean
                 // VIDEO
                 fullscreen = Boolean.parseBoolean(ParserWriter.extractFromTag(FULLSCREEN, toParse)),
-                pixelLocking = Boolean.parseBoolean(ParserWriter.extractFromTag(PIXEL_LOCKING, toParse)),
+                pixelAlignment = Boolean.parseBoolean(ParserWriter.extractFromTag(PIXEL_ALIGNMENT, toParse)),
 
                 // AUDIO
                 playUISounds = Boolean.parseBoolean(ParserWriter.extractFromTag(PLAY_UI_SOUNDS, toParse)),
@@ -64,7 +64,7 @@ public class SettingsIO {
                 ParserWriter.extractFromTag(DEFAULT_FOLLOW_MODE, toParse));
 
         TechnicalSettings.setFullscreen(fullscreen);
-        TechnicalSettings.setPixelLocked(pixelLocking);
+        TechnicalSettings.setPixelAlignment(pixelAlignment);
 
         TechnicalSettings.setPlayUISounds(playUISounds);
         TechnicalSettings.setPlayMilestoneSounds(playMilestoneSounds);
@@ -127,8 +127,8 @@ public class SettingsIO {
                 String.valueOf(TechnicalSettings.isFullscreen())));
         ParserWriter.newLineSB(sb);
 
-        sb.append(ParserWriter.encloseInTag(PIXEL_LOCKING,
-                String.valueOf(TechnicalSettings.isPixelLocked())));
+        sb.append(ParserWriter.encloseInTag(PIXEL_ALIGNMENT,
+                String.valueOf(TechnicalSettings.isPixelAlignment())));
         ParserWriter.newLineSB(sb);
 
         ParserWriter.newLineSB(sb);

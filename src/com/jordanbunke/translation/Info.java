@@ -13,11 +13,13 @@ public class Info {
 
     private static final String
             INFO_FILENAME = "translation_info.txt", CODEBASE_RESOURCE_ROOT = "res",
-            TITLE_TAG = "title", VERSION_TAG = "version", GAMES_TAG = "games_link",
-            GITHUB_TAG = "github_link", ITCH_TAG = "this_game_itch_link", TWITTER_TAG = "twitter_link",
+            TITLE_TAG = "title", VERSION_TAG = "version",
+            GAMES_TAG = "games_link", GITHUB_TAG = "github_link", HIRE_ME_TAG = "hire_me_link",
+            ITCH_TAG = "this_game_itch_link", TWITTER_TAG = "twitter_link",
             FAILED = "failed", RELEASE = "1.0.0";
 
-    public static final String TITLE, MY_GAMES_LINK, MY_GITHUB_LINK, THIS_GAME_ITCH_LINK, MY_TWITTER_LINK;
+    public static final String TITLE, MY_GAMES_LINK, MY_GITHUB_LINK, HIRE_ME_LINK,
+            THIS_GAME_ITCH_LINK, MY_TWITTER_LINK;
     public static final JBJGLVersion VERSION;
 
     static {
@@ -36,6 +38,9 @@ public class Info {
 
         MY_GITHUB_LINK = StringProcessing.getContentsFromTag(contents,
                 GITHUB_TAG, SEPARATOR, OPEN, CLOSE, FAILED);
+
+        HIRE_ME_LINK = StringProcessing.getContentsFromTag(contents,
+                HIRE_ME_TAG, SEPARATOR, OPEN, CLOSE, FAILED);
 
         THIS_GAME_ITCH_LINK = StringProcessing.getContentsFromTag(contents,
                 ITCH_TAG, SEPARATOR, OPEN, CLOSE, FAILED);
@@ -61,6 +66,7 @@ public class Info {
                 ParserWriter.encloseInTag(VERSION_TAG, VERSION.toString()),
                 ParserWriter.encloseInTag(GAMES_TAG, MY_GAMES_LINK),
                 ParserWriter.encloseInTag(GITHUB_TAG, MY_GITHUB_LINK),
+                ParserWriter.encloseInTag(HIRE_ME_TAG, HIRE_ME_LINK),
                 ParserWriter.encloseInTag(ITCH_TAG, THIS_GAME_ITCH_LINK),
                 ParserWriter.encloseInTag(TWITTER_TAG, MY_TWITTER_LINK),
                 ""

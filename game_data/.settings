@@ -1,5 +1,5 @@
-fullscreen:{true}
-pixel-locking:{true}
+fullscreen:{false}
+pixel-alignment:{true}
 
 ui-sounds:{true}
 milestone-sounds:{true}

@@ -227,7 +227,7 @@ public class Menus {
 
     private static JBJGLMenu generateVideoSettingsMenu() {
         final JBJGLMenuElementGrouping contents = MenuHelper.generateListMenuToggleOptions(
-                new String[] { "FULLSCREEN", "PIXEL LOCKING" },
+                new String[] { "FULLSCREEN", "PIXEL ALIGNMENT" },
                 new String[][] {
                         new String[] { "ON", "OFF" },
                         new String[] { "ON", "OFF" }
@@ -238,13 +238,13 @@ public class Menus {
                                 () -> Translation.resize(true)
                         },
                         new Runnable[] {
-                                () -> TechnicalSettings.setPixelLocked(false),
-                                () -> TechnicalSettings.setPixelLocked(true)
+                                () -> TechnicalSettings.setPixelAlignment(false),
+                                () -> TechnicalSettings.setPixelAlignment(true)
                         }
                 },
                 new Callable[] {
                         () -> TechnicalSettings.isFullscreen() ? 0 : 1,
-                        () -> TechnicalSettings.isPixelLocked() ? 0 : 1
+                        () -> TechnicalSettings.isPixelAlignment() ? 0 : 1
                 }, 1.0);
 
         return MenuHelper.generateBasicMenu(
@@ -494,10 +494,11 @@ public class Menus {
                         MenuHelper.heightCoord(0.5),
                         TechnicalSettings.getPixelSize() / 2.),
                 MenuHelper.generateHorizontalListMenuOptions(
-                        new String[] { "PUBLISHED GAMES", "GITHUB" },
+                        new String[] { "PUBLISHED GAMES", "GITHUB", "HIRE ME" },
                         new Runnable[] {
                                 () -> BrowserIO.openLink(URI.create(Info.MY_GAMES_LINK)),
-                                () -> BrowserIO.openLink(URI.create(Info.MY_GITHUB_LINK))
+                                () -> BrowserIO.openLink(URI.create(Info.MY_GITHUB_LINK)),
+                                () -> BrowserIO.openLink(URI.create(Info.HIRE_ME_LINK))
                         }, MenuHelper.heightCoord(0.9), MenuHelper.widthCoord(0.3)
                 ));
 

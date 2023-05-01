@@ -16,14 +16,14 @@ public class TechnicalSettings {
 
     // Mutable
     private static boolean
-            fullscreen = true, pixelLocked = true,
+            fullscreen = true, pixelAlignment = true,
             playUISounds = true, playMilestoneSounds = true,
             playSentrySounds = true, playPlayerSounds = true,
             playEnvironmentSounds = true;
 
     // Helpers
     public static int pixelLockNumber(final int n) {
-        if (pixelLocked) {
+        if (pixelAlignment) {
             final int mod = n % getPixelSize();
             final boolean roundDown = mod <= getPixelSize() / 2;
 
@@ -65,8 +65,8 @@ public class TechnicalSettings {
         return fullscreen;
     }
 
-    public static boolean isPixelLocked() {
-        return pixelLocked;
+    public static boolean isPixelAlignment() {
+        return pixelAlignment;
     }
 
     public static boolean isPlayUISounds() {
@@ -90,8 +90,8 @@ public class TechnicalSettings {
     }
 
     // Setters
-    public static void setPixelLocked(final boolean pixelLocked) {
-        TechnicalSettings.pixelLocked = pixelLocked;
+    public static void setPixelAlignment(final boolean pixelAlignment) {
+        TechnicalSettings.pixelAlignment = pixelAlignment;
     }
 
     public static void setFullscreen(final boolean fullscreen) {

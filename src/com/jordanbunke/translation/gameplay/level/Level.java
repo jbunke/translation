@@ -16,6 +16,7 @@ import com.jordanbunke.translation.io.LevelIO;
 import com.jordanbunke.translation.menus.MenuHelper;
 import com.jordanbunke.translation.menus.MenuIDs;
 import com.jordanbunke.translation.settings.GameplaySettings;
+import com.jordanbunke.translation.settings.debug.DebuggerHandler;
 import com.jordanbunke.translation.sound.Sounds;
 import com.jordanbunke.translation.utility.Utility;
 
@@ -178,6 +179,8 @@ public class Level {
             stats.resetStat(LevelStats.SIGHTINGS);
 
             Sounds.failedLevel();
+
+            DebuggerHandler.printMessage("Out of bounds - level reset", JBJGLGameDebugger.LOGIC_CHANNEL);
 
             launchLevel();
         }
