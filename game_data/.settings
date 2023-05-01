@@ -1,5 +1,6 @@
-fullscreen:{true}
-pixel-locking:{true}
+fullscreen:{false}
+pixel-alignment:{true}
+typeface:{CLASSIC}
 
 ui-sounds:{true}
 milestone-sounds:{true}
@@ -12,7 +13,7 @@ show-tethers:{true}
 show-combo:{true}
 show-follow-mode-updates:{true}
 
-show-debug:{true}
+show-debug:{false}
 show-pixel-grid:{false}
 
 cam-down-c:{DOWN_ARROW}

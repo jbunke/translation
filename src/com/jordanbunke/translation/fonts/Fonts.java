@@ -3,10 +3,46 @@ package com.jordanbunke.translation.fonts;
 import com.jordanbunke.jbjgl.fonts.Font;
 import com.jordanbunke.jbjgl.fonts.FontFamily;
 import com.jordanbunke.translation.ResourceManager;
+import com.jordanbunke.translation.Translation;
 
 import java.nio.file.Path;
 
 public class Fonts {
+    public enum Typeface {
+        CLASSIC(Fonts.CLASSIC.getStandard(),
+                Fonts.CLASSIC.getItalics(), CLASSIC_ITALICS_SPACED),
+        VIGILANT(Fonts.VIGILANT.getStandard(),
+                Fonts.VIGILANT.getItalics(), VIGILANT_ITALICS_SPACED),
+        MY_HANDWRITING(Fonts.MY_HANDWRITING.getStandard(),
+                Fonts.MY_HANDWRITING.getItalics(), Fonts.MY_HANDWRITING.getBold());
+
+        private final Font standard, italics, italicsSpaced;
+
+        Typeface(
+                final Font standard, final Font italics, final Font italicsSpaced
+        ) {
+            this.standard = standard;
+            this.italics = italics;
+            this.italicsSpaced = italicsSpaced;
+        }
+
+        public Typeface next() {
+            final Typeface[] all = Typeface.values();
+            return all[(ordinal() + 1) % all.length];
+        }
+
+        @Override
+        public String toString() {
+            return switch (this) {
+                case CLASSIC -> "CLASSIC";
+                case VIGILANT -> "RED SQUARE";
+                case MY_HANDWRITING -> "MY HANDWRITING";
+            };
+        }
+    }
+
+    private static Typeface typeface;
+
     private static final Path FONT_FOLDER = ResourceManager.getFontFilesFolder();
     private static final Class<ResourceManager> LOADER_CLASS = ResourceManager.class;
 
@@ -29,77 +65,45 @@ public class Fonts {
     private static final Font VIGILANT_ITALICS_SPACED = Font.loadFromSource(FONT_FOLDER, LOADER_CLASS,
             "font-vigilant-italics", true, 2);
 
-    private static Font GAME_STANDARD;
-    private static Font GAME_ITALICS;
-    private static Font GAME_ITALICS_SPACED;
+    private static Font gameStandard;
+    private static Font gameItalics;
+    private static Font gameItalicsSpaced;
 
-    static {
-        setGameFontToVigilant();
+    public static Font gameStandard() {
+        return gameStandard;
     }
 
-    public static Font GAME_STANDARD() {
-        return GAME_STANDARD;
+    public static Font gameItalics() {
+        return gameItalics;
     }
 
-    public static Font GAME_ITALICS() {
-        return GAME_ITALICS;
-    }
-
-    public static Font GAME_ITALICS_SPACED() {
-        return GAME_ITALICS_SPACED;
-    }
-
-    public static Font MY_HANDWRITING() {
-        return MY_HANDWRITING.getStandard();
-    }
-
-    public static Font MY_ITALICIZED_HANDWRITING() {
-        return MY_HANDWRITING.getItalics();
-    }
-
-    public static Font MY_SPACED_ITALICIZED_HANDWRITING() {
-        return MY_HANDWRITING.getBold();
-    }
-
-    public static Font VIGILANT() {
-        return VIGILANT.getStandard();
+    public static Font gameItalicsSpaced() {
+        return gameItalicsSpaced;
     }
 
     public static Font VIGILANT_ITALICS() {
         return VIGILANT.getItalics();
     }
 
-    public static Font VIGILANT_ITALICS_SPACED() {
-        return VIGILANT_ITALICS_SPACED;
-    }
-
     public static Font CLASSIC() {
         return CLASSIC.getStandard();
     }
 
-    public static Font CLASSIC_ITALICS() {
-        return CLASSIC.getItalics();
+    public static Typeface getTypeface() {
+        return typeface;
     }
 
-    public static Font CLASSIC_ITALICS_SPACED() {
-        return CLASSIC_ITALICS_SPACED;
-    }
+    public static void setTypeface(final Typeface typeface) {
+        // this skips menu redrawing
+        if (Fonts.typeface == typeface)
+            return;
 
-    public static void setGameFontToMyHandwriting() {
-        GAME_STANDARD = MY_HANDWRITING();
-        GAME_ITALICS = MY_ITALICIZED_HANDWRITING();
-        GAME_ITALICS_SPACED = MY_SPACED_ITALICIZED_HANDWRITING();
-    }
+        Fonts.typeface = typeface;
 
-    public static void setGameFontToVigilant() {
-        GAME_STANDARD = VIGILANT();
-        GAME_ITALICS = VIGILANT_ITALICS();
-        GAME_ITALICS_SPACED = VIGILANT_ITALICS_SPACED();
-    }
+        gameStandard = typeface.standard;
+        gameItalics = typeface.italics;
+        gameItalicsSpaced = typeface.italicsSpaced;
 
-    public static void setGameFontToClassic() {
-        GAME_STANDARD = CLASSIC();
-        GAME_ITALICS = CLASSIC_ITALICS();
-        GAME_ITALICS_SPACED = CLASSIC_ITALICS_SPACED();
+        Translation.typefaceWasChanged();
     }
 }

@@ -1,6 +1,7 @@
 title:{Translation}
-version:{0.2.0.78}
+version:{0.2.0}
 games_link:{https://flinkerflitzer.itch.io}
 github_link:{https://github.com/jbunke}
+hire_me_link:{https://www.fiverr.com/jordanbunke}
 this_game_itch_link:{https://flinkerflitzer.itch.io/translation}
 twitter_link:{https://twitter.com/flinkerflitzer}

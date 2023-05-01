@@ -1,0 +1,14 @@
+name:{The Onion Knight}
+hint:{Less or fewer? Mmm...}
+stats:{}
+platforms:{
+	(0,0,200);
+	(0,-240,200);
+	(-320,-80,200);
+	(0,-440,200)
+}
+sentries:{
+	(INVERTER,1,-6);
+	(BOOSTER,2,-4);
+	(NECROMANCER,3,2)
+}

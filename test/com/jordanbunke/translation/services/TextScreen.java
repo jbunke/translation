@@ -29,7 +29,7 @@ public class TextScreen {
     }
 
     private static void prep() {
-        Fonts.setGameFontToClassic();
+        Fonts.setTypeface(Fonts.Typeface.CLASSIC);
         TLColors.setBackgroundToBlack();
     }
 
@@ -64,7 +64,7 @@ public class TextScreen {
 
     private static JBJGLTextMenuElement textFormatter(final String text) {
         JBJGLTextBuilder tb = JBJGLTextBuilder.initialize(
-                5., JBJGLText.Orientation.CENTER, TLColors.PLAYER(), Fonts.GAME_ITALICS()
+                5., JBJGLText.Orientation.CENTER, TLColors.PLAYER(), Fonts.gameItalics()
         );
         for (String line : text.split(NEW_LINE)) {
             tb.addText(line.equals("") ? " " : line);

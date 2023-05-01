@@ -15,7 +15,7 @@ public class BrowserIO {
         try {
             desktop.browse(uri);
         } catch (IOException e) {
-            JBJGLError.send("Couldn't open link in browser");
+            JBJGLError.send("Couldn't open link in browser: " + uri);
         }
     }
 }
