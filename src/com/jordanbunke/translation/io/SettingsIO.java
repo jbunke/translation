@@ -2,6 +2,7 @@ package com.jordanbunke.translation.io;
 
 import com.jordanbunke.jbjgl.events.JBJGLKey;
 import com.jordanbunke.jbjgl.io.JBJGLFileIO;
+import com.jordanbunke.translation.fonts.Fonts;
 import com.jordanbunke.translation.gameplay.Camera;
 import com.jordanbunke.translation.settings.GameplaySettings;
 import com.jordanbunke.translation.settings.TechnicalSettings;
@@ -15,6 +16,7 @@ public class SettingsIO {
 
     private static final String FULLSCREEN = "fullscreen",
             PIXEL_ALIGNMENT = "pixel-alignment",
+            TYPEFACE = "typeface",
             PLAY_UI_SOUNDS = "ui-sounds",
             PLAY_MILESTONE_SOUNDS = "milestone-sounds",
             PLAY_PLAYER_SOUNDS = "player-sounds",
@@ -63,8 +65,12 @@ public class SettingsIO {
         final Camera.FollowMode defaultFollowMode = Camera.FollowMode.valueOf(
                 ParserWriter.extractFromTag(DEFAULT_FOLLOW_MODE, toParse));
 
+        final Fonts.Typeface typeface = Fonts.Typeface.valueOf(
+                ParserWriter.extractFromTag(TYPEFACE, toParse));
+
         TechnicalSettings.setFullscreen(fullscreen);
         TechnicalSettings.setPixelAlignment(pixelAlignment);
+        Fonts.setTypeface(typeface);
 
         TechnicalSettings.setPlayUISounds(playUISounds);
         TechnicalSettings.setPlayMilestoneSounds(playMilestoneSounds);
@@ -129,6 +135,10 @@ public class SettingsIO {
 
         sb.append(ParserWriter.encloseInTag(PIXEL_ALIGNMENT,
                 String.valueOf(TechnicalSettings.isPixelAlignment())));
+        ParserWriter.newLineSB(sb);
+
+        sb.append(ParserWriter.encloseInTag(TYPEFACE,
+                Fonts.getTypeface().name()));
         ParserWriter.newLineSB(sb);
 
         ParserWriter.newLineSB(sb);

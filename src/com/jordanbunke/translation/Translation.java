@@ -7,7 +7,6 @@ import com.jordanbunke.jbjgl.game.JBJGLGame;
 import com.jordanbunke.jbjgl.game.JBJGLGameEngine;
 import com.jordanbunke.jbjgl.game.JBJGLGameManager;
 import com.jordanbunke.jbjgl.window.JBJGLWindow;
-import com.jordanbunke.translation.fonts.Fonts;
 import com.jordanbunke.translation.game_states.EditorGameState;
 import com.jordanbunke.translation.game_states.GameplayGameState;
 import com.jordanbunke.translation.game_states.LevelMenuGameState;
@@ -46,14 +45,15 @@ public class Translation {
 
     public static JBJGLGameManager manager;
     public static JBJGLGameDebugger debugger;
-    public static JBJGLGameEngine gameEngine;
-    public static JBJGLGame game;
+
+    private static JBJGLGameEngine gameEngine;
+    private static JBJGLGame game;
+    private static boolean launched = false;
 
     public static void main(String[] args) {
         JBJGLOnStartup.run();
         Sounds.init();
 
-        Fonts.setGameFontToClassic();
         SettingsIO.read();
 
         launch(processArgs(args));
@@ -84,19 +84,24 @@ public class Translation {
     public static void resize(final boolean fullscreen) {
         TechnicalSettings.setFullscreen(fullscreen);
         ImageAssets.updateAfterResize();
-        updateMenusAfterResize();
+        updateMenusAfterVideoSettingsUpdate();
         game.replaceWindow(generateWindow());
     }
 
-    private static void updateMenusAfterResize() {
+    public static void typefaceWasChanged() {
+        if (launched)
+            updateMenusAfterVideoSettingsUpdate();
+    }
+
+    private static void updateMenusAfterVideoSettingsUpdate() {
         final Level level = currentLevel == null
                 ? (campaign.getLevelCount() > 0 ? campaign.getLevel() : null)
                 : currentLevel;
 
         if (manager.getActiveStateIndex() == PAUSE_INDEX)
-            Menus.generateAfterResize(pauseState.getMenuManager(), false, level);
+            Menus.generateAfterVideoSettingsUpdate(pauseState.getMenuManager(), false, level);
         else
-            Menus.generateAfterResize(menuManager.getMenuManager(), true, level);
+            Menus.generateAfterVideoSettingsUpdate(menuManager.getMenuManager(), true, level);
     }
 
     private static JBJGLWindow generateWindow() {
@@ -140,6 +145,7 @@ public class Translation {
         gameEngine = game.getGameEngine();
         gameEngine.overrideDebugger(debugger);
 
+        launched = true;
         DebuggerHandler.printMessage("Game launched successfully!", JBJGLGameDebugger.LOGIC_CHANNEL);
     }
 

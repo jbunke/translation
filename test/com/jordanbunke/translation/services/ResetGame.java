@@ -1,11 +1,13 @@
 package com.jordanbunke.translation.services;
 
+import com.jordanbunke.translation.fonts.Fonts;
 import com.jordanbunke.translation.gameplay.campaign.Campaign;
 import com.jordanbunke.translation.gameplay.level.Level;
 import com.jordanbunke.translation.io.LevelIO;
 
 public class ResetGame {
     public static void main(String[] args) {
+        Fonts.setTypeface(Fonts.Typeface.CLASSIC);
         reset();
     }
 

@@ -158,7 +158,7 @@ public class TypedInputMenuElement extends JBJGLMenuElement {
         final double TEXT_SIZE = TechnicalSettings.getPixelSize() / 2.;
 
         return JBJGLTextBuilder.initialize(
-                TEXT_SIZE, JBJGLText.Orientation.CENTER, color, Fonts.GAME_STANDARD()
+                TEXT_SIZE, JBJGLText.Orientation.CENTER, color, Fonts.gameStandard()
         ).addText(text).build().draw();
     }
 

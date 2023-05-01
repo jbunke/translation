@@ -160,7 +160,7 @@ public class MenuHelper {
                         JBJGLMenuElement.Anchor.CENTRAL_TOP,
                         JBJGLTextBuilder.initialize(
                                         2., JBJGLText.Orientation.CENTER,
-                                        TLColors.MENU_TEXT(), Fonts.GAME_ITALICS_SPACED()
+                                        TLColors.MENU_TEXT(), Fonts.gameItalicsSpaced()
                                 ).addText(firstLine).addLineBreak()
                                 .addText(decisionDescription.toUpperCase()).build()),
                 determineTextButton(
@@ -1189,13 +1189,13 @@ public class MenuHelper {
                         new int[] { x, numberY }, JBJGLMenuElement.Anchor.CENTRAL_TOP,
                         JBJGLTextBuilder.initialize(
                                 4., JBJGLText.Orientation.CENTER,
-                                TLColors.MENU_TEXT(), Fonts.GAME_ITALICS_SPACED()
+                                TLColors.MENU_TEXT(), Fonts.gameItalicsSpaced()
                         ).addText(number).build()),
                 JBJGLTextMenuElement.generate(
                         new int[] { x, captionY }, JBJGLMenuElement.Anchor.CENTRAL_TOP,
                         JBJGLTextBuilder.initialize(
                                 2., JBJGLText.Orientation.CENTER,
-                                TLColors.MENU_TEXT(), Fonts.GAME_STANDARD()
+                                TLColors.MENU_TEXT(), Fonts.gameStandard()
                         ).addText(caption).build())
         );
     }
@@ -1279,7 +1279,7 @@ public class MenuHelper {
         do {
             titleText = JBJGLTextBuilder.initialize(textSize,
                     JBJGLText.Orientation.CENTER, TLColors.MENU_TEXT(),
-                    Fonts.GAME_ITALICS_SPACED()).addText(title).build();
+                    Fonts.gameItalicsSpaced()).addText(title).build();
 
             textSize -= DECREMENT;
             offsetY += INCREMENT;
@@ -1301,7 +1301,7 @@ public class MenuHelper {
         do {
             subtitleText = JBJGLTextBuilder.initialize(textSize,
                     JBJGLText.Orientation.CENTER, TLColors.MENU_TEXT(),
-                    Fonts.GAME_ITALICS_SPACED()).addText(subtitle).build();
+                    Fonts.gameItalicsSpaced()).addText(subtitle).build();
 
             textSize -= DECREMENT;
             offsetY += INCREMENT;
@@ -1404,7 +1404,7 @@ public class MenuHelper {
     ) {
         return JBJGLTextBuilder.initialize(
                 textSize, orientation,
-                TLColors.MENU_TEXT(), Fonts.GAME_STANDARD());
+                TLColors.MENU_TEXT(), Fonts.gameStandard());
     }
 
     private static JBJGLTextBuilder generateInitialMenuTextBuilder(final double textSize) {
@@ -1505,7 +1505,7 @@ public class MenuHelper {
 
         JBJGLImage text = JBJGLTextBuilder.initialize(
                 textSize, JBJGLText.Orientation.CENTER,
-                color, Fonts.GAME_STANDARD()
+                color, Fonts.gameStandard()
         ).addText(label).build().draw();
 
         final int height = text.getHeight();
@@ -1516,7 +1516,7 @@ public class MenuHelper {
             adjustableTextSize -= 0.1;
             text = JBJGLTextBuilder.initialize(
                     adjustableTextSize, JBJGLText.Orientation.CENTER,
-                    color, Fonts.GAME_STANDARD()
+                    color, Fonts.gameStandard()
             ).addText(label).build().draw();
         }
 

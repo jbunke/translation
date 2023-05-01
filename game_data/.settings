@@ -1,5 +1,6 @@
 fullscreen:{false}
 pixel-alignment:{true}
+typeface:{CLASSIC}
 
 ui-sounds:{true}
 milestone-sounds:{true}

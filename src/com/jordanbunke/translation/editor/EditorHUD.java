@@ -478,6 +478,6 @@ public class EditorHUD {
     ) {
         return JBJGLTextBuilder.initialize(
                 textSize, JBJGLText.Orientation.CENTER, color,
-                Fonts.GAME_STANDARD()).addText(text).build().draw();
+                Fonts.gameStandard()).addText(text).build().draw();
     }
 }

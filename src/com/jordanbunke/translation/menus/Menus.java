@@ -12,6 +12,7 @@ import com.jordanbunke.translation.Info;
 import com.jordanbunke.translation.ResourceManager;
 import com.jordanbunke.translation.Translation;
 import com.jordanbunke.translation.editor.Editor;
+import com.jordanbunke.translation.fonts.Fonts;
 import com.jordanbunke.translation.gameplay.Camera;
 import com.jordanbunke.translation.gameplay.level.Level;
 import com.jordanbunke.translation.io.BrowserIO;
@@ -27,6 +28,7 @@ import com.jordanbunke.translation.utility.Utility;
 
 import java.net.URI;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
@@ -57,8 +59,9 @@ public class Menus {
         return JBJGLMenuManager.initialize(generateTitleCard(), MenuIDs.TITLE_CARD);
     }
 
-    public static void generateAfterResize(
-            final JBJGLMenuManager manager, final boolean isMainMenu, final Level level) {
+    public static void generateAfterVideoSettingsUpdate(
+            final JBJGLMenuManager manager, final boolean isMainMenu, final Level level
+    ) {
         if (isMainMenu)
             manager.addMenu(MenuIDs.MAIN_MENU, generateMainMenu(), false);
         else {
@@ -159,11 +162,8 @@ public class Menus {
                         "SHOW COMBO", "SHOW TETHERS"
                 },
                 new String[][] {
-                        new String[] {
-                                Camera.FollowMode.STEADY.toString(),
-                                Camera.FollowMode.GLUED.toString(),
-                                Camera.FollowMode.FIXED.toString()
-                        },
+                        Arrays.stream(Camera.FollowMode.values())
+                                .map(Camera.FollowMode::toString).toArray(String[]::new),
                         new String[] { "ON", "OFF" },
                         new String[] { "ON", "OFF" },
                         new String[] { "ON", "OFF" }
@@ -227,10 +227,12 @@ public class Menus {
 
     private static JBJGLMenu generateVideoSettingsMenu() {
         final JBJGLMenuElementGrouping contents = MenuHelper.generateListMenuToggleOptions(
-                new String[] { "FULLSCREEN", "PIXEL ALIGNMENT" },
+                new String[] { "FULLSCREEN", "PIXEL ALIGNMENT", "TYPEFACE" },
                 new String[][] {
                         new String[] { "ON", "OFF" },
-                        new String[] { "ON", "OFF" }
+                        new String[] { "ON", "OFF" },
+                        Arrays.stream(Fonts.Typeface.values())
+                                .map(Fonts.Typeface::toString).toArray(String[]::new)
                 },
                 new Runnable[][] {
                         new Runnable[] {
@@ -240,11 +242,17 @@ public class Menus {
                         new Runnable[] {
                                 () -> TechnicalSettings.setPixelAlignment(false),
                                 () -> TechnicalSettings.setPixelAlignment(true)
+                        },
+                        new Runnable[] {
+                                () -> Fonts.setTypeface(Fonts.getTypeface().next()),
+                                () -> Fonts.setTypeface(Fonts.getTypeface().next()),
+                                () -> Fonts.setTypeface(Fonts.getTypeface().next())
                         }
                 },
                 new Callable[] {
                         () -> TechnicalSettings.isFullscreen() ? 0 : 1,
-                        () -> TechnicalSettings.isPixelAlignment() ? 0 : 1
+                        () -> TechnicalSettings.isPixelAlignment() ? 0 : 1,
+                        () -> Fonts.getTypeface().ordinal()
                 }, 1.0);
 
         return MenuHelper.generateBasicMenu(
@@ -302,24 +310,18 @@ public class Menus {
 
     private static JBJGLMenu generateTechnicalSettingsMenu() {
         final JBJGLMenuElementGrouping contents = MenuHelper.generateListMenuToggleOptions(
-                new String[] { "SHOW DEBUG & FRAMERATE", "PIXEL GRID" },
+                new String[] { "DEBUG MODE" },
                 new String[][] {
-                        new String[] { "ON", "OFF" },
                         new String[] { "ON", "OFF" }
                 },
                 new Runnable[][] {
                         new Runnable[] {
                                 () -> DebugSettings.setPrintDebug(false),
                                 () -> DebugSettings.setPrintDebug(true)
-                        },
-                        new Runnable[] {
-                                () -> DebugSettings.setShowPixelGrid(false),
-                                () -> DebugSettings.setShowPixelGrid(true)
                         }
                 },
                 new Callable[] {
-                        () -> DebugSettings.isPrintDebug() ? 0 : 1,
-                        () -> DebugSettings.isShowingPixelGrid() ? 0 : 1
+                        () -> DebugSettings.isPrintDebug() ? 0 : 1
                 }, 1.0);
 
         return MenuHelper.generateBasicMenu(
