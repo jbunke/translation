@@ -12,7 +12,7 @@ show-tethers:{true}
 show-combo:{true}
 show-follow-mode-updates:{true}
 
-show-debug:{true}
+show-debug:{false}
 show-pixel-grid:{false}
 
 cam-down-c:{DOWN_ARROW}

@@ -96,9 +96,9 @@ public class MenuHelper {
         else if (index == Translation.LEVEL_COMPLETE_INDEX)
             return Translation.levelCompleteState.getMenuManager();
         else if (index == Translation.SPLASH_SCREEN_INDEX)
-            return Translation.splashScreenManager;
+            return Translation.splashScreenManager.getMenuManager();
         else
-            return Translation.menuManager;
+            return Translation.menuManager.getMenuManager();
     }
 
     // PUBLICLY ACCESSIBLE

@@ -1,5 +1,5 @@
 title:{Translation}
-version:{0.2.0.83}
+version:{0.2.0.85}
 games_link:{https://flinkerflitzer.itch.io}
 github_link:{https://github.com/jbunke}
 hire_me_link:{https://www.fiverr.com/jordanbunke}
