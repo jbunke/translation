@@ -27,7 +27,7 @@ public class Fonts {
         }
 
         public Typeface next() {
-            final Typeface[] all = Typeface.values();
+            final Typeface[] all = values();
             return all[(ordinal() + 1) % all.length];
         }
 
@@ -35,8 +35,8 @@ public class Fonts {
         public String toString() {
             return switch (this) {
                 case CLASSIC -> "CLASSIC";
-                case VIGILANT -> "RED SQUARE";
-                case MY_HANDWRITING -> "MY HANDWRITING";
+                case VIGILANT -> "VIGILANT";
+                case MY_HANDWRITING -> "STYLUS";
             };
         }
     }
@@ -56,12 +56,12 @@ public class Fonts {
             FontFamily.NOT_AVAILABLE, "font-vigilant-italics",
             2, 2, 0, true);
     private static final FontFamily MY_HANDWRITING = FontFamily.fromPreLoaded("My Handwriting",
-            Font.loadFromSource(FONT_FOLDER, LOADER_CLASS, "font-my-handwriting",
-                    false, 1.0, 0, true),
-            Font.loadFromSource(FONT_FOLDER, LOADER_CLASS, "font-my-handwriting-italics",
-                    false, 1.0, 0, true),
-            Font.loadFromSource(FONT_FOLDER, LOADER_CLASS, "font-my-handwriting-italics",
-                    false, 1.0, -8, true));
+            Font.loadFromSource(FONT_FOLDER, LOADER_CLASS, "font-hand-drawn",
+                    false, 1.0, 1, true),
+            Font.loadFromSource(FONT_FOLDER, LOADER_CLASS, "font-hand-drawn",
+                    false, 1.0, 1, true),
+            Font.loadFromSource(FONT_FOLDER, LOADER_CLASS, "font-hand-drawn",
+                    false, 1.0, 3, true));
     private static final Font VIGILANT_ITALICS_SPACED = Font.loadFromSource(FONT_FOLDER, LOADER_CLASS,
             "font-vigilant-italics", true, 2);
 

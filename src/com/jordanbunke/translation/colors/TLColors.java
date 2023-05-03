@@ -1,5 +1,7 @@
 package com.jordanbunke.translation.colors;
 
+import com.jordanbunke.translation.settings.TechnicalSettings;
+
 import java.awt.*;
 
 public class TLColors {
@@ -15,6 +17,28 @@ public class TLColors {
             BACKGROUND_RGB, BACKGROUND_RGB, BACKGROUND_RGB, OPAQUE);
 
     private static Color background = BACKGROUND;
+
+    // ACCESSORS
+    public static Color getInvertedThemeColor() {
+        return switch (TechnicalSettings.getTheme()) {
+            case CLASSIC -> TLColors.BLACK();
+            case NIGHT -> TLColors.BACKGROUND();
+        };
+    }
+
+    public static Color getComplementaryMenuTextThemeColor() {
+        return switch (TechnicalSettings.getTheme()) {
+            case CLASSIC -> TLColors.BLACK();
+            case NIGHT -> TLColors.WHITE();
+        };
+    }
+
+    public static Color getMenuTextThemeColor() {
+        return switch (TechnicalSettings.getTheme()) {
+            case CLASSIC -> TLColors.MENU_TEXT();
+            case NIGHT -> TLColors.WHITE();
+        };
+    }
 
     // COLORS
     public static Color TITLE_RED() {

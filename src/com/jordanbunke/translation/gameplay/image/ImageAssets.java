@@ -26,6 +26,13 @@ public class ImageAssets {
 
     // ACCESSORS
 
+    public static JBJGLImage getThemeBackground() {
+        return switch (TechnicalSettings.getTheme()) {
+            case CLASSIC -> ImageAssets.BACKGROUND();
+            case NIGHT -> ImageAssets.BLACK_BACKGROUND();
+        };
+    }
+
     public static JBJGLImage BACKGROUND() {
         return BACKGROUND;
     }

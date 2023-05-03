@@ -1,7 +1,9 @@
 package com.jordanbunke.translation.io;
 
+import com.jordanbunke.jbjgl.debug.JBJGLGameDebugger;
 import com.jordanbunke.jbjgl.events.JBJGLKey;
 import com.jordanbunke.jbjgl.io.JBJGLFileIO;
+import com.jordanbunke.translation.Translation;
 import com.jordanbunke.translation.fonts.Fonts;
 import com.jordanbunke.translation.gameplay.Camera;
 import com.jordanbunke.translation.settings.GameplaySettings;
@@ -17,6 +19,7 @@ public class SettingsIO {
     private static final String FULLSCREEN = "fullscreen",
             PIXEL_ALIGNMENT = "pixel-alignment",
             TYPEFACE = "typeface",
+            THEME = "theme",
             PLAY_UI_SOUNDS = "ui-sounds",
             PLAY_MILESTONE_SOUNDS = "milestone-sounds",
             PLAY_PLAYER_SOUNDS = "player-sounds",
@@ -26,6 +29,7 @@ public class SettingsIO {
             SHOW_TETHERS = "show-tethers",
             SHOW_COMBO = "show-combo",
             SHOW_FOLLOW_MODE_UPDATES = "show-follow-mode-updates",
+            FANCY_RETICLE = "fancy-reticle",
             SHOW_DEBUG = "show-debug",
             SHOW_PIXEL_GRID = "show-pixel-grid",
             JUMP = "jump-c", DROP = "drop-c",
@@ -43,34 +47,39 @@ public class SettingsIO {
 
         final boolean
                 // VIDEO
-                fullscreen = Boolean.parseBoolean(ParserWriter.extractFromTag(FULLSCREEN, toParse)),
-                pixelAlignment = Boolean.parseBoolean(ParserWriter.extractFromTag(PIXEL_ALIGNMENT, toParse)),
+                fullscreen = readBooleanSetting(FULLSCREEN, toParse, false),
+                pixelAlignment = readBooleanSetting(PIXEL_ALIGNMENT, toParse, true),
 
                 // AUDIO
-                playUISounds = Boolean.parseBoolean(ParserWriter.extractFromTag(PLAY_UI_SOUNDS, toParse)),
-                playMilestoneSounds = Boolean.parseBoolean(ParserWriter.extractFromTag(PLAY_MILESTONE_SOUNDS, toParse)),
-                playPlayerSounds = Boolean.parseBoolean(ParserWriter.extractFromTag(PLAY_PLAYER_SOUNDS, toParse)),
-                playSentrySounds = Boolean.parseBoolean(ParserWriter.extractFromTag(PLAY_SENTRY_SOUNDS, toParse)),
-                playEnvironmentSounds = Boolean.parseBoolean(ParserWriter.extractFromTag(PLAY_ENVIRONMENT_SOUNDS, toParse)),
+                playUISounds = readBooleanSetting(PLAY_UI_SOUNDS, toParse, true),
+                playMilestoneSounds = readBooleanSetting(PLAY_MILESTONE_SOUNDS, toParse, true),
+                playPlayerSounds = readBooleanSetting(PLAY_PLAYER_SOUNDS, toParse, true),
+                playSentrySounds = readBooleanSetting(PLAY_SENTRY_SOUNDS, toParse, true),
+                playEnvironmentSounds = readBooleanSetting(PLAY_ENVIRONMENT_SOUNDS, toParse, true),
 
                 // GAMEPLAY
-                showTethers = Boolean.parseBoolean(ParserWriter.extractFromTag(SHOW_TETHERS, toParse)),
-                showCombo = Boolean.parseBoolean(ParserWriter.extractFromTag(SHOW_COMBO, toParse)),
-                showFollowModeUpdates = Boolean.parseBoolean(ParserWriter.extractFromTag(SHOW_FOLLOW_MODE_UPDATES, toParse)),
+                showTethers = readBooleanSetting(SHOW_TETHERS, toParse, true),
+                showCombo = readBooleanSetting(SHOW_COMBO, toParse, true),
+                showFollowModeUpdates = readBooleanSetting(SHOW_FOLLOW_MODE_UPDATES, toParse, true),
 
                 // TECHNICAL
-                showDebug = Boolean.parseBoolean(ParserWriter.extractFromTag(SHOW_DEBUG, toParse)),
-                showPixelGrid = Boolean.parseBoolean(ParserWriter.extractFromTag(SHOW_PIXEL_GRID, toParse));
+                showDebug = readBooleanSetting(SHOW_DEBUG, toParse, false),
+                fancyReticle = readBooleanSetting(FANCY_RETICLE, toParse, true),
+                showPixelGrid = readBooleanSetting(SHOW_PIXEL_GRID, toParse, false);
 
-        final Camera.FollowMode defaultFollowMode = Camera.FollowMode.valueOf(
-                ParserWriter.extractFromTag(DEFAULT_FOLLOW_MODE, toParse));
+        final Camera.FollowMode defaultFollowMode =
+                readEnumSetting(DEFAULT_FOLLOW_MODE, toParse, Camera.FollowMode.STEADY);
 
-        final Fonts.Typeface typeface = Fonts.Typeface.valueOf(
-                ParserWriter.extractFromTag(TYPEFACE, toParse));
+        final Fonts.Typeface typeface =
+                readEnumSetting(TYPEFACE, toParse, Fonts.Typeface.CLASSIC);
+
+        final TechnicalSettings.Theme theme =
+                readEnumSetting(THEME, toParse, TechnicalSettings.Theme.CLASSIC);
 
         TechnicalSettings.setFullscreen(fullscreen);
         TechnicalSettings.setPixelAlignment(pixelAlignment);
         Fonts.setTypeface(typeface);
+        TechnicalSettings.setTheme(theme);
 
         TechnicalSettings.setPlayUISounds(playUISounds);
         TechnicalSettings.setPlayMilestoneSounds(playMilestoneSounds);
@@ -84,9 +93,35 @@ public class SettingsIO {
         GameplaySettings.setShowingFollowModeUpdates(showFollowModeUpdates);
 
         DebugSettings.setPrintDebug(showDebug);
+        TechnicalSettings.setFancyReticle(fancyReticle);
         DebugSettings.setShowPixelGrid(showPixelGrid);
 
         readControls(toParse);
+    }
+
+    private static <E extends Enum<E>> E readEnumSetting(final String tag, final String toParse, final E defaultValue) {
+        return E.valueOf(defaultValue.getDeclaringClass(),
+                readSetting(tag, toParse, defaultValue.name()));
+    }
+
+    private static boolean readBooleanSetting(final String tag, final String toParse, final boolean defaultValue) {
+        return Boolean.parseBoolean(readSetting(tag, toParse, String.valueOf(defaultValue)));
+    }
+
+    private static String readSetting(final String tag, final String toParse, final String defaultValue) {
+        final Optional<String> extracted = ParserWriter.extractFromTag(tag, toParse);
+
+        if (extracted.isPresent()) {
+            Translation.debugger.getChannel(JBJGLGameDebugger.LOGIC_CHANNEL).printMessage(
+                    "Read setting \"" + tag + "\" successfully from file: " + extracted.get()
+            );
+            return extracted.get();
+        } else {
+            Translation.debugger.getChannel(JBJGLGameDebugger.LOGIC_CHANNEL).printMessage(
+                    "Failed to read setting \"" + tag +
+                            "\" from file, set to default: " + defaultValue);
+            return defaultValue;
+        }
     }
 
     private static Map<ControlScheme.Action, String> getActionLabels() {
@@ -120,9 +155,11 @@ public class SettingsIO {
         final Map<ControlScheme.Action, String> actionLabels = getActionLabels();
 
         for (ControlScheme.Action action : actionLabels.keySet()) {
-            String label = actionLabels.get(action);
-            ControlScheme.update(action, JBJGLKey.valueOf(
-                    ParserWriter.extractFromTag(label, toParse)));
+            final String label = actionLabels.get(action);
+            final JBJGLKey key = readEnumSetting(label, toParse,
+                    action.defaultPairing().getValue().getKey());
+
+            ControlScheme.update(action, key);
         }
     }
 
@@ -139,6 +176,10 @@ public class SettingsIO {
 
         sb.append(ParserWriter.encloseInTag(TYPEFACE,
                 Fonts.getTypeface().name()));
+        ParserWriter.newLineSB(sb);
+
+        sb.append(ParserWriter.encloseInTag(THEME,
+                TechnicalSettings.getTheme().name()));
         ParserWriter.newLineSB(sb);
 
         ParserWriter.newLineSB(sb);
@@ -185,6 +226,10 @@ public class SettingsIO {
 
         sb.append(ParserWriter.encloseInTag(SHOW_DEBUG,
                 String.valueOf(DebugSettings.isPrintDebug())));
+        ParserWriter.newLineSB(sb);
+
+        sb.append(ParserWriter.encloseInTag(FANCY_RETICLE,
+                String.valueOf(TechnicalSettings.isFancyReticle())));
         ParserWriter.newLineSB(sb);
 
         sb.append(ParserWriter.encloseInTag(SHOW_PIXEL_GRID,

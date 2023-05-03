@@ -78,11 +78,11 @@ public class LevelIO {
     }
 
     private static Campaign parseCampaign(final String toParse, final Path campaignFolder) {
-        final String name = ParserWriter.extractFromTag(NAME, toParse);
-        final int levelCount = Integer.parseInt(ParserWriter.extractFromTag(LEVEL_COUNT, toParse));
-        final int levelsBeaten = Integer.parseInt(ParserWriter.extractFromTag(LEVELS_BEATEN, toParse));
-        final boolean showHint = Boolean.parseBoolean(ParserWriter.extractFromTag(SHOW_HINT, toParse));
-        final String fileNaming = ParserWriter.extractFromTag(FILE_NAMING, toParse);
+        final String name = ParserWriter.extractFromTag(NAME, toParse).orElse("Unnamed campaign");
+        final int levelCount = ParserWriter.extractFromTag(LEVEL_COUNT, toParse).map(Integer::parseInt).orElse(0);
+        final int levelsBeaten = ParserWriter.extractFromTag(LEVELS_BEATEN, toParse).map(Integer::parseInt).orElse(0);
+        final boolean showHint = ParserWriter.extractFromTag(SHOW_HINT, toParse).map(Boolean::parseBoolean).orElse(true);
+        final String fileNaming = ParserWriter.extractFromTag(FILE_NAMING, toParse).orElse(CUSTOM);
         final boolean defaultNaming = fileNaming.equals(DEFAULT);
         final List<String> levelFiles = new ArrayList<>();
         final List<Level> levels = extractLevels(toParse, levelCount, defaultNaming, campaignFolder, levelFiles);
@@ -196,8 +196,8 @@ public class LevelIO {
     }
 
     private static Level parseLevel(final String toParse, final Path filepath) {
-        final String name = ParserWriter.extractFromTag(NAME, toParse);
-        final String hint = ParserWriter.extractFromTag(HINT, toParse);
+        final String name = ParserWriter.extractFromTag(NAME, toParse).orElse("Unnamed level");
+        final String hint = ParserWriter.extractFromTag(HINT, toParse).orElse("");
         final LevelStats levelStats = extractLevelStats(toParse);
         final PlatformSpec[] platformSpecs = extractPlatforms(toParse);
         final SentrySpec[] sentrySpecs = extractSentries(toParse);

@@ -1,7 +1,9 @@
 package com.jordanbunke.translation.editor;
 
 import com.jordanbunke.jbjgl.debug.JBJGLGameDebugger;
+import com.jordanbunke.jbjgl.events.JBJGLEvent;
 import com.jordanbunke.jbjgl.events.JBJGLKeyEvent;
+import com.jordanbunke.jbjgl.events.JBJGLMouseEvent;
 import com.jordanbunke.jbjgl.io.JBJGLListener;
 import com.jordanbunke.jbjgl.utility.RenderConstants;
 import com.jordanbunke.translation.Translation;
@@ -145,7 +147,7 @@ public class Editor {
             final Graphics g, final JBJGLGameDebugger debugger
     ) {
         // background
-        g.drawImage(ImageAssets.BACKGROUND(), 0, 0, null);
+        g.drawImage(ImageAssets.getThemeBackground(), 0, 0, null);
 
         // mesh
         renderMesh(g);
@@ -199,7 +201,12 @@ public class Editor {
         final int repsX = (width / adjustedSize) + 2;
         final int repsY = (height / adjustedSize) + 2;
 
-        g.setColor(TLColors.BLACK());
+        final Color color = switch (TechnicalSettings.getTheme()) {
+            case CLASSIC -> TLColors.BLACK();
+            case NIGHT -> TLColors.BACKGROUND();
+        };
+
+        g.setColor(color);
 
         // vertical lines
         for (int x = 0; x < repsX; x++)
@@ -247,6 +254,7 @@ public class Editor {
             final JBJGLListener listener
     ) {
         processCamera(listener);
+        processMouse(listener);
         processSelection(listener);
         processPlatform(listener);
         processSentry(listener);
@@ -301,6 +309,33 @@ public class Editor {
                 ControlScheme.getKeyEvent(ControlScheme.Action.STOP_MOVING_CAM_DOWN),
                 () -> camera.setIsMovingDown(false)
         );
+    }
+
+    private static void processMouse(final JBJGLListener listener) {
+        final List<JBJGLEvent> events = listener.getUnprocessedEvents();
+
+        for (JBJGLEvent event : events)
+            if (event instanceof JBJGLMouseEvent me && me.matchesAction(JBJGLMouseEvent.Action.CLICK)) {
+                me.markAsProcessed();
+
+                final int width = TechnicalSettings.getWidth(),
+                        height = TechnicalSettings.getHeight();
+
+                final int[] mp = listener.getMousePosition();
+
+                final int[] middleOffset = new int[] {
+                        mp[RenderConstants.X] - (width / 2),
+                        mp[RenderConstants.Y] - (height / 2)
+                };
+
+                final int zoomFactor = camera.isZoomedIn() ? 1 : 2;
+
+                camera.incrementX(middleOffset[RenderConstants.X] * zoomFactor);
+                camera.incrementY(middleOffset[RenderConstants.Y] * zoomFactor);
+
+                highlightedPlatform = determineHighlightedPlatform();
+                select();
+            }
     }
 
     private static void processSelection(

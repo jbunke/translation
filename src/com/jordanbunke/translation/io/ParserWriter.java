@@ -1,13 +1,13 @@
 package com.jordanbunke.translation.io;
 
 import java.nio.file.Path;
+import java.util.Optional;
 
 public class ParserWriter {
     public static final Path GAME_DATA_ROOT = Path.of("game_data");
 
     private static final int NF = -1;
-    private static final String
-            NOT_FOUND = "NOT_FOUND", EMPTY = "",
+    private static final String EMPTY = "",
             CONTENT_FOLLOWING = ":",
             BIG_OPEN = "{", BIG_CLOSE = "}",
             SMALL_OPEN = "(", SMALL_CLOSE = ")",
@@ -75,7 +75,12 @@ public class ParserWriter {
     }
 
     public static String[] extractFromTagAndSplit(final String tag, final String text) {
-        final String[] contents = extractFromTag(tag, text).split(BIG_SEP);
+        final Optional<String> extracted = extractFromTag(tag, text);
+
+        if (extracted.isEmpty())
+            return new String[] {};
+
+        final String[] contents = extracted.get().split(BIG_SEP);
 
         if (contents.length == 1 && contents[0].equals(EMPTY))
             return new String[] {};
@@ -83,20 +88,20 @@ public class ParserWriter {
         return contents;
     }
 
-    public static String extractFromTag(final String tag, final String text) {
+    public static Optional<String> extractFromTag(final String tag, final String text) {
         final String open = tag + CONTENT_FOLLOWING + BIG_OPEN;
         int openIndex = text.indexOf(open);
 
         if (openIndex == NF)
-            return NOT_FOUND;
+            return Optional.empty();
 
         openIndex += open.length();
 
         int relativeCloseIndex = text.substring(openIndex).indexOf(BIG_CLOSE);
 
         if (relativeCloseIndex == NF)
-            return NOT_FOUND;
+            return Optional.empty();
 
-        return text.substring(openIndex, relativeCloseIndex + openIndex).trim();
+        return Optional.of(text.substring(openIndex, relativeCloseIndex + openIndex).trim());
     }
 }

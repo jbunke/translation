@@ -1,6 +1,7 @@
 fullscreen:{false}
 pixel-alignment:{true}
 typeface:{CLASSIC}
+theme:{NIGHT}
 
 ui-sounds:{true}
 milestone-sounds:{true}
@@ -14,6 +15,7 @@ show-combo:{true}
 show-follow-mode-updates:{true}
 
 show-debug:{false}
+fancy-reticle:{false}
 show-pixel-grid:{false}
 
 cam-down-c:{DOWN_ARROW}

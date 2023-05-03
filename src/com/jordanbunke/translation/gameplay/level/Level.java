@@ -193,7 +193,7 @@ public class Level {
             final Graphics g, final JBJGLGameDebugger debugger
     ) {
         // background
-        g.drawImage(ImageAssets.BACKGROUND(), 0, 0, null);
+        g.drawImage(ImageAssets.getThemeBackground(), 0, 0, null);
 
         // animations
         for (Animation a : animations)
@@ -221,9 +221,9 @@ public class Level {
     private void updateSentries() {
         Sounds.resetContinuousSentryData();
 
-        // potential concurrent modification (spawner spawns child) so no enhanced for loop
-        for (int i = 0; i < sentries.size(); i++)
-            sentries.get(i).update();
+        final List<Sentry> snapshotOfSentries = List.copyOf(sentries);
+        for (Sentry sentry : snapshotOfSentries)
+            sentry.update();
 
         Sounds.processContinuousSentryData();
     }

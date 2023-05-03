@@ -151,7 +151,10 @@ public class TypedInputMenuElement extends JBJGLMenuElement {
     }
 
     private Color getColor(final boolean highlighted) {
-        return highlighted ? TLColors.BLACK() : TLColors.PLAYER();
+        return switch (TechnicalSettings.getTheme()) {
+            case NIGHT -> highlighted ? TLColors.WHITE() : TLColors.PLAYER();
+            case CLASSIC -> highlighted ? TLColors.BLACK() : TLColors.PLAYER();
+        };
     }
 
     private JBJGLImage drawText(final String text, final Color color) {
