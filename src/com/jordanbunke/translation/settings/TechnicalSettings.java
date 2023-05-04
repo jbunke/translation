@@ -8,7 +8,7 @@ import java.awt.*;
 public class TechnicalSettings {
 
     public enum Theme {
-        CLASSIC, NIGHT;
+        CLASSIC, NIGHT, FRACTURED;
 
         public Theme next() {
             final Theme[] all = values();

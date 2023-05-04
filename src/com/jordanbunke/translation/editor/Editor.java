@@ -202,7 +202,7 @@ public class Editor {
         final int repsY = (height / adjustedSize) + 2;
 
         final Color color = switch (TechnicalSettings.getTheme()) {
-            case CLASSIC -> TLColors.BLACK();
+            case CLASSIC, FRACTURED -> TLColors.BLACK();
             case NIGHT -> TLColors.BACKGROUND();
         };
 

@@ -285,6 +285,7 @@ UI element designs, etc."""
                         },
                         new Runnable[] {
                                 () -> TechnicalSettings.setTheme(TechnicalSettings.getTheme().next()),
+                                () -> TechnicalSettings.setTheme(TechnicalSettings.getTheme().next()),
                                 () -> TechnicalSettings.setTheme(TechnicalSettings.getTheme().next())
                         }
                 },

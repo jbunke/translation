@@ -1,7 +1,10 @@
-version:{upcoming}
+version:{possible updates}
 date:{}
 contents:{
-+ Add music
-+ Add themes
-+ Add more campaigns and levels
++ Music?
++ More themes?
++ More campaigns and levels?
+
+Future updates will be determined
+based on demand and my schedule
 }

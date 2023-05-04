@@ -153,7 +153,7 @@ public class TypedInputMenuElement extends JBJGLMenuElement {
     private Color getColor(final boolean highlighted) {
         return switch (TechnicalSettings.getTheme()) {
             case NIGHT -> highlighted ? TLColors.WHITE() : TLColors.PLAYER();
-            case CLASSIC -> highlighted ? TLColors.BLACK() : TLColors.PLAYER();
+            case CLASSIC, FRACTURED -> highlighted ? TLColors.BLACK() : TLColors.PLAYER();
         };
     }
 

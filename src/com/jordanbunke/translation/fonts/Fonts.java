@@ -56,12 +56,9 @@ public class Fonts {
             FontFamily.NOT_AVAILABLE, "font-vigilant-italics",
             2, 2, 0, true);
     private static final FontFamily MY_HANDWRITING = FontFamily.fromPreLoaded("My Handwriting",
-            Font.loadFromSource(FONT_FOLDER, LOADER_CLASS, "font-hand-drawn",
-                    false, 1.0, 1, true),
-            Font.loadFromSource(FONT_FOLDER, LOADER_CLASS, "font-hand-drawn",
-                    false, 1.0, 1, true),
-            Font.loadFromSource(FONT_FOLDER, LOADER_CLASS, "font-hand-drawn",
-                    false, 1.0, 3, true));
+            Font.loadFromSource(FONT_FOLDER, LOADER_CLASS, "font-hand-drawn", false, 1),
+            Font.loadFromSource(FONT_FOLDER, LOADER_CLASS, "font-hand-drawn", false, 1),
+            Font.loadFromSource(FONT_FOLDER, LOADER_CLASS, "font-hand-drawn", false, 3));
     private static final Font VIGILANT_ITALICS_SPACED = Font.loadFromSource(FONT_FOLDER, LOADER_CLASS,
             "font-vigilant-italics", true, 2);
 

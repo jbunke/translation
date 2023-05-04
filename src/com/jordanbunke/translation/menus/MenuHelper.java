@@ -540,11 +540,9 @@ public class MenuHelper {
         final int pixel = TechnicalSettings.getPixelSize();
         final String title = Info.TITLE;
 
-        final TechnicalSettings.Theme theme = TechnicalSettings.getTheme();
-
-        final Color background = switch (theme) {
+        final Color background = switch (TechnicalSettings.getTheme()) {
             case NIGHT -> Sentry.Role.DROPPER.getColor(TLColors.OPAQUE());
-            case CLASSIC -> TLColors.BLACK();
+            case CLASSIC, FRACTURED -> TLColors.BLACK();
         };
 
         return JBJGLMenuElementGrouping.generateOf(
@@ -619,7 +617,7 @@ public class MenuHelper {
         int drawY = LIST_MENU_INITIAL_Y + offsetY;
         final double textSize = pixel / 2.;
 
-        final Color tooltipColor = TLColors.getMenuTextThemeColor();
+        final Color tooltipColor = TLColors.getTooltipThemeColor();
 
         for (int i = 0; i < amount; i++) {
             final JBJGLTextBuilder tooltipTextBuilder = JBJGLTextBuilder.initialize(1.,
@@ -1086,7 +1084,7 @@ public class MenuHelper {
         final Color roleColor = role.getColor(TLColors.OPAQUE());
 
         final JBJGLImage highlightedButton = switch (TechnicalSettings.getTheme()) {
-            case CLASSIC -> drawHighlightedTextButton(buttonWidth, role.name(),
+            case CLASSIC, FRACTURED -> drawHighlightedTextButton(buttonWidth, role.name(),
                     TechnicalSettings.getPixelSize() / 2.,
                     roleColor, TLColors.BLACK());
             case NIGHT -> drawHighlightedTextButton(buttonWidth, role.name(),
@@ -1457,11 +1455,7 @@ public class MenuHelper {
     // level 3
 
     private static JBJGLMenuElement generateElementBackground() {
-        return JBJGLStaticMenuElement.generate(
-                new int[] { 0, 0 },
-                JBJGLMenuElement.Anchor.LEFT_TOP,
-                ImageAssets.getThemeBackground()
-        );
+        return ImageAssets.getThemeBackgroundMenuElement();
     }
 
     private static JBJGLMenuElement generateElementBlackBackground() {
@@ -1541,10 +1535,8 @@ public class MenuHelper {
     private static JBJGLImage drawHighlightedTextButton(
             final int width, final String label, final double textSize
     ) {
-        final TechnicalSettings.Theme theme = TechnicalSettings.getTheme();
-
-        final Color backgroundColor = switch (theme) {
-            case CLASSIC -> TLColors.PLAYER();
+        final Color backgroundColor = switch (TechnicalSettings.getTheme()) {
+            case CLASSIC, FRACTURED -> TLColors.PLAYER();
             case NIGHT -> TLColors.PLAYER(0);
         }, overlayColor = TLColors.getComplementaryMenuTextThemeColor();
 
@@ -1639,6 +1631,14 @@ public class MenuHelper {
                 final int x = textWidth < pixel ? 0 : (width - textWidth) / 2;
 
                 g.fillRect(x, height - pixel, textWidth < pixel ? width : textWidth, pixel);
+            }
+            case FRACTURED -> {
+                g.fillRect(0, 0, pixel, height);
+                g.fillRect(0, 0, pixel * 2, pixel);
+                g.fillRect(width - (pixel * 2), 0, pixel * 2, pixel);
+                g.fillRect(width - (pixel * 2), height - pixel, pixel * 2, pixel);
+                g.fillRect(0, height - pixel, pixel * 2, pixel);
+                g.fillRect(width - pixel, 0, pixel, height);
             }
         }
     }
