@@ -1,10 +1,21 @@
 package com.jordanbunke.translation.settings;
 
 import com.jordanbunke.jbjgl.utility.RenderConstants;
+import com.jordanbunke.translation.Translation;
 
 import java.awt.*;
 
 public class TechnicalSettings {
+
+    public enum Theme {
+        CLASSIC, NIGHT, FRACTURED;
+
+        public Theme next() {
+            final Theme[] all = values();
+            return all[(ordinal() + 1) % all.length];
+        }
+    }
+
     private static final int[] SCREEN_SIZE = new int[] {
             Toolkit.getDefaultToolkit().getScreenSize().getSize().width,
             Toolkit.getDefaultToolkit().getScreenSize().getSize().height
@@ -19,7 +30,9 @@ public class TechnicalSettings {
             fullscreen = true, pixelAlignment = true,
             playUISounds = true, playMilestoneSounds = true,
             playSentrySounds = true, playPlayerSounds = true,
-            playEnvironmentSounds = true;
+            playEnvironmentSounds = true, fancyReticle = true;
+
+    private static Theme theme = Theme.CLASSIC;
 
     // Helpers
     public static int pixelLockNumber(final int n) {
@@ -89,6 +102,14 @@ public class TechnicalSettings {
         return playEnvironmentSounds;
     }
 
+    public static boolean isFancyReticle() {
+        return fancyReticle;
+    }
+
+    public static Theme getTheme() {
+        return theme;
+    }
+
     // Setters
     public static void setPixelAlignment(final boolean pixelAlignment) {
         TechnicalSettings.pixelAlignment = pixelAlignment;
@@ -102,19 +123,32 @@ public class TechnicalSettings {
         TechnicalSettings.playUISounds = playUISounds;
     }
 
-    public static void setPlayMilestoneSounds(boolean playMilestoneSounds) {
+    public static void setPlayMilestoneSounds(final boolean playMilestoneSounds) {
         TechnicalSettings.playMilestoneSounds = playMilestoneSounds;
     }
 
-    public static void setPlayPlayerSounds(boolean playPlayerSounds) {
+    public static void setPlayPlayerSounds(final boolean playPlayerSounds) {
         TechnicalSettings.playPlayerSounds = playPlayerSounds;
     }
 
-    public static void setPlaySentrySounds(boolean playSentrySounds) {
+    public static void setPlaySentrySounds(final boolean playSentrySounds) {
         TechnicalSettings.playSentrySounds = playSentrySounds;
     }
 
-    public static void setPlayEnvironmentSounds(boolean playEnvironmentSounds) {
+    public static void setPlayEnvironmentSounds(final boolean playEnvironmentSounds) {
         TechnicalSettings.playEnvironmentSounds = playEnvironmentSounds;
+    }
+
+    public static void setFancyReticle(final boolean fancyReticle) {
+        TechnicalSettings.fancyReticle = fancyReticle;
+    }
+
+    public static void setTheme(final Theme theme) {
+        if (TechnicalSettings.theme == theme)
+            return;
+
+        TechnicalSettings.theme = theme;
+
+        Translation.themeWasChanged();
     }
 }

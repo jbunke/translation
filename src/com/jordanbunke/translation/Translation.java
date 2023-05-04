@@ -4,7 +4,6 @@ import com.jordanbunke.jbjgl.JBJGLOnStartup;
 import com.jordanbunke.jbjgl.debug.JBJGLDebugChannel;
 import com.jordanbunke.jbjgl.debug.JBJGLGameDebugger;
 import com.jordanbunke.jbjgl.game.JBJGLGame;
-import com.jordanbunke.jbjgl.game.JBJGLGameEngine;
 import com.jordanbunke.jbjgl.game.JBJGLGameManager;
 import com.jordanbunke.jbjgl.window.JBJGLWindow;
 import com.jordanbunke.translation.game_states.EditorGameState;
@@ -46,13 +45,15 @@ public class Translation {
     public static JBJGLGameManager manager;
     public static JBJGLGameDebugger debugger;
 
-    private static JBJGLGameEngine gameEngine;
     private static JBJGLGame game;
     private static boolean launched = false;
 
     public static void main(String[] args) {
         JBJGLOnStartup.run();
         Sounds.init();
+
+        final boolean[] flags = processArgs(args);
+        debugger = prepDebugger(flags);
 
         SettingsIO.read();
 
@@ -93,6 +94,11 @@ public class Translation {
             updateMenusAfterVideoSettingsUpdate();
     }
 
+    public static void themeWasChanged() {
+        if (launched)
+            updateMenusAfterVideoSettingsUpdate();
+    }
+
     private static void updateMenusAfterVideoSettingsUpdate() {
         final Level level = currentLevel == null
                 ? (campaign.getLevelCount() > 0 ? campaign.getLevel() : null)
@@ -114,8 +120,6 @@ public class Translation {
     private static void launch(final boolean[] flags) {
         if (flags[INDEX_INCREMENT_BUILD_VERSION])
             incrementBuildVersion();
-
-        debugger = prepDebugger(flags);
 
         campaign = LevelIO.readCampaign(LevelIO.TUTORIAL_CAMPAIGN_FOLDER);
         final Level level = campaign.getLevel();
@@ -139,11 +143,9 @@ public class Translation {
 
         game = JBJGLGame.create(Info.TITLE, manager,
                 TechnicalSettings.getWidth(), TechnicalSettings.getHeight(),
-                ImageAssets.ICON,
-                true, TechnicalSettings.isFullscreen(),
+                ImageAssets.ICON, true, TechnicalSettings.isFullscreen(),
                 GameplayConstants.UPDATE_HZ, GameplayConstants.TARGET_FPS);
-        gameEngine = game.getGameEngine();
-        gameEngine.overrideDebugger(debugger);
+        game.getGameEngine().overrideDebugger(debugger);
 
         launched = true;
         DebuggerHandler.printMessage("Game launched successfully!", JBJGLGameDebugger.LOGIC_CHANNEL);

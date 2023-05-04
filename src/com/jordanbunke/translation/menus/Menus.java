@@ -103,7 +103,8 @@ public class Menus {
                                 () -> MenuHelper.linkMenu(MenuIDs.INFORMATION, generateInformationMenu()),
                                 () -> MenuHelper.linkMenu(MenuIDs.ARE_YOU_SURE_QUIT_GAME, generateAreYouSureQuitGame())
                         }),
-                MenuHelper.generateDevelopmentInformation()
+                MenuHelper.generateDevelopmentInformation(),
+                MenuHelper.generateMainMenuSplashText()
         );
 
         return MenuHelper.generatePlainMenu(contents);
@@ -160,6 +161,20 @@ public class Menus {
                 new String[] {
                         "DEFAULT CAMERA MODE", "SHOW CAMERA UPDATES",
                         "SHOW COMBO", "SHOW TETHERS"
+                },
+                new String[] {
+                        """
+The camera can either steadily follow
+you (the player), stay glued to you,
+or be fixed in place and manually movable""",
+                        """
+UI element indicating when the camera's
+follow mode has been updated""",
+                        "",
+                        """
+Whether linking tethers between necromancers
+and the sentries that they have reanimated are
+visible or not"""
                 },
                 new String[][] {
                         Arrays.stream(Camera.FollowMode.values())
@@ -227,12 +242,32 @@ public class Menus {
 
     private static JBJGLMenu generateVideoSettingsMenu() {
         final JBJGLMenuElementGrouping contents = MenuHelper.generateListMenuToggleOptions(
-                new String[] { "FULLSCREEN", "PIXEL ALIGNMENT", "TYPEFACE" },
+                new String[] { "FULLSCREEN", "PIXEL ALIGNMENT", "TYPEFACE", "THEME" },
+                new String[] {
+                        """
+The game is optimized to be run on 16:9 screens
+between 720p and 1080p, so running the game on
+fullscreen on a monitor outside of these bounds
+may result in buttons and on-screen information
+being rendered incorrectly.""",
+                        """
+Every "pixel" in from a game art perspective
+is actually rendered onto a 4x4 pixel area.
+Turning on pixel alignment will lock any entity
+onto this 4x4 grid to provide the illusion that
+rendering is actually constrained to those intervals.""",
+                        "",
+                        """
+Different themes have different colour palettes,
+UI element designs, etc."""
+                },
                 new String[][] {
                         new String[] { "ON", "OFF" },
                         new String[] { "ON", "OFF" },
                         Arrays.stream(Fonts.Typeface.values())
-                                .map(Fonts.Typeface::toString).toArray(String[]::new)
+                                .map(Fonts.Typeface::toString).toArray(String[]::new),
+                        Arrays.stream(TechnicalSettings.Theme.values())
+                                .map(TechnicalSettings.Theme::toString).toArray(String[]::new)
                 },
                 new Runnable[][] {
                         new Runnable[] {
@@ -247,12 +282,18 @@ public class Menus {
                                 () -> Fonts.setTypeface(Fonts.getTypeface().next()),
                                 () -> Fonts.setTypeface(Fonts.getTypeface().next()),
                                 () -> Fonts.setTypeface(Fonts.getTypeface().next())
+                        },
+                        new Runnable[] {
+                                () -> TechnicalSettings.setTheme(TechnicalSettings.getTheme().next()),
+                                () -> TechnicalSettings.setTheme(TechnicalSettings.getTheme().next()),
+                                () -> TechnicalSettings.setTheme(TechnicalSettings.getTheme().next())
                         }
                 },
                 new Callable[] {
                         () -> TechnicalSettings.isFullscreen() ? 0 : 1,
                         () -> TechnicalSettings.isPixelAlignment() ? 0 : 1,
-                        () -> Fonts.getTypeface().ordinal()
+                        () -> Fonts.getTypeface().ordinal(),
+                        () -> TechnicalSettings.getTheme().ordinal()
                 }, 1.0);
 
         return MenuHelper.generateBasicMenu(
@@ -265,6 +306,16 @@ public class Menus {
                 new String[] {
                         "UI SOUNDS", "MILESTONE SOUNDS", "PLAYER SOUNDS",
                         "SENTRY SOUNDS", "ENVIRONMENT SOUNDS"
+                },
+                new String[] {
+                        """
+Button presses, editor changes, etc.""",
+                        """
+Level completion, failing a level, etc.""",
+                        "",
+                        "",
+                        """
+Changes to gravity or magnetic field"""
                 },
                 new String[][] {
                         new String[] { "ON", "OFF" },
@@ -310,18 +361,33 @@ public class Menus {
 
     private static JBJGLMenu generateTechnicalSettingsMenu() {
         final JBJGLMenuElementGrouping contents = MenuHelper.generateListMenuToggleOptions(
-                new String[] { "DEBUG MODE" },
+                new String[] { "DEBUG MODE", "EDITOR RETICLE" },
+                new String[] {
+                        """
+Turning on debug mode will display the
+debug log and the frame rate.""",
+                        """
+The indicator in the middle of the screen
+in the level editor that shows what the
+camera is pointing at"""
+                },
                 new String[][] {
-                        new String[] { "ON", "OFF" }
+                        new String[] { "ON", "OFF" },
+                        new String[] { "FANCY", "SIMPLE CROSSHAIR" }
                 },
                 new Runnable[][] {
                         new Runnable[] {
                                 () -> DebugSettings.setPrintDebug(false),
                                 () -> DebugSettings.setPrintDebug(true)
+                        },
+                        new Runnable[] {
+                                () -> TechnicalSettings.setFancyReticle(false),
+                                () -> TechnicalSettings.setFancyReticle(true)
                         }
                 },
                 new Callable[] {
-                        () -> DebugSettings.isPrintDebug() ? 0 : 1
+                        () -> DebugSettings.isPrintDebug() ? 0 : 1,
+                        () -> TechnicalSettings.isFancyReticle() ? 0 : 1
                 }, 1.0);
 
         return MenuHelper.generateBasicMenu(

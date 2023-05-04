@@ -1,0 +1,9 @@
+version:{0.2.1}
+date:{??/05/2023}
+contents:{
++ Added tooltips for settings
++ Added NIGHT and FRACTURED themes
++ Added splash text
++ Enhanced level editor features
+> Made reading from data files (settings) safer
+}

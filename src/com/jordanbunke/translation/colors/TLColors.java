@@ -1,5 +1,7 @@
 package com.jordanbunke.translation.colors;
 
+import com.jordanbunke.translation.settings.TechnicalSettings;
+
 import java.awt.*;
 
 public class TLColors {
@@ -10,19 +12,36 @@ public class TLColors {
     private static final int BACKGROUND_RGB = 20;
 
     private static final Color TITLE_RED = new Color(255, 0, 0, OPAQUE);
-    private static final Color LINK = new Color(0, 0, 255, OPAQUE);
     private static final Color BACKGROUND = new Color(
             BACKGROUND_RGB, BACKGROUND_RGB, BACKGROUND_RGB, OPAQUE);
 
     private static Color background = BACKGROUND;
 
+    // ACCESSORS
+    public static Color getInvertedThemeColor() {
+        return switch (TechnicalSettings.getTheme()) {
+            case CLASSIC, FRACTURED -> TLColors.BLACK();
+            case NIGHT -> TLColors.BACKGROUND();
+        };
+    }
+
+    public static Color getComplementaryMenuTextThemeColor() {
+        return switch (TechnicalSettings.getTheme()) {
+            case CLASSIC, FRACTURED -> TLColors.BLACK();
+            case NIGHT -> TLColors.WHITE();
+        };
+    }
+
+    public static Color getTooltipThemeColor() {
+        return switch (TechnicalSettings.getTheme()) {
+            case CLASSIC, FRACTURED -> TLColors.PLAYER();
+            case NIGHT -> TLColors.WHITE();
+        };
+    }
+
     // COLORS
     public static Color TITLE_RED() {
         return TITLE_RED;
-    }
-
-    public static Color LINK() {
-        return LINK;
     }
 
     public static Color BLACK() {
@@ -86,10 +105,6 @@ public class TLColors {
     }
 
     // SETTERS
-    public static void resetBackground() {
-        background = BACKGROUND;
-    }
-
     public static void setBackgroundToBlack() {
         background = BLACK();
     }

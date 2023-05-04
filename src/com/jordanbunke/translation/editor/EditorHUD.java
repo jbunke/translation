@@ -177,7 +177,7 @@ public class EditorHUD {
         }
 
         public void update() {
-            controlPrompt = generateText(getPromptText(), 1.);
+            controlPrompt = generateText(getPromptText());
         }
 
         public JBJGLImage getControlPrompt() {
@@ -217,7 +217,7 @@ public class EditorHUD {
             final int index = m.ordinal();
             final boolean isMode = m.equals(mode);
 
-            final JBJGLImage modeText = generateText(m.print(), 1.,
+            final JBJGLImage modeText = generateText(m.print(),
                             isMode ? TLColors.BLACK() : TLColors.PLAYER());
 
             widest = Math.max(widest, modeText.getWidth());
@@ -294,31 +294,40 @@ public class EditorHUD {
     ) {
         final int DISTANCE_MARKERS = 3, DISTANCE_INCREMENT = 100, SIZE_INCREMENT = 20;
 
+        final boolean fancyReticle = TechnicalSettings.isFancyReticle();
+
         final int pixel = TechnicalSettings.getPixelSize(),
                 width = TechnicalSettings.getWidth(),
                 height = TechnicalSettings.getHeight();
 
-        final int topDownX = (width / 2) - (pixel / 2),
-                leftRightY = (height / 2) - (pixel / 2);
+        final int horWidth = fancyReticle ? width : pixel * 7,
+                vertHeight = fancyReticle ? height : pixel * 7,
+                vertX = (width / 2) - (pixel / 2),
+                vertY = (height / 2) - (vertHeight / 2),
+                horX = (width / 2) - (horWidth / 2),
+                horY = (height / 2) - (pixel / 2);
 
         g.setColor(Editor.getHighlightedPlatform() == null
                 ? TLColors.PLATFORM() : TLColors.DEBUG());
 
-        g.fillRect(topDownX, 0, pixel, height);
-        g.fillRect(0, leftRightY, width, pixel);
+        g.fillRect(vertX, vertY, pixel, vertHeight);
+        g.fillRect(horX, horY, horWidth, pixel);
+
+        if (!TechnicalSettings.isFancyReticle())
+            return;
 
         for (int i = DISTANCE_MARKERS; i > 0; i--) {
             int distance = i * DISTANCE_INCREMENT,
                     size = ((DISTANCE_MARKERS + 1) - i) * SIZE_INCREMENT;
 
             // top
-            g.fillRect((width / 2) - (size / 2), leftRightY - distance, size, pixel);
+            g.fillRect((width / 2) - (size / 2), horY - distance, size, pixel);
             // bottom
-            g.fillRect((width / 2) - (size / 2), leftRightY + distance, size, pixel);
+            g.fillRect((width / 2) - (size / 2), horY + distance, size, pixel);
             // left
-            g.fillRect(topDownX - distance, (height / 2) - (size / 2), pixel, size);
+            g.fillRect(vertX - distance, (height / 2) - (size / 2), pixel, size);
             // right
-            g.fillRect(topDownX + distance, (height / 2) - (size / 2), pixel, size);
+            g.fillRect(vertX + distance, (height / 2) - (size / 2), pixel, size);
         }
     }
 
@@ -328,7 +337,7 @@ public class EditorHUD {
         final int[] cp = Editor.getCursorPosition();
         final JBJGLImage cpImage = generateText(
                 "(" + cp[RenderConstants.X] + ", " +
-                        cp[RenderConstants.Y] + ")", 1.);
+                        cp[RenderConstants.Y] + ")");
 
         final int buffer = TechnicalSettings.getPixelSize() * 8;
 
@@ -381,9 +390,9 @@ public class EditorHUD {
             final String[] lines = textToRender.split(NEW_LINE);
 
             for (int i = 0; i < lines.length; i++)
-                Anchor.MIDDLE_RIGHT.render(generateText(lines[i], 1.), g, i);
+                Anchor.MIDDLE_RIGHT.render(generateText(lines[i]), g, i);
         } else
-            Anchor.MIDDLE_RIGHT.render(generateText(textToRender, 1.), g, 0.);
+            Anchor.MIDDLE_RIGHT.render(generateText(textToRender), g, 0.);
     }
 
     private static void renderSelectedSentryAsHUD(
@@ -434,7 +443,7 @@ public class EditorHUD {
 
         if (!selectionText.equals(savedSelectionText)) {
             savedSelectionText = selectionText;
-            stImage = generateText(selectionText, 1.);
+            stImage = generateText(selectionText);
         }
 
         final int buffer = TechnicalSettings.getPixelSize() * 8;
@@ -467,17 +476,13 @@ public class EditorHUD {
     }
 
     // HELPERS
-    private static JBJGLImage generateText(
-            final String text, final double textSize
-    ) {
-        return generateText(text, textSize, TLColors.PLAYER());
+    private static JBJGLImage generateText(final String text) {
+        return generateText(text, TLColors.PLAYER());
     }
 
-    private static JBJGLImage generateText(
-            final String text, final double textSize, final Color color
-    ) {
+    private static JBJGLImage generateText(final String text, final Color color) {
         return JBJGLTextBuilder.initialize(
-                textSize, JBJGLText.Orientation.CENTER, color,
+                1., JBJGLText.Orientation.CENTER, color,
                 Fonts.gameStandard()).addText(text).build().draw();
     }
 }

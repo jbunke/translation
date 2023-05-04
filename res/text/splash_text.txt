@@ -1,0 +1,36 @@
+splash:{
+Why do you play games?;
+RIP Neighborhood Nip!;
+Physics, not languages;
+This is my favourite colour;
+Written in Canadian English;
+Protect the Niger Delta!;
+Sei lá mano...;
+Minecraft changed my life;
+Spielt Alphonso Davies noch bei uns?;
+Biscoito ou bolacha?;
+Redefining the term "keyboard warrior";
+Iwo nikan ni mo fe;
+Me gano la vida haciendo negocios;
+No rotation!;
+"Citizen" awaits!;
+Luft nach oben;
+No 419!;
+Soldier of Egbesu;
+Shout out to Mrs. Chung;
+Shout out to Mr. Price;
+Shout out to Mr. Wiegele;
+Shout out to Dr. Pike;
+Snackst du Platt?;
+Like that 30 on my jersey, man, I'm gifted;
+I do this for my cultures;
+Find your preferred theme in the video settings;
+I think the NIGHT theme looks prettiest;
+The CLASSIC theme is best for beginners;
+The FRACTURED theme heightens the tension;
+Planten un Blomen;
+May trigger photosensitive epilepsy!;
+Idiosyncratic;
+Deutscher Meister wird nur der FCB!;
+Você conhece alguém do Acre?
+}
