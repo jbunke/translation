@@ -4,8 +4,12 @@ import com.jordanbunke.jbjgl.contexts.JBJGLMenuManager;
 import com.jordanbunke.jbjgl.events.JBJGLKey;
 import com.jordanbunke.jbjgl.image.JBJGLImage;
 import com.jordanbunke.jbjgl.io.JBJGLFileIO;
+import com.jordanbunke.jbjgl.io.JBJGLListener;
 import com.jordanbunke.jbjgl.menus.JBJGLMenu;
+import com.jordanbunke.jbjgl.menus.JBJGLMenuBuilder;
+import com.jordanbunke.jbjgl.menus.JBJGLMenuSelectionLogic;
 import com.jordanbunke.jbjgl.menus.menu_elements.*;
+import com.jordanbunke.jbjgl.menus.menu_elements.button.JBJGLSimpleMenuButton;
 import com.jordanbunke.jbjgl.sound.JBJGLSound;
 import com.jordanbunke.jbjgl.text.JBJGLText;
 import com.jordanbunke.jbjgl.text.JBJGLTextBuilder;
@@ -37,6 +41,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -50,6 +55,8 @@ public class MenuHelper {
             MARGIN = 20;
 
     public static final String DOES_NOT_EXIST = "!does-not-exist!";
+
+    private static final BiConsumer<JBJGLListener, JBJGLMenu> SELECTION_LOGIC = JBJGLMenuSelectionLogic.basic();
 
     private enum Context {
         MY_LEVELS(true),
@@ -114,7 +121,7 @@ public class MenuHelper {
             final String title, final String subtitle,
             final JBJGLMenuElementGrouping contents, final String backMenuID
     ) {
-        return JBJGLMenu.of(
+        return JBJGLMenuBuilder.build(JBJGLMenuElementGrouping.generateOf(
                 // visual render order
                 generateElementBackground(),
                 title.equals(DOES_NOT_EXIST)
@@ -126,16 +133,16 @@ public class MenuHelper {
                 backMenuID.equals(DOES_NOT_EXIST)
                         ? JBJGLPlaceholderMenuElement.generate()
                         : generateBackButton(backMenuID),
-                contents);
+                contents), SELECTION_LOGIC);
     }
 
     public static JBJGLMenu generatePlainMenu(
             final JBJGLMenuElementGrouping contents
     ) {
-        return JBJGLMenu.of(
+        return JBJGLMenuBuilder.build(JBJGLMenuElementGrouping.generateOf(
                 // visual render order
                 generateElementBackground(),
-                contents);
+                contents), SELECTION_LOGIC);
     }
 
     public static JBJGLMenu generateAreYouSureMenu(
@@ -506,7 +513,7 @@ public class MenuHelper {
             frames[i] = JBJGLImage.create(frameWidth, frameHeight);
         }
 
-        return JBJGLMenu.of(
+        return JBJGLMenuBuilder.build(JBJGLMenuElementGrouping.generateOf(
                 // behaviour
                 JBJGLTimedMenuElement.generate(
                         (paddingFrameCount * ticksPerFrame) +
@@ -524,7 +531,8 @@ public class MenuHelper {
                         new int[] { frameWidth, frameHeight },
                         JBJGLMenuElement.Anchor.LEFT_TOP,
                         ticksPerFrame,
-                        frames));
+                        frames)
+        ), SELECTION_LOGIC);
     }
 
     // element generators
@@ -725,7 +733,7 @@ public class MenuHelper {
     public static JBJGLMenuElementGrouping generateSentryButtons() {
         final int COLUMNS = 4, INITIAL_Y = LIST_MENU_INITIAL_Y + (listMenuIncrementY() / 2);
         final Sentry.Role[] roles = Sentry.Role.values();
-        final JBJGLClickableMenuElement[] menuElements = new JBJGLClickableMenuElement[roles.length];
+        final JBJGLSimpleMenuButton[] menuElements = new JBJGLSimpleMenuButton[roles.length];
 
         for (int i = 0; i < roles.length; i++) {
             final int column = i % COLUMNS;
@@ -1068,7 +1076,7 @@ public class MenuHelper {
             elements[elements.length - 1] = nextPageButton;
     }
 
-    private static JBJGLClickableMenuElement generateSentryButton(
+    private static JBJGLSimpleMenuButton generateSentryButton(
             final int x, final int y, final Sentry.Role role, final int buttonWidth
     ) {
         final JBJGLImage nonHighlightedButton =
@@ -1115,14 +1123,13 @@ public class MenuHelper {
             default -> Sounds.BUTTON_CLICK;
         };
 
-        return JBJGLClickableMenuElement.generate(
+        return JBJGLSimpleMenuButton.generate(
                 new int[] { x, y }, new int[] { width, height },
-                JBJGLMenuElement.Anchor.CENTRAL_TOP,
-                nonHighlightedButton, highlightedButton,
+                JBJGLMenuElement.Anchor.CENTRAL_TOP, true,
                 () -> {
                     Sounds.playUISound(sound);
                     linkMenu(MenuIDs.SENTRY_ROLE_GM, generateSentryRoleWikiPage(role));
-                });
+                }, nonHighlightedButton, highlightedButton);
     }
 
     public static ConditionalMenuElement generateConditionalButton(
@@ -1421,7 +1428,7 @@ public class MenuHelper {
         return generateTextButtonStub(heading, position, anchor, buttonWidth);
     }
 
-    private static JBJGLClickableMenuElement generateTextButton(
+    private static JBJGLSimpleMenuButton generateTextButton(
             final String heading, final int[] position,
             final JBJGLMenuElement.Anchor anchor,
             final int buttonWidth, final Runnable behaviour
@@ -1436,9 +1443,9 @@ public class MenuHelper {
             behaviour.run();
         };
 
-        return JBJGLClickableMenuElement.generate(position,
+        return JBJGLSimpleMenuButton.generate(position,
                 new int[] { buttonWidth, nonHighlightedButton.getHeight() }, anchor,
-                nonHighlightedButton, highlightedButton, behaviourWithClickSound);
+                true, behaviourWithClickSound, nonHighlightedButton, highlightedButton);
     }
 
     private static JBJGLStaticMenuElement generateTextButtonStub(
