@@ -56,7 +56,23 @@ public class MenuHelper {
 
     public static final String DOES_NOT_EXIST = "!does-not-exist!";
 
-    private static final BiConsumer<JBJGLListener, JBJGLMenu> SELECTION_LOGIC = JBJGLMenuSelectionLogic.basic();
+    private static final BiConsumer<JBJGLListener, JBJGLMenu> SELECTION_LOGIC = JBJGLMenuSelectionLogic.generate(
+            () -> List.of(
+                    ControlScheme.getCorrespondingKey(ControlScheme.Action.INIT_TELEPORT),
+                    JBJGLKey.ENTER),
+            () -> List.of(
+                    ControlScheme.getCorrespondingKey(ControlScheme.Action.MOVE_LEFT),
+                    ControlScheme.getCorrespondingKey(ControlScheme.Action.MOVE_CAM_LEFT)),
+            () -> List.of(
+                    ControlScheme.getCorrespondingKey(ControlScheme.Action.MOVE_RIGHT),
+                    ControlScheme.getCorrespondingKey(ControlScheme.Action.MOVE_CAM_RIGHT)),
+            () -> List.of(
+                    ControlScheme.getCorrespondingKey(ControlScheme.Action.JUMP),
+                    ControlScheme.getCorrespondingKey(ControlScheme.Action.MOVE_CAM_UP)),
+            () -> List.of(
+                    ControlScheme.getCorrespondingKey(ControlScheme.Action.DROP),
+                    ControlScheme.getCorrespondingKey(ControlScheme.Action.MOVE_CAM_DOWN))
+    );
 
     private enum Context {
         MY_LEVELS(true),
