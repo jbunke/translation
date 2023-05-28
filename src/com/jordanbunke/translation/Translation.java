@@ -57,7 +57,7 @@ public class Translation {
 
         SettingsIO.read();
 
-        launch(processArgs(args));
+        launch(flags);
     }
 
     private static boolean[] processArgs(final String[] args) {
